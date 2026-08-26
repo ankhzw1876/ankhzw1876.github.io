@@ -516,6 +516,9 @@ html { scroll-behavior: smooth; }
   letter-spacing: -.035em;
   text-wrap: balance;
 }
+.hero-title-line,
+.section-title-line { display: block; }
+.hero-title-line:last-child { white-space: nowrap; }
 .hero h1 em {
   color: var(--accent);
   font-style: normal;
@@ -561,10 +564,28 @@ html { scroll-behavior: smooth; }
 .button.primary:hover { background: var(--accent); border-color: var(--accent); }
 
 .hero-aside {
-  padding-top: 18px;
-  border-top: 2px solid var(--ink);
+  padding-top: 0;
+}
+.hero-portrait {
+  width: min(100%, 220px);
+  aspect-ratio: 1;
+  margin: 0 auto 34px;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  background: var(--bg-soft);
+}
+.hero-portrait:empty { display: none; }
+.hero-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(.9) contrast(1.02);
 }
 .hero-aside-label {
+  padding-top: 20px;
+  border-top: 2px solid var(--ink);
   margin: 0 0 18px;
   color: var(--ink-mute);
   font-size: 12px;
@@ -766,8 +787,9 @@ html { scroll-behavior: smooth; }
 
 @media (max-width: 600px) {
   .topnav nav a:nth-child(4) { display: none; }
-  .hero h1 { font-size: 40px; }
+  .hero h1 { font-size: clamp(36px, 10vw, 40px); }
   .hero-copy { font-size: 15px; }
+  .hero-portrait { width: 160px; margin-left: 0; }
   .home-cards { display: grid; }
   .home-card { grid-template-columns: 52px 1fr auto; }
   .section-head { margin-bottom: 24px; }
@@ -800,7 +822,10 @@ html { scroll-behavior: smooth; }
   <section class="hero" aria-labelledby="hero-title">
     <div>
       <p class="hero-kicker">AI Product Manager · Shanghai / Remote</p>
-      <h1 id="hero-title">把模型能力，变成<em>有人愿意反复使用</em>的产品。</h1>
+      <h1 id="hero-title">
+        <span class="hero-title-line">把模型能力，</span>
+        <span class="hero-title-line">做成<em>有人用</em>的产品。</span>
+      </h1>
       <p class="hero-copy">我是王天宇，一名 AI 产品经理。我关注 Agent、RAG、模型评估与数据策略，也用真实项目追问一件事：一个能跑的 Demo，怎样才能成为稳定、可衡量、愿意被每天使用的产品。
       </p>
       <div class="hero-actions">
@@ -809,6 +834,7 @@ html { scroll-behavior: smooth; }
       </div>
     </div>
     <aside class="hero-aside" aria-label="当前关注方向">
+      <div class="hero-portrait"></div>
       <p class="hero-aside-label">CURRENT FOCUS / 2026</p>
       <ul class="focus-list">
         <li>Agent 从 Demo 到产品化</li>
@@ -836,11 +862,11 @@ html { scroll-behavior: smooth; }
       </div>
       <span class="hc-arrow">→</span>
     </a>
-    <a class="home-card" href="https://github.com/ankhzw1876?tab=repositories" target="_blank" rel="noopener">
-      <div class="hc-num" data-count="stars">37</div>
+    <a class="home-card" href="https://www.xiaohongshu.com/user/profile/608b486a0000000001004399" target="_blank" rel="noopener">
+      <div class="hc-num">—</div>
       <div class="hc-meta">
-        <h3>GitHub Stars</h3>
-        <p>原创公开项目的真实累计</p>
+        <h3>知识吞吐</h3>
+        <p>AI 概念、产品观察与学习笔记</p>
       </div>
       <span class="hc-arrow">→</span>
     </a>
@@ -850,7 +876,10 @@ html { scroll-behavior: smooth; }
     <div class="section-head">
       <div>
         <p class="section-kicker">Selected Work</p>
-        <h2 id="work-title">不只写观点，也把问题做成可用的东西。</h2>
+        <h2 id="work-title">
+          <span class="section-title-line">不只写观点，</span>
+          <span class="section-title-line">也把问题做成可用的东西。</span>
+        </h2>
       </div>
       <p class="section-intro">这里不罗列全部仓库，只放能代表当前关注方向的作品：一个内容生产工作流、一套训练知识系统，和一个可交互的小型实验。
       </p>
@@ -1009,6 +1038,15 @@ html { scroll-behavior: smooth; }
   var year = document.querySelector('[data-year]');
   if (year) year.textContent = new Date().getFullYear();
 
+  // 把已有的真实头像从侧栏移到首屏；JS 失效时仍保留侧栏原位。
+  var heroPortrait = document.querySelector('.hero-portrait');
+  var avatar = document.querySelector('.about-avatar-ph img');
+  if (heroPortrait && avatar) {
+    var avatarFrame = avatar.parentElement;
+    heroPortrait.appendChild(avatar);
+    if (avatarFrame) avatarFrame.hidden = true;
+  }
+
   fetch('https://api.github.com/users/ankhzw1876')
     .then(function (r) { return r.json(); })
     .then(function (d) {
@@ -1023,11 +1061,6 @@ html { scroll-behavior: smooth; }
     .then(function (r) { return r.json(); })
     .then(function (repos) {
       if (!Array.isArray(repos)) return;
-      var originals = repos.filter(function (repo) { return !repo.fork; });
-      var totalStars = originals.reduce(function (sum, repo) { return sum + repo.stargazers_count; }, 0);
-      var stars = document.querySelector('[data-count="stars"]');
-      if (stars) stars.textContent = totalStars;
-
       document.querySelectorAll('[data-repo-stars]').forEach(function (el) {
         var name = el.getAttribute('data-repo-stars');
         var repo = repos.find(function (item) { return item.name === name; });
