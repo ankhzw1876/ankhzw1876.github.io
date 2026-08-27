@@ -823,7 +823,7 @@ html { scroll-behavior: smooth; }
   --peach: oklch(0.91 0.055 49);
   --tobacco: oklch(0.31 0.055 48);
   --tobacco-soft: oklch(0.37 0.055 48);
-  --max: 1180px;
+  --max: 1640px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1240,6 +1240,76 @@ footer.site-foot {
 }
 footer.site-foot a { color: var(--bg); }
 footer.site-foot .copyright { color: color-mix(in oklch, var(--bg) 48%, transparent); }
+
+/* Wide editorial canvas: use large screens without stretching reading lines. */
+@media (min-width: 1180px) {
+  .wrap { padding-inline: clamp(34px, 3.2vw, 54px); }
+
+  .hero {
+    grid-template-columns: minmax(0, 1.58fr) minmax(340px, .42fr);
+    gap: clamp(76px, 6.5vw, 126px);
+    min-height: 790px;
+    padding: 108px 0 82px;
+  }
+  .hero::before {
+    width: min(1040px, 68vw);
+    height: 610px;
+    left: 12%;
+    top: 34px;
+  }
+  .hero h1 {
+    max-width: 1040px;
+    font-size: clamp(76px, 5.2vw, 98px);
+  }
+  .hero-copy { max-width: 830px; font-size: 18px; }
+  .hero-proof { max-width: 1010px; gap: 14px; }
+  .proof-card { min-height: 132px; padding: 19px 20px; }
+
+  .hero-aside {
+    width: 100%;
+    max-width: 420px;
+    justify-self: end;
+    padding: 10px 0 8px 38px;
+    border-left: 1px solid var(--rule);
+  }
+  .hero-portrait,
+  .portrait-caption {
+    width: min(100%, 340px);
+    margin-left: 0;
+  }
+  .portrait-caption { text-align: left; }
+
+  .home-card { min-height: 126px; padding-inline: 34px; }
+  .home-card:hover { padding-left: 42px; }
+
+  .chapter-band .chapter-inner { max-width: 1240px; }
+  .chapter-band blockquote { font-size: clamp(58px, 4.7vw, 82px); }
+
+  .section-head {
+    grid-template-columns: minmax(0, 1.35fr) minmax(330px, .65fr);
+    gap: clamp(72px, 8vw, 150px);
+  }
+  .section-head h2 { max-width: 980px; font-size: clamp(48px, 3.7vw, 68px); }
+  .section-intro { max-width: 480px; justify-self: end; }
+
+  .project-list { gap: 28px; }
+  .project-card.featured {
+    grid-template-columns: minmax(0, 1.38fr) minmax(390px, .62fr);
+  }
+  .project-card.featured .project-visual { min-height: 520px; }
+  .project-visual { min-height: 360px; }
+  .project-card.featured .project-body { padding: 48px 48px 42px; }
+  .project-card.featured .project-title { font-size: clamp(40px, 3vw, 52px); }
+
+  .method-item { min-height: 280px; padding-right: 54px; }
+  .method-item p { max-width: 380px; }
+
+  .cols {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: clamp(86px, 7vw, 132px);
+  }
+  .entry-excerpt { max-width: 860px; }
+}
 
 @media (max-width: 980px) {
   .hero { grid-template-columns: minmax(0, 1.2fr) minmax(240px, .8fr); gap: 44px; }
