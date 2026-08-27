@@ -1400,6 +1400,19 @@ footer.site-foot .copyright { color: color-mix(in oklch, var(--bg) 48%, transpar
   .sidebar { grid-template-columns: 1fr; }
 }
 
+/* Keep the How I Work statement intact on desktop. */
+@media (min-width: 981px) {
+  .method-section .section-head {
+    grid-template-columns: minmax(0, 1.5fr) minmax(280px, .5fr);
+    gap: clamp(48px, 6vw, 108px);
+  }
+  .method-section .section-head h2 {
+    font-size: clamp(42px, 3.2vw, 60px);
+    letter-spacing: -.04em;
+    white-space: nowrap;
+  }
+}
+
 /* ---------- v3.2: motion system ----------
    Steep: floating evidence with physical weight.
    Grafik: editorial curtain reveals and image-led focus.
