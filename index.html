@@ -799,6 +799,535 @@ html { scroll-behavior: smooth; }
   .project-meta { grid-column: 2 / 4; }
   .cols { padding-top: 64px; }
 }
+
+/* ---------- v3: warm editorial portfolio ----------
+   Assumptions
+   - Keep the existing warm-paper identity, portrait, copy and verified public data.
+   - Use Steep's editorial hierarchy and floating evidence, not its SaaS shell.
+   - Use Maëlan Le Meur's chapter rhythm and destroytoday's image-led case studies.
+   - Project imagery comes from each repository's real GitHub Open Graph preview.
+   -------------------------------------------------- */
+:root {
+  --bg: oklch(0.982 0.008 72);
+  --bg-soft: oklch(0.958 0.012 72);
+  --bg-soft-2: oklch(0.925 0.018 68);
+  --ink: oklch(0.22 0.018 42);
+  --ink-soft: oklch(0.36 0.018 42);
+  --ink-mute: oklch(0.55 0.016 44);
+  --ink-faint: oklch(0.68 0.014 50);
+  --rule: oklch(0.895 0.014 70);
+  --accent: oklch(0.55 0.135 42);
+  --accent-hover: oklch(0.47 0.13 42);
+  --accent-soft: oklch(0.87 0.055 50 / .42);
+  --accent-line: oklch(0.55 0.135 42 / .34);
+  --peach: oklch(0.91 0.055 49);
+  --tobacco: oklch(0.31 0.055 48);
+  --tobacco-soft: oklch(0.37 0.055 48);
+  --max: 1180px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: oklch(0.982 0.008 72);
+    --bg-soft: oklch(0.958 0.012 72);
+    --bg-soft-2: oklch(0.925 0.018 68);
+    --ink: oklch(0.22 0.018 42);
+    --ink-soft: oklch(0.36 0.018 42);
+    --ink-mute: oklch(0.55 0.016 44);
+    --ink-faint: oklch(0.68 0.014 50);
+    --rule: oklch(0.895 0.014 70);
+    --accent: oklch(0.55 0.135 42);
+    --accent-hover: oklch(0.47 0.13 42);
+  }
+}
+
+html { scroll-padding-top: 88px; }
+body { overflow-x: hidden; }
+body::before { height: 3px; }
+.wrap { padding-inline: 34px; }
+
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 16px 0;
+  background: color-mix(in oklch, var(--bg) 91%, transparent);
+  backdrop-filter: blur(16px) saturate(1.08);
+}
+.topnav .row { min-height: 42px; }
+.topnav .brand { font-size: 31px; font-weight: 600; }
+.topnav .brand .tagline { font-size: 12px; letter-spacing: .08em; }
+.topnav nav { align-items: center; gap: 24px; }
+.topnav nav a { position: relative; }
+.topnav nav a:not(.nav-ext)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: -8px;
+  height: 1px;
+  background: var(--accent);
+  transition: right .22s ease;
+}
+.topnav nav a:hover::after,
+.topnav nav a.active::after { right: 0; }
+.topnav nav a.nav-ext {
+  border-radius: 999px;
+  padding: 5px 13px;
+  background: color-mix(in oklch, var(--bg) 72%, white);
+}
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  grid-template-columns: minmax(0, 1.42fr) minmax(280px, .58fr);
+  gap: clamp(54px, 7vw, 94px);
+  align-items: center;
+  min-height: 720px;
+  padding: 94px 0 70px;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: min(780px, 72vw);
+  height: 520px;
+  left: 18%;
+  top: 42px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 62% 42%, oklch(0.89 0.085 46 / .8), transparent 42%),
+    radial-gradient(circle at 32% 64%, oklch(0.94 0.04 75 / .9), transparent 48%);
+  filter: blur(34px);
+  pointer-events: none;
+}
+.hero-main { position: relative; z-index: 2; }
+.hero h1 {
+  max-width: 820px;
+  font-size: clamp(54px, 5.7vw, 84px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -.048em;
+}
+.hero-copy {
+  max-width: 720px;
+  margin-top: 30px;
+  font-size: 17px;
+  line-height: 1.95;
+}
+.button {
+  min-height: 46px;
+  padding-inline: 20px;
+  border-radius: 999px;
+}
+.hero-proof {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  max-width: 760px;
+  margin-top: 46px;
+}
+.proof-card {
+  min-height: 118px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 17px;
+  border: 1px solid color-mix(in oklch, var(--rule) 82%, var(--accent));
+  border-radius: 16px;
+  background: color-mix(in oklch, var(--bg) 83%, white 17%);
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow: 0 18px 46px oklch(0.28 0.03 45 / .055);
+  transition: transform .22s ease, border-color .22s ease, background .22s ease;
+}
+.proof-card:nth-child(2) { transform: translateY(13px); }
+.proof-card:hover {
+  color: var(--ink);
+  text-decoration: none;
+  transform: translateY(-4px);
+  border-color: var(--accent-line);
+  background: color-mix(in oklch, var(--peach) 42%, var(--bg));
+}
+.proof-card:nth-child(2):hover { transform: translateY(9px); }
+.proof-eyebrow {
+  color: var(--accent);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+}
+.proof-card strong {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.proof-meta { color: var(--ink-mute); font-size: 11px; }
+
+.hero-aside { padding-top: 10px; }
+.hero-portrait {
+  position: relative;
+  width: min(100%, 286px);
+  aspect-ratio: 4 / 5;
+  margin: 0 0 16px auto;
+  border: 1px solid var(--rule);
+  border-radius: 22px;
+  background: var(--bg-soft);
+  box-shadow: 0 26px 70px oklch(0.26 0.03 45 / .12);
+}
+.hero-portrait img {
+  object-position: center 28%;
+  border-radius: inherit !important;
+  filter: saturate(.84) contrast(1.03);
+}
+.portrait-caption {
+  width: min(100%, 286px);
+  margin: 0 0 34px auto;
+  color: var(--ink-mute);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  line-height: 1.5;
+  letter-spacing: .12em;
+  text-align: right;
+}
+.hero-aside-label { padding-top: 18px; }
+
+.home-cards {
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.home-card {
+  min-height: 112px;
+  padding: 24px 28px;
+  border: 0;
+  border-radius: 0;
+}
+.home-card + .home-card { border-left: 1px solid var(--rule); }
+.home-card:hover { padding-left: 34px; background: var(--bg-soft); transform: none; }
+
+.chapter-band {
+  width: 100vw;
+  margin: 82px calc(50% - 50vw) 0;
+  padding: clamp(74px, 9vw, 128px) max(34px, calc((100vw - var(--max)) / 2 + 34px));
+  background: var(--tobacco);
+  color: var(--bg);
+}
+.chapter-band .chapter-inner {
+  max-width: 970px;
+  margin: 0 auto;
+}
+.chapter-band .chapter-kicker {
+  margin: 0 0 24px;
+  color: color-mix(in oklch, var(--peach) 78%, white);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+}
+.chapter-band blockquote {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(36px, 5.2vw, 70px);
+  font-weight: 400;
+  line-height: 1.18;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.chapter-band .chapter-note {
+  max-width: 580px;
+  margin: 32px 0 0 auto;
+  color: color-mix(in oklch, var(--bg) 70%, transparent);
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.work-section { padding: 104px 0 24px; }
+.section-head { margin-bottom: 46px; }
+.section-head h2 { font-size: clamp(38px, 4vw, 56px); font-weight: 600; }
+.section-intro { max-width: 430px; font-size: 15px; }
+.project-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  border-top: 0;
+}
+.project-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0;
+  border: 1px solid var(--rule);
+  border-radius: 22px;
+  overflow: hidden;
+  background: color-mix(in oklch, var(--bg) 70%, white);
+  transition: transform .26s ease, border-color .26s ease, box-shadow .26s ease;
+}
+.project-card:hover {
+  padding-left: 0;
+  transform: translateY(-5px);
+  border-color: var(--accent-line);
+  box-shadow: 0 24px 70px oklch(0.27 0.03 45 / .09);
+}
+.project-card.featured {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(340px, .88fr);
+}
+.project-visual {
+  min-height: 294px;
+  overflow: hidden;
+  background: var(--bg-soft-2);
+}
+.project-card.featured .project-visual { min-height: 440px; }
+.project-visual img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform .55s cubic-bezier(.2,.7,.2,1), filter .3s ease;
+}
+.project-card:hover .project-visual img { transform: scale(1.018); filter: saturate(1.03); }
+.project-cover {
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 30px;
+  background:
+    linear-gradient(135deg, color-mix(in oklch, var(--peach) 62%, var(--bg)), var(--bg-soft)),
+    var(--bg-soft);
+  color: var(--ink);
+}
+.project-cover .cover-label {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: .14em;
+  color: var(--accent);
+}
+.project-cover strong {
+  max-width: 420px;
+  font-family: var(--serif);
+  font-size: clamp(31px, 4vw, 54px);
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: -.03em;
+}
+.project-cover .cover-foot {
+  padding-top: 16px;
+  border-top: 1px solid var(--accent-line);
+  color: var(--ink-mute);
+  font-size: 11px;
+}
+.project-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 28px 30px 30px;
+}
+.project-card.featured .project-body { padding: 38px 38px 34px; justify-content: center; }
+.project-top,
+.project-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.project-index { font-size: 27px; }
+.project-type {
+  color: var(--ink-mute);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+}
+.project-title { margin-top: 42px; font-size: 29px; }
+.project-card.featured .project-title { margin-top: 62px; font-size: clamp(31px, 3vw, 43px); }
+.project-desc { font-size: 15px; line-height: 1.85; }
+.project-footer { margin-top: auto; padding-top: 30px; }
+.project-meta span { border: 0; padding: 0; }
+.project-meta span + span::before { content: "·"; margin-right: 7px; color: var(--ink-faint); }
+.project-arrow {
+  flex: 0 0 auto;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+}
+
+.method-section { padding: 118px 0 42px; }
+.method-grid { border-top-width: 1px; }
+.method-item { min-height: 252px; padding-top: 34px; }
+.method-num { margin-bottom: 56px; }
+.method-item h3 { font-size: 22px; font-weight: 600; }
+
+.cols {
+  grid-template-columns: minmax(0, 1fr) 292px;
+  gap: 86px;
+  padding: 118px 0 96px;
+}
+.feed-head {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  margin-bottom: 0;
+  padding: 0 0 26px;
+  border-bottom: 2px solid var(--ink);
+}
+.feed-head::before {
+  content: "Writing / Notes";
+  grid-column: 1 / -1;
+  margin-bottom: 16px;
+  color: var(--accent);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.feed-head h2 { font-size: clamp(34px, 3.5vw, 48px); font-weight: 600; }
+.feed article.entry {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  column-gap: 24px;
+  padding: 31px 0 32px;
+  margin: 0;
+}
+.feed article.entry::before {
+  content: attr(data-index);
+  grid-column: 1;
+  grid-row: 1 / 5;
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.4;
+}
+.entry-title,
+.entry-meta,
+.entry-excerpt,
+.entry-more { grid-column: 2; }
+.entry-title { font-size: 26px; line-height: 1.42; }
+.entry-meta { order: -1; margin-bottom: 12px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+.entry-meta .cat { background: transparent; border: 1px solid var(--rule); border-radius: 999px; }
+.entry-excerpt { max-width: 690px; margin-bottom: 10px; }
+.entry.draft {
+  padding: 30px 22px 30px 0;
+  background: linear-gradient(90deg, color-mix(in oklch, var(--peach) 46%, var(--bg)), transparent 92%);
+  border-top: 0;
+}
+.entry.draft .entry-title { font-size: 27px; }
+
+.sidebar { padding-top: 71px; }
+.sidebar .widget { margin-bottom: 42px; }
+.sidebar .about-box,
+.wechat-box {
+  border-radius: 16px;
+  background: color-mix(in oklch, var(--bg-soft) 74%, white);
+}
+.sidebar .about-box { padding: 22px; text-align: left; }
+.about-avatar-ph[hidden] { display: none !important; }
+.sidebar .widget h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; }
+.about-focus span { border-radius: 999px; padding-inline: 9px; }
+.wechat-box { padding: 18px; }
+
+footer.site-foot {
+  padding: 48px 0 56px;
+  background: var(--tobacco);
+  border-top: 0;
+  color: color-mix(in oklch, var(--bg) 66%, transparent);
+}
+footer.site-foot a { color: var(--bg); }
+footer.site-foot .copyright { color: color-mix(in oklch, var(--bg) 48%, transparent); }
+
+@media (max-width: 980px) {
+  .hero { grid-template-columns: minmax(0, 1.2fr) minmax(240px, .8fr); gap: 44px; }
+  .hero h1 { font-size: clamp(48px, 6.2vw, 68px); }
+  .hero-proof { grid-template-columns: 1fr 1fr; }
+  .proof-card:nth-child(2) { transform: none; }
+  .proof-card:nth-child(2):hover { transform: translateY(-4px); }
+  .proof-card:last-child { grid-column: 1 / -1; min-height: 92px; }
+  .project-card.featured { grid-template-columns: 1fr 1fr; }
+  .cols { gap: 54px; }
+}
+
+@media (max-width: 840px) {
+  .wrap { padding-inline: 24px; }
+  .hero { min-height: 0; grid-template-columns: 1fr; padding: 70px 0 58px; }
+  .hero::before { left: -5%; top: 50px; width: 100%; height: 440px; }
+  .hero-aside {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    gap: 24px 34px;
+    align-items: start;
+    max-width: none;
+  }
+  .hero-portrait { width: 210px; margin: 0; grid-row: 1 / 4; }
+  .portrait-caption { display: none; }
+  .hero-aside-label { margin-top: 0; }
+  .project-card.featured { grid-template-columns: 1fr; }
+  .project-card.featured .project-visual { min-height: 360px; }
+  .cols { grid-template-columns: 1fr; gap: 60px; }
+  .sidebar { padding-top: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .sidebar .widget { margin: 0; }
+  .sidebar .widget:nth-child(n+3) { display: none; }
+}
+
+@media (max-width: 650px) {
+  .wrap { padding-inline: 18px; }
+  .topnav { padding: 12px 0; }
+  .topnav .brand { font-size: 24px; }
+  .topnav nav { gap: 13px; }
+  .topnav nav a:nth-child(4),
+  .topnav nav a.nav-ext { display: none; }
+  .hero { display: flex; flex-direction: column; gap: 0; padding-top: 54px; }
+  .hero-main { display: contents; }
+  .hero-kicker { order: 1; align-self: stretch; }
+  .hero h1 { order: 2; }
+  .hero-copy { order: 3; }
+  .hero-actions { order: 4; }
+  .hero-aside { order: 5; margin-top: 44px; }
+  .hero-proof { order: 6; }
+  .hero h1 { font-size: clamp(40px, 12.2vw, 56px); line-height: 1.12; }
+  .hero-title-line:last-child { white-space: normal; }
+  .hero-copy { font-size: 15px; line-height: 1.85; }
+  .hero-proof { grid-template-columns: 1fr; gap: 9px; margin-top: 36px; }
+  .proof-card,
+  .proof-card:last-child { grid-column: auto; min-height: 88px; }
+  .hero-aside { grid-template-columns: 118px 1fr; gap: 12px 20px; }
+  .hero-portrait { width: 118px; border-radius: 16px; }
+  .hero-aside-label { padding-top: 12px; font-size: 10px; }
+  .focus-list li { padding: 9px 0; font-size: 12px; }
+  .hero-note { grid-column: 1 / -1; margin-top: 4px; }
+  .home-cards { grid-template-columns: 1fr; }
+  .home-card { min-height: 90px; }
+  .home-card + .home-card { border-left: 0; border-top: 1px solid var(--rule); }
+  .chapter-band { margin-top: 64px; padding: 72px 22px; }
+  .chapter-band blockquote { font-size: clamp(34px, 10vw, 48px); }
+  .chapter-band .chapter-note { margin-left: 0; }
+  .work-section { padding-top: 78px; }
+  .section-head h2 { font-size: 37px; }
+  .project-list { grid-template-columns: 1fr; }
+  .project-card.featured { grid-column: auto; }
+  .project-visual,
+  .project-card.featured .project-visual { min-height: 245px; }
+  .project-body,
+  .project-card.featured .project-body { padding: 24px 22px 25px; }
+  .project-title,
+  .project-card.featured .project-title { margin-top: 34px; font-size: 26px; }
+  .project-footer { align-items: flex-end; }
+  .project-meta { gap: 5px; }
+  .method-section { padding-top: 82px; }
+  .method-item { min-height: 0; }
+  .cols { padding-top: 86px; }
+  .feed article.entry { grid-template-columns: 38px minmax(0, 1fr); column-gap: 13px; }
+  .feed article.entry::before { font-size: 17px; }
+  .entry-title,
+  .entry.draft .entry-title { font-size: 21px; }
+  .entry-excerpt { font-size: 14px; }
+  .sidebar { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -820,7 +1349,7 @@ html { scroll-behavior: smooth; }
 
 <div class="wrap" id="main-content">
   <section class="hero" aria-labelledby="hero-title">
-    <div>
+    <div class="hero-main">
       <p class="hero-kicker">AI Product Manager · Shanghai / Remote</p>
       <h1 id="hero-title">
         <span class="hero-title-line">把模型能力，</span>
@@ -832,9 +1361,27 @@ html { scroll-behavior: smooth; }
         <a class="button primary" href="#work">看精选作品 ↓</a>
         <a class="button" href="https://www.woshipm.com/u/1663812" target="_blank" rel="noopener">读我的文章 ↗</a>
       </div>
+      <div class="hero-proof" aria-label="代表作品">
+        <a class="proof-card" href="https://github.com/ankhzw1876/ai-concept-xhs-skill" target="_blank" rel="noopener">
+          <span class="proof-eyebrow">01 / CONTENT WORKFLOW</span>
+          <strong>把 AI 概念拆成可复用的内容生产流程</strong>
+          <span class="proof-meta"><span data-repo-stars="ai-concept-xhs-skill">★ 8</span> · OPEN SOURCE ↗</span>
+        </a>
+        <a class="proof-card" href="https://github.com/ankhzw1876/llm-training-notes" target="_blank" rel="noopener">
+          <span class="proof-eyebrow">02 / KNOWLEDGE SYSTEM</span>
+          <strong>从训练方法回到 AI 产品决策</strong>
+          <span class="proof-meta"><span data-repo-stars="llm-training-notes">★ 6</span> · NOTES ↗</span>
+        </a>
+        <a class="proof-card" href="https://github.com/ankhzw1876/joker-game" target="_blank" rel="noopener">
+          <span class="proof-eyebrow">03 / INTERACTION</span>
+          <strong>用一个浏览器游戏练习完整交付闭环</strong>
+          <span class="proof-meta"><span data-repo-stars="joker-game">★ 6</span> · LIVE PROJECT ↗</span>
+        </a>
+      </div>
     </div>
     <aside class="hero-aside" aria-label="当前关注方向">
       <div class="hero-portrait"></div>
+      <p class="portrait-caption">WANG TIANYU<br>AI PRODUCT MANAGER / SHANGHAI</p>
       <p class="hero-aside-label">CURRENT FOCUS / 2026</p>
       <ul class="focus-list">
         <li>Agent 从 Demo 到产品化</li>
@@ -872,6 +1419,14 @@ html { scroll-behavior: smooth; }
     </a>
   </div>
 
+  <section class="chapter-band" aria-label="个人产品观">
+    <div class="chapter-inner">
+      <p class="chapter-kicker">Product belief / 01</p>
+      <blockquote>想法只有落到使用里，才算产品的一部分。</blockquote>
+      <p class="chapter-note">所以这里同时放观点、项目和方法。文章说明我如何判断，作品证明我怎样把判断变成可以运行、被检验的东西。</p>
+    </div>
+  </section>
+
   <section class="work-section" id="work" aria-labelledby="work-title">
     <div class="section-head">
       <div>
@@ -886,32 +1441,51 @@ html { scroll-behavior: smooth; }
     </div>
 
     <div class="project-list">
-      <a class="project-card" href="https://github.com/ankhzw1876/ai-concept-xhs-skill" target="_blank" rel="noopener">
-        <span class="project-index">01</span>
-        <div>
+      <a class="project-card featured" href="https://github.com/ankhzw1876/ai-concept-xhs-skill" target="_blank" rel="noopener">
+        <div class="project-visual">
+          <img src="https://opengraph.githubassets.com/1/ankhzw1876/ai-concept-xhs-skill" alt="AI Concept XHS Skill 的 GitHub 项目预览" loading="eager">
+        </div>
+        <div class="project-body">
+          <div class="project-top"><span class="project-index">01</span><span class="project-type">WORKFLOW / OPEN SOURCE</span></div>
           <h3 class="project-title">AI Concept XHS Skill</h3>
           <p class="project-desc">把 AI 概念的事实核查、知识地图和小红书图文生成，固化成一套可复用的内容工作流。</p>
+          <div class="project-footer">
+            <div class="project-meta"><span>AI CONTENT</span><span>JAVASCRIPT</span><span data-repo-stars="ai-concept-xhs-skill">★ 8</span></div>
+            <span class="project-arrow">看仓库 ↗</span>
+          </div>
         </div>
-        <div class="project-meta"><span>AI CONTENT</span><span>JAVASCRIPT</span><span data-repo-stars="ai-concept-xhs-skill">★ 8</span></div>
-        <span class="project-arrow">↗</span>
       </a>
       <a class="project-card" href="https://github.com/ankhzw1876/llm-training-notes" target="_blank" rel="noopener">
-        <span class="project-index">02</span>
-        <div>
+        <div class="project-visual">
+          <div class="project-cover" role="img" aria-label="LLM Training Notes 内容主题：训练、RAG 与评估">
+            <span class="cover-label">AI PRODUCT NOTES / 2026</span>
+            <strong>Training<br>RAG<br>Evaluation</strong>
+            <span class="cover-foot">从技术概念回到产品判断</span>
+          </div>
+        </div>
+        <div class="project-body">
+          <div class="project-top"><span class="project-index">02</span><span class="project-type">KNOWLEDGE SYSTEM</span></div>
           <h3 class="project-title">LLM Training Notes</h3>
           <p class="project-desc">从 AI 产品经理视角，整理微调、LoRA、RAG、训练数据和评估方法，让技术概念能回到产品决策。</p>
+          <div class="project-footer">
+            <div class="project-meta"><span>LLM</span><span>RAG</span><span data-repo-stars="llm-training-notes">★ 6</span></div>
+            <span class="project-arrow">看仓库 ↗</span>
+          </div>
         </div>
-        <div class="project-meta"><span>LLM</span><span>RAG</span><span data-repo-stars="llm-training-notes">★ 6</span></div>
-        <span class="project-arrow">↗</span>
       </a>
       <a class="project-card" href="https://github.com/ankhzw1876/joker-game" target="_blank" rel="noopener">
-        <span class="project-index">03</span>
-        <div>
+        <div class="project-visual">
+          <img src="https://opengraph.githubassets.com/1/ankhzw1876/joker-game" alt="Joker Game 的 GitHub 项目预览" loading="lazy">
+        </div>
+        <div class="project-body">
+          <div class="project-top"><span class="project-index">03</span><span class="project-type">INTERACTIVE PROTOTYPE</span></div>
           <h3 class="project-title">Joker Game</h3>
           <p class="project-desc">一个在浏览器中可直接体验的小型互动游戏。用最小完整产品，练习从想法、交互到交付的闭环。</p>
+          <div class="project-footer">
+            <div class="project-meta"><span>INTERACTION</span><span>HTML</span><span data-repo-stars="joker-game">★ 6</span></div>
+            <span class="project-arrow">看仓库 ↗</span>
+          </div>
         </div>
-        <div class="project-meta"><span>INTERACTION</span><span>HTML</span><span data-repo-stars="joker-game">★ 6</span></div>
-        <span class="project-arrow">↗</span>
       </a>
     </div>
   </section>
@@ -948,27 +1522,27 @@ html { scroll-behavior: smooth; }
       <div class="feed-head" id="writing"><h2>最近在写</h2><a href="https://www.woshipm.com/u/1663812" target="_blank" rel="noopener" class="feed-more">全部 →</a></div>
 
       <!-- 第 1 条为公开的写作进度，后 3 篇为已发布文章 -->
-      <article class="entry draft">
+      <article class="entry draft" data-index="00">
         <h2 class="entry-title">为什么大多数 Agent 项目，死在 Demo 之后</h2>
         <div class="entry-meta">正在写<span class="cat">WORK IN PROGRESS</span></div>
         <div class="entry-excerpt"><p>Demo 跑通只是开始。我正在整理 Demo 与产品之间的能力边界、评估体系和日常使用机制。</p></div>
       </article>
 
-      <article class="entry">
+      <article class="entry" data-index="01">
         <h2 class="entry-title"><a href="https://mp.weixin.qq.com/s/DyGm4M_rH54EqzJyh4Ortg" target="_blank" rel="noopener">AI Agent 厂商，开始用免费额度争夺你的下一次任务</a></h2>
         <div class="entry-meta">2026-08-12<span class="cat">思考</span></div>
         <div class="entry-excerpt"><p>当 AI Agent 从偶尔试用进入日常工作，用户会开始留意两样东西。模型能不能把任务做完，今天还要不要扣额度。</p></div>
         <div class="entry-more"><a href="https://mp.weixin.qq.com/s/DyGm4M_rH54EqzJyh4Ortg" target="_blank" rel="noopener">继续读 →</a></div>
       </article>
 
-      <article class="entry">
+      <article class="entry" data-index="02">
         <h2 class="entry-title"><a href="https://mp.weixin.qq.com/s/mxCrl9OYE2y62nr88qPj9w" target="_blank" rel="noopener">为什么 Codex 和 Claude Code 都要设置周额度</a></h2>
         <div class="entry-meta">2026-08-10<span class="cat">思考</span></div>
         <div class="entry-excerpt"><p>用 Coding Agent 久了，用户会多记一个日期，周额度恢复日，月费负责扣款，七天倒计时开始影响项目安排。</p></div>
         <div class="entry-more"><a href="https://mp.weixin.qq.com/s/mxCrl9OYE2y62nr88qPj9w" target="_blank" rel="noopener">继续读 →</a></div>
       </article>
 
-      <article class="entry">
+      <article class="entry" data-index="03">
         <h2 class="entry-title"><a href="https://mp.weixin.qq.com/s/qy9MTDTw7Vf0rw__S-ODDw" target="_blank" rel="noopener">万字体验 Second Me，AI 分身为什么还是少数人的游戏？</a></h2>
         <div class="entry-meta">2026-08-06<span class="cat">项目</span></div>
         <div class="entry-excerpt"><p>Second Me 想让每个人拥有一个能够代表自己的 AI 身份。</p></div>
