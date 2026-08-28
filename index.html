@@ -11,7 +11,7 @@
     <meta property="og:image" content="assets/portrait.jpg" />
     <title>王天宇｜AI 产品经理</title>
     <script>document.documentElement.classList.add('js');</script>
-    <link rel="stylesheet" href="site.css?v=1" />
+    <link rel="stylesheet" href="site.css?v=2" />
   </head>
   <body>
     <div class="scroll-progress" aria-hidden="true"><span></span></div>
@@ -29,6 +29,13 @@
       <a class="header-exit" href="https://github.com/ankhzw1876" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
     </header>
 
+    <nav class="mobile-dock" aria-label="手机端章节导航">
+      <a class="is-active" href="#about"><span>01</span>关于</a>
+      <a href="#writing"><span>02</span>文章</a>
+      <a href="#github"><span>03</span>作品</a>
+      <a href="#xiaohongshu"><span>04</span>小红书</a>
+    </nav>
+
     <main>
       <section class="profile" id="about" data-section="about">
         <div class="profile-copy">
@@ -37,9 +44,15 @@
             <span>SHANGHAI · REMOTE</span>
           </div>
           <h1 class="hero-title" aria-label="把模型能力，做成有人用的产品。">
-            <span class="title-line"><span>把模型能力，</span></span>
-            <span class="title-line"><span>做成<span class="accent">有人用</span>的</span></span>
-            <span class="title-line"><span>产品。</span></span>
+            <span class="title-layout title-layout-desktop" aria-hidden="true">
+              <span class="title-line"><span>把模型能力，</span></span>
+              <span class="title-line"><span>做成<span class="accent">有人用</span>的产品。</span></span>
+            </span>
+            <span class="title-layout title-layout-compact" aria-hidden="true">
+              <span class="title-line"><span>把模型能力，</span></span>
+              <span class="title-line"><span>做成<span class="accent">有人用</span>的</span></span>
+              <span class="title-line"><span>产品。</span></span>
+            </span>
           </h1>
           <div class="profile-bottom reveal">
             <p class="profile-intro">我是王天宇，一名 AI 产品经理。我关注 Agent、RAG、模型评估与数据策略，也用真实项目追问一件事：一个能跑的 Demo，怎样才能成为稳定、可衡量、愿意被每天使用的产品。</p>
@@ -66,12 +79,12 @@
       <section class="chapter writing" id="writing" data-section="writing">
         <aside class="chapter-rail reveal">
           <span class="chapter-number">02</span>
-          <div><p class="chapter-name">WRITING</p><p class="chapter-count"><strong>03</strong> 已发布</p></div>
+          <div><p class="chapter-name">WRITING</p><p class="chapter-count"><strong>3</strong> 已发布</p></div>
         </aside>
         <div class="chapter-body">
           <header class="chapter-heading reveal">
             <p>文章作品</p>
-            <h2>用产品事实，<br />把 AI 讲清楚。</h2>
+            <h2>用产品事实，<br class="desktop-break" />把 AI 讲清楚。</h2>
             <a class="section-link" href="https://www.woshipm.com/u/1663812" target="_blank" rel="noreferrer">查看全部文章 <span>↗</span></a>
           </header>
           <article class="featured-article reveal">
@@ -104,7 +117,7 @@
         <div class="chapter-body">
           <header class="chapter-heading reveal">
             <p>GitHub 作品</p>
-            <h2>不只写观点，<br />也把问题做成东西。</h2>
+            <h2>不只写观点，<br class="desktop-break" />也把问题<br class="phone-break" />做成东西。</h2>
             <a class="section-link" href="https://github.com/ankhzw1876" target="_blank" rel="noreferrer">进入 GitHub <span>↗</span></a>
           </header>
           <div class="project-board">
@@ -115,7 +128,7 @@
               </div>
               <div class="project-copy">
                 <div class="project-topline"><span>CONTENT WORKFLOW</span><span>★ <b data-stars>8</b></span></div>
-                <h3>AI Concept<br />XHS Skill</h3>
+                <h3><span class="nowrap">AI Concept</span><br class="desktop-break" /> <span class="nowrap">XHS Skill</span></h3>
                 <p>把 AI 概念的事实核查、知识地图和小红书图文生成，固化成一套可复用的内容工作流。</p>
                 <div class="project-tags"><span>AI CONTENT</span><span>JAVASCRIPT</span></div>
               </div>
@@ -149,30 +162,30 @@
         <div class="chapter-body">
           <header class="chapter-heading reveal">
             <p>小红书 · 🍤咀嚼虾滑</p>
-            <h2>把学习过程，<br />变成可分享的知识。</h2>
+            <h2>把学习过程，<br class="desktop-break" />变成可分享的<br class="phone-break" />知识。</h2>
             <a class="section-link" href="https://www.xiaohongshu.com/user/profile/608b486a0000000001004399" target="_blank" rel="noreferrer">进入小红书主页 <span>↗</span></a>
           </header>
           <div class="note-wall" aria-label="近期小红书内容主题">
-            <article class="note-poster note-poster-main reveal">
+            <a class="note-poster note-poster-main reveal" href="https://www.xiaohongshu.com/user/profile/608b486a0000000001004399" target="_blank" rel="noreferrer" aria-label="在小红书查看 Harness 主题笔记">
               <div class="poster-top"><span>AI 产品词典</span><span>01 / 12</span></div>
               <p class="poster-en">HARNESS</p>
               <h3>模型没换，<br />能力为什么<br />能翻倍？</h3>
               <div class="poster-bottom"><span>MODEL × TOOL × CONTEXT</span><span>→</span></div>
-            </article>
-            <article class="note-poster note-poster-dark reveal">
+            </a>
+            <a class="note-poster note-poster-dark reveal" href="https://www.xiaohongshu.com/user/profile/608b486a0000000001004399" target="_blank" rel="noreferrer" aria-label="在小红书查看 Generative UI 主题笔记">
               <div class="poster-top"><span>产品观察</span><span>02 / 12</span></div>
               <p class="poster-en">GENERATIVE<br />UI</p>
               <h3>界面开始按问题<br />现场生长</h3>
               <div class="poster-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
               <div class="poster-bottom"><span>INTERFACE ON DEMAND</span><span>→</span></div>
-            </article>
-            <article class="note-poster note-poster-signal reveal">
+            </a>
+            <a class="note-poster note-poster-signal reveal" href="https://www.xiaohongshu.com/user/profile/608b486a0000000001004399" target="_blank" rel="noreferrer" aria-label="在小红书查看 Agentic RAG 主题笔记">
               <div class="poster-top"><span>RAG 进阶</span><span>03 / 12</span></div>
               <p class="poster-en">AGENTIC<br />RAG</p>
               <h3>一次搜不到，<br />它会自己再查。</h3>
               <div class="poster-path" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
               <div class="poster-bottom"><span>SEARCH / JUDGE / RETRY</span><span>→</span></div>
-            </article>
+            </a>
           </div>
           <div class="xhs-outro reveal">
             <p>围绕 AI 概念、Agent 产品与学习方法持续记录。这里展示的是近期主题，全部 12 篇笔记可在小红书主页查看。</p>
@@ -193,6 +206,6 @@
       <a class="previous-edition" href="editorial-v3.html">查看上一版 ↗</a>
     </footer>
     <div class="copy-toast" role="status" aria-live="polite">微信号已复制</div>
-    <script src="site.js?v=1" defer></script>
+    <script src="site.js?v=2" defer></script>
   </body>
 </html>

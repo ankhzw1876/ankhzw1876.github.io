@@ -3,7 +3,7 @@
   const progress = document.querySelector('.scroll-progress span');
   const portrait = document.querySelector('.portrait-crop img');
   const heroTitle = document.querySelector('.hero-title');
-  const navLinks = [...document.querySelectorAll('.chapter-nav a')];
+  const navLinks = [...document.querySelectorAll('.chapter-nav a, .mobile-dock a')];
   const sections = [...document.querySelectorAll('[data-section]')];
   const toast = document.querySelector('.copy-toast');
 
