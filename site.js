@@ -1,7 +1,6 @@
 (() => {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const progress = document.querySelector('.scroll-progress span');
-  const portrait = document.querySelector('.portrait-crop img');
   const heroTitle = document.querySelector('.hero-title');
   const navLinks = [...document.querySelectorAll('.chapter-nav a, .mobile-dock a')];
   const sections = [...document.querySelectorAll('[data-section]')];
@@ -50,14 +49,6 @@
     const ratio = scrollRange > 0 ? window.scrollY / scrollRange : 0;
     if (progress) progress.style.transform = `scaleX(${Math.min(Math.max(ratio, 0), 1)})`;
 
-    if (portrait && !reducedMotion && window.innerWidth > 760) {
-      const frame = portrait.closest('.portrait-frame');
-      const rect = frame.getBoundingClientRect();
-      if (rect.bottom > 0 && rect.top < window.innerHeight) {
-        const offset = Math.max(-14, Math.min(14, (window.innerHeight / 2 - rect.top) * 0.025));
-        portrait.style.transform = `scale(1.045) translateY(${offset}px)`;
-      }
-    }
     ticking = false;
   };
 

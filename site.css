@@ -133,14 +133,13 @@ main { width: 100%; }
   display: flex; flex-direction: column; justify-content: center; border-left: 1px solid var(--rule); overflow: hidden;
 }
 .portrait-crop {
-  position: relative; aspect-ratio: 4/5.1; overflow: hidden; border-radius: 50% 50% 18px 18px; background: #d8cec4;
+  position: relative; aspect-ratio: 4/5.1; overflow: hidden; border-radius: 16px; background: #d8cec4;
 }
 .portrait-crop::after {
-  position: absolute; inset: 0; content: ""; border: 1px solid rgba(255,255,255,.35); border-radius: inherit; pointer-events: none;
+  position: absolute; inset: 0; content: ""; border: 1px solid rgba(32,23,18,.14); border-radius: inherit; pointer-events: none;
 }
 .portrait-crop img {
   width: 100%; height: 100%; object-fit: cover; filter: saturate(.72) contrast(1.05);
-  transform: scale(1.02); will-change: transform;
 }
 .portrait-frame figcaption { margin-top: 17px; display: flex; justify-content: space-between; color: var(--muted); }
 .portrait-index {
@@ -452,7 +451,7 @@ a.article-row:hover .row-arrow { transform: translate(3px,-3px); }
   .profile-actions { flex-direction: column; }
   .primary-link, .text-link { width: 100%; }
   .portrait-frame { padding: 22px 20px 28px; border-top: 1px solid var(--rule); border-left: 0; }
-  .portrait-crop { aspect-ratio: 1/1.12; border-radius: 48% 48% 14px 14px; }
+  .portrait-crop { aspect-ratio: 1/1.12; border-radius: 16px; }
   .portrait-frame figcaption { font-size: 8px; }
   .focus-line { min-height: 0; padding: 28px 20px; flex-wrap: wrap; gap: 12px 18px; font-size: 12px; }
   .focus-label { width: 100%; }
