@@ -2,36 +2,37 @@
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const progress = document.querySelector('.scroll-progress span');
   const heroTitle = document.querySelector('.hero-title');
-  const portraitCrop = document.querySelector('.portrait-crop');
+  const portraitStage = document.querySelector('.portrait-stage');
+  const portraitMotion = document.querySelector('.portrait-motion');
   const navLinks = [...document.querySelectorAll('.chapter-nav a, .mobile-dock a')];
   const sections = [...document.querySelectorAll('[data-section]')];
   const toast = document.querySelector('.copy-toast');
 
   if (heroTitle) requestAnimationFrame(() => heroTitle.classList.add('is-visible'));
 
-  if (portraitCrop && !reducedMotion && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  if (portraitStage && portraitMotion && !reducedMotion && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
     let portraitFrame = 0;
     const setPortraitTilt = (event) => {
-      const bounds = portraitCrop.getBoundingClientRect();
+      const bounds = portraitStage.getBoundingClientRect();
       const nx = Math.max(-1, Math.min(1, ((event.clientX - bounds.left) / bounds.width - .5) * 2));
       const ny = Math.max(-1, Math.min(1, ((event.clientY - bounds.top) / bounds.height - .5) * 2));
       window.cancelAnimationFrame(portraitFrame);
       portraitFrame = window.requestAnimationFrame(() => {
-        portraitCrop.classList.add('is-tracking');
-        portraitCrop.style.setProperty('--portrait-rx', `${(-ny * 5).toFixed(2)}deg`);
-        portraitCrop.style.setProperty('--portrait-ry', `${(nx * 6).toFixed(2)}deg`);
-        portraitCrop.style.setProperty('--portrait-scale', '1.025');
+        portraitMotion.style.setProperty('--portrait-rx', `${(-ny * 15).toFixed(2)}deg`);
+        portraitMotion.style.setProperty('--portrait-ry', `${(nx * 15).toFixed(2)}deg`);
+        portraitMotion.style.setProperty('--portrait-scale', '1.12');
       });
     };
     const resetPortraitTilt = () => {
       window.cancelAnimationFrame(portraitFrame);
-      portraitCrop.classList.remove('is-tracking');
-      portraitCrop.style.setProperty('--portrait-rx', '0deg');
-      portraitCrop.style.setProperty('--portrait-ry', '0deg');
-      portraitCrop.style.setProperty('--portrait-scale', '1');
+      portraitMotion.style.setProperty('--portrait-rx', '0deg');
+      portraitMotion.style.setProperty('--portrait-ry', '0deg');
+      portraitMotion.style.setProperty('--portrait-scale', '1');
     };
-    portraitCrop.addEventListener('pointermove', setPortraitTilt, { passive: true });
-    portraitCrop.addEventListener('pointerleave', resetPortraitTilt);
+    portraitStage.addEventListener('pointermove', setPortraitTilt, { passive: true });
+    portraitStage.addEventListener('pointerleave', resetPortraitTilt);
+    portraitStage.addEventListener('pointercancel', resetPortraitTilt);
+    window.addEventListener('blur', resetPortraitTilt);
   }
 
   const revealItems = [...document.querySelectorAll('.reveal')];

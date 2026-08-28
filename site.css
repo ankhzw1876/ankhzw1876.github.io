@@ -131,47 +131,30 @@ main { width: 100%; }
 .portrait-frame {
   position: relative; margin: 0; padding: clamp(28px,4vw,64px) clamp(24px,2.6vw,48px) 34px;
   display: flex; flex-direction: column; justify-content: center; border-left: 1px solid var(--rule); overflow: hidden;
-  perspective: 1200px; perspective-origin: 50% 42%;
+}
+.portrait-stage {
+  position: relative; z-index: 1; perspective: 900px; perspective-origin: 50% 50%;
 }
 .portrait-motion {
-  --portrait-lift: -12px;
-  --portrait-depth: 16px;
-  --portrait-lift-soft: -8px;
-  --portrait-depth-soft: 12px;
-  position: relative; transform: translate3d(0,0,0) rotateX(0deg) rotateY(-1.6deg);
-  transform-style: preserve-3d; transform-origin: 50% 68%; will-change: transform;
-  animation: portrait-card-float 7.8s cubic-bezier(.45,0,.2,1) .55s infinite both;
-}
-.portrait-crop {
   --portrait-rx: 0deg;
   --portrait-ry: 0deg;
   --portrait-scale: 1;
+  position: relative; transform: rotateX(var(--portrait-rx)) rotateY(var(--portrait-ry)) scale3d(var(--portrait-scale),var(--portrait-scale),var(--portrait-scale));
+  transform-style: preserve-3d; transform-origin: 50% 68%; will-change: transform;
+  transition: transform 200ms ease-out;
+}
+.portrait-crop {
   position: relative; aspect-ratio: 4/5.1; overflow: hidden; border-radius: 16px; background: #d8cec4;
   box-shadow: 0 18px 42px rgba(32,23,18,.12);
-  transform: rotateX(var(--portrait-rx)) rotateY(var(--portrait-ry)) scale(var(--portrait-scale));
-  transform-origin: 50% 68%; will-change: transform;
-  transition: transform 520ms cubic-bezier(.16,1,.3,1), box-shadow 520ms cubic-bezier(.16,1,.3,1);
-}
-.portrait-crop.is-tracking {
-  box-shadow: 0 30px 65px -34px rgba(32,23,18,.42);
-  transition-duration: 80ms;
-}
-.portrait-crop::before {
-  position: absolute; inset: -38%; z-index: 1; content: ""; pointer-events: none;
-  background: linear-gradient(108deg, transparent 42%, rgba(255,255,255,.24) 49%, transparent 56%);
-  opacity: 0; transform: translate3d(-62%,0,0) rotate(7deg); will-change: transform,opacity;
-  animation: portrait-light-sweep 7.8s cubic-bezier(.16,1,.3,1) .55s infinite both;
 }
 .portrait-crop::after {
-  position: absolute; inset: 0; z-index: 2; content: ""; border: 1px solid rgba(32,23,18,.14); border-radius: inherit; pointer-events: none;
+  position: absolute; inset: 0; z-index: 1; content: ""; border: 1px solid rgba(32,23,18,.14); border-radius: inherit; pointer-events: none;
 }
 .portrait-crop img {
   position: relative; z-index: 0; width: 100%; height: 100%; object-fit: cover;
-  filter: saturate(.72) contrast(1.05); transform: scale(1.025) translate3d(-.35%,.3%,0);
-  pointer-events: none; will-change: transform;
-  animation: portrait-image-drift 10.6s cubic-bezier(.45,0,.2,1) .55s infinite alternate both;
+  filter: saturate(.72) contrast(1.05); pointer-events: none; user-select: none; -webkit-user-drag: none;
 }
-.portrait-frame figcaption { margin-top: 17px; display: flex; justify-content: space-between; color: var(--muted); }
+.portrait-frame figcaption { position: relative; z-index: 2; margin-top: 17px; display: flex; justify-content: space-between; color: var(--muted); }
 .portrait-index {
   position: absolute; right: -.07em; bottom: -.22em; z-index: -1; color: rgba(184,77,39,.08);
   font-family: var(--serif); font-size: 210px; line-height: 1;
@@ -426,26 +409,6 @@ a.article-row:hover .row-arrow { transform: translate(3px,-3px); }
   50% { box-shadow: 0 0 0 10px rgba(184,77,39,.16); }
 }
 
-@keyframes portrait-card-float {
-  0%,100% { transform: translate3d(0,0,0) rotateX(0deg) rotateY(-1.6deg); }
-  22% { transform: translate3d(0,var(--portrait-lift),var(--portrait-depth)) rotateX(1.15deg) rotateY(1.9deg); }
-  48% { transform: translate3d(0,-3px,5px) rotateX(-.8deg) rotateY(.35deg); }
-  74% { transform: translate3d(0,var(--portrait-lift-soft),var(--portrait-depth-soft)) rotateX(.55deg) rotateY(-1.25deg); }
-}
-
-@keyframes portrait-image-drift {
-  0% { transform: scale(1.025) translate3d(-.35%,.3%,0); }
-  42% { transform: scale(1.075) translate3d(.65%,-.55%,0); }
-  100% { transform: scale(1.045) translate3d(-.2%,-1.05%,0); }
-}
-
-@keyframes portrait-light-sweep {
-  0%,12% { opacity: 0; transform: translate3d(-62%,0,0) rotate(7deg); }
-  18% { opacity: .5; }
-  32% { opacity: 0; transform: translate3d(62%,0,0) rotate(7deg); }
-  100% { opacity: 0; transform: translate3d(62%,0,0) rotate(7deg); }
-}
-
 @media (max-width: 1180px) {
   .site-header { grid-template-columns: 1fr auto; }
   .chapter-nav { display: none; }
@@ -501,9 +464,6 @@ a.article-row:hover .row-arrow { transform: translate(3px,-3px); }
   .profile-actions { flex-direction: column; }
   .primary-link, .text-link { width: 100%; }
   .portrait-frame { padding: 22px 20px 28px; border-top: 1px solid var(--rule); border-left: 0; }
-  .portrait-motion {
-    --portrait-lift: -6px; --portrait-depth: 10px; --portrait-lift-soft: -5px; --portrait-depth-soft: 7px;
-  }
   .portrait-crop {
     aspect-ratio: 1/1.12; border-radius: 16px;
   }
@@ -579,7 +539,5 @@ a.article-row:hover .row-arrow { transform: translate(3px,-3px); }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
   .js .reveal, .js .hero-title .title-line > span { opacity: 1; transform: none; }
-  .portrait-motion, .portrait-crop, .portrait-crop img, .portrait-crop::before { animation: none !important; }
-  .portrait-motion, .portrait-crop, .portrait-crop img { transform: none; }
-  .portrait-crop::before { opacity: 0; }
+  .portrait-motion { transition: none !important; transform: none !important; }
 }
