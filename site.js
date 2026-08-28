@@ -6,7 +6,15 @@
   const portraitMotion = document.querySelector('.portrait-motion');
   const navLinks = [...document.querySelectorAll('.chapter-nav a, .mobile-dock a')];
   const sections = [...document.querySelectorAll('[data-section]')];
+  const siteHeader = document.querySelector('.site-header');
+  const sectionContext = document.querySelector('[data-section-context]');
   const toast = document.querySelector('.copy-toast');
+  const sectionMeta = {
+    about: { path: '~/portfolio/profile', label: '01 / PROFILE' },
+    writing: { path: '~/portfolio/writing', label: '02 / WRITING' },
+    github: { path: '~/portfolio/github', label: '03 / GITHUB' },
+    xiaohongshu: { path: '~/portfolio/xiaohongshu', label: '04 / XIAOHONGSHU' }
+  };
 
   if (heroTitle) requestAnimationFrame(() => heroTitle.classList.add('is-visible'));
 
@@ -45,13 +53,38 @@
       });
     }, { threshold: 0.08, rootMargin: '0px 0px -7% 0px' });
 
-    revealItems.forEach((item, index) => {
-      item.style.transitionDelay = `${Math.min((index % 4) * 55, 165)}ms`;
-      revealObserver.observe(item);
+    sections.forEach((section) => {
+      [...section.querySelectorAll('.reveal')].forEach((item, index) => {
+        item.style.transitionDelay = `${Math.min(index * 55, 165)}ms`;
+        revealObserver.observe(item);
+      });
     });
   } else {
     revealItems.forEach((item) => item.classList.add('is-visible'));
   }
+
+  const setCurrentSection = (id) => {
+    const meta = sectionMeta[id];
+    if (!meta) return;
+    navLinks.forEach((link) => {
+      const active = link.getAttribute('href') === `#${id}`;
+      link.classList.toggle('is-active', active);
+      if (active) link.setAttribute('aria-current', 'true');
+      else link.removeAttribute('aria-current');
+    });
+    if (siteHeader) siteHeader.dataset.currentLabel = meta.label;
+    if (sectionContext && sectionContext.textContent !== meta.path) {
+      sectionContext.textContent = meta.path;
+      if (!reducedMotion && sectionContext.animate) {
+        sectionContext.animate([
+          { opacity: .2, transform: 'translateY(5px)' },
+          { opacity: 1, transform: 'translateY(0)' }
+        ], { duration: 360, easing: 'cubic-bezier(.16,1,.3,1)' });
+      }
+    }
+  };
+
+  setCurrentSection('about');
 
   if ('IntersectionObserver' in window) {
     const sectionObserver = new IntersectionObserver((entries) => {
@@ -60,12 +93,7 @@
         .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
       if (!visible) return;
       const id = visible.target.dataset.section;
-      navLinks.forEach((link) => {
-        const active = link.getAttribute('href') === `#${id}`;
-        link.classList.toggle('is-active', active);
-        if (active) link.setAttribute('aria-current', 'true');
-        else link.removeAttribute('aria-current');
-      });
+      setCurrentSection(id);
     }, { rootMargin: '-28% 0px -52% 0px', threshold: 0 });
     sections.forEach((section) => sectionObserver.observe(section));
   }

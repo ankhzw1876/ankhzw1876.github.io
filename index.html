@@ -11,11 +11,11 @@
     <meta property="og:image" content="assets/portrait.jpg" />
     <title>王天宇｜AI 产品经理</title>
     <script>document.documentElement.classList.add('js');</script>
-    <link rel="stylesheet" href="site.css?v=5" />
+    <link rel="stylesheet" href="site.css?v=6" />
   </head>
   <body>
     <div class="scroll-progress" aria-hidden="true"><span></span></div>
-    <header class="site-header">
+    <header class="site-header" data-current-label="01 / PROFILE">
       <a class="identity" href="#about" aria-label="返回首页">
         <span class="identity-name">王天宇</span>
         <span class="identity-role">AI PRODUCT MANAGER</span>
@@ -26,7 +26,10 @@
         <a href="#github"><span>03</span>GitHub</a>
         <a href="#xiaohongshu"><span>04</span>小红书</a>
       </nav>
-      <a class="header-exit" href="https://github.com/ankhzw1876" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+      <div class="header-tools">
+        <span class="section-context" aria-hidden="true"><span data-section-context>~/portfolio/profile</span></span>
+        <a class="header-exit" href="https://github.com/ankhzw1876" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+      </div>
     </header>
 
     <nav class="mobile-dock" aria-label="手机端章节导航">
@@ -82,8 +85,10 @@
 
       <section class="chapter writing" id="writing" data-section="writing">
         <aside class="chapter-rail reveal">
-          <span class="chapter-number">02</span>
-          <div><p class="chapter-name">WRITING</p><p class="chapter-count"><strong>3</strong> 已发布</p></div>
+          <div class="chapter-rail-inner">
+            <span class="chapter-number">02</span>
+            <div><p class="chapter-name">WRITING</p><p class="chapter-count"><strong>3</strong> 已发布</p></div>
+          </div>
         </aside>
         <div class="chapter-body">
           <header class="chapter-heading reveal">
@@ -115,8 +120,10 @@
 
       <section class="chapter github" id="github" data-section="github">
         <aside class="chapter-rail reveal">
-          <span class="chapter-number">03</span>
-          <div><p class="chapter-name">GITHUB</p><p class="chapter-count"><strong data-repo-count>10</strong> 公开仓库</p></div>
+          <div class="chapter-rail-inner">
+            <span class="chapter-number">03</span>
+            <div><p class="chapter-name">GITHUB</p><p class="chapter-count"><strong data-repo-count>10</strong> 公开仓库</p></div>
+          </div>
         </aside>
         <div class="chapter-body">
           <header class="chapter-heading reveal">
@@ -160,8 +167,10 @@
 
       <section class="chapter xiaohongshu" id="xiaohongshu" data-section="xiaohongshu">
         <aside class="chapter-rail reveal">
-          <span class="chapter-number">04</span>
-          <div><p class="chapter-name">XIAOHONGSHU</p><p class="chapter-count"><strong>12</strong> 篇笔记</p></div>
+          <div class="chapter-rail-inner">
+            <span class="chapter-number">04</span>
+            <div><p class="chapter-name">XIAOHONGSHU</p><p class="chapter-count"><strong>12</strong> 篇笔记</p></div>
+          </div>
         </aside>
         <div class="chapter-body">
           <header class="chapter-heading reveal">
@@ -210,6 +219,6 @@
       <a class="previous-edition" href="editorial-v3.html">查看上一版 ↗</a>
     </footer>
     <div class="copy-toast" role="status" aria-live="polite">微信号已复制</div>
-    <script src="site.js?v=5" defer></script>
+    <script src="site.js?v=6" defer></script>
   </body>
 </html>
