@@ -18,12 +18,12 @@
   const mobileQuery = window.matchMedia('(max-width: 720px)');
   const appIds = ['about', 'writing', 'github', 'xiaohongshu', 'contact', 'archive'];
   const appMeta = {
-    about: { title: '关于我', path: '~/about-me', mark: '👋' },
-    writing: { title: '文章作品', path: '~/writing', mark: '✍️' },
-    github: { title: 'GitHub', path: '~/github', mark: '🐙' },
-    xiaohongshu: { title: '小红书', path: '~/xiaohongshu', mark: '📕' },
-    contact: { title: '联系我', path: '~/contact', mark: '✉️' },
-    archive: { title: '版本归档', path: '~/versions', mark: '🗂️' }
+    about: { title: '关于我', path: '~/about-me', icon: 'assets/pixel-icons/about.svg' },
+    writing: { title: '文章作品', path: '~/writing', icon: 'assets/pixel-icons/writing.svg' },
+    github: { title: 'GitHub', path: '~/github', icon: 'assets/pixel-icons/github.svg' },
+    xiaohongshu: { title: '小红书', path: '~/xiaohongshu', icon: 'assets/pixel-icons/xiaohongshu.svg' },
+    contact: { title: '联系我', path: '~/contact', icon: 'assets/pixel-icons/contact.svg' },
+    archive: { title: '版本归档', path: '~/versions', icon: 'assets/pixel-icons/archive.svg' }
   };
 
   const windows = new Map();
@@ -224,7 +224,16 @@
     button.className = 'task-button';
     button.dataset.taskApp = state.id;
     button.setAttribute('aria-label', `${state.meta.title}窗口`);
-    button.textContent = `${state.meta.mark} · ${state.meta.title}`;
+    const icon = document.createElement('img');
+    icon.className = 'task-pixel-icon';
+    icon.src = state.meta.icon;
+    icon.alt = '';
+    icon.width = 16;
+    icon.height = 16;
+    icon.setAttribute('aria-hidden', 'true');
+    const label = document.createElement('span');
+    label.textContent = state.meta.title;
+    button.append(icon, label);
     button.addEventListener('click', () => {
       if (state.status === 'minimized') {
         restoreApp(state.id, button);
