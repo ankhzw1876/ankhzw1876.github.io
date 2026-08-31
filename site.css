@@ -104,10 +104,10 @@ img {
   place-items: center;
   background-color: var(--paper);
   background-image:
-    linear-gradient(rgba(77, 57, 45, .105) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(77, 57, 45, .105) 1px, transparent 1px),
+    linear-gradient(rgba(77, 57, 45, .08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(77, 57, 45, .08) 1px, transparent 1px),
     radial-gradient(circle at 50% 45%, rgba(255, 241, 226, .94), transparent 42%);
-  background-size: 34px 34px, 34px 34px, 100% 100%;
+  background-size: 40px 40px, 40px 40px, 100% 100%;
 }
 
 .welcome-screen::before,
@@ -135,9 +135,9 @@ img {
   position: relative;
   z-index: 1;
   display: flex;
-  width: min(620px, calc(100vw - 40px));
+  width: min(568px, calc(100vw - 40px));
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   padding: 24px;
 }
 
@@ -147,18 +147,21 @@ img {
   margin: 0 0 22px;
   font-size: clamp(48px, 7.4vw, 100px);
   font-weight: 900;
-  letter-spacing: -.065em;
+  letter-spacing: -.045em;
   line-height: .9;
   text-shadow: 3px 3px 0 var(--paper-light), 6px 6px 0 rgba(33, 25, 20, .18);
 }
 
 .os-wordmark em {
+  margin-left: .14em;
   color: var(--rust);
+  font-size: .7em;
   font-style: normal;
+  letter-spacing: .02em;
 }
 
 .welcome-terminal {
-  width: min(520px, 100%);
+  width: 100%;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, .28);
   border-radius: 14px;
@@ -297,6 +300,7 @@ img {
 }
 
 .enter-button {
+  align-self: flex-start;
   min-height: 48px;
   margin-top: 22px;
   padding: 0 22px;
@@ -321,6 +325,7 @@ img {
 }
 
 .welcome-hint {
+  align-self: flex-start;
   margin: 14px 0 0;
   color: rgba(33, 25, 20, .55);
   font-size: 12px;
@@ -508,9 +513,9 @@ img {
   background-color: var(--paper);
   background-image:
     radial-gradient(circle 340px at var(--mouse-x) var(--mouse-y), rgba(255, 244, 231, .86), transparent 72%),
-    linear-gradient(rgba(75, 57, 46, .11) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(75, 57, 46, .11) 1px, transparent 1px);
-  background-size: 100% 100%, 34px 34px, 34px 34px;
+    linear-gradient(rgba(75, 57, 46, .075) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(75, 57, 46, .075) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
 }
 
 .wallpaper::after {
@@ -529,10 +534,22 @@ img {
   position: absolute;
   z-index: 0;
   top: 50%;
-  left: clamp(250px, 31vw, 520px);
-  width: min(650px, calc(100vw - 420px));
+  right: clamp(40px, 7vw, 140px);
+  left: clamp(185px, 24vw, 440px);
+  width: auto;
+  max-width: 900px;
+  padding: clamp(24px, 2.8vw, 40px) clamp(24px, 3.2vw, 48px);
+  border: 1px solid rgba(70, 51, 40, .18);
+  border-radius: 18px;
+  background: rgba(244, 238, 231, .5);
+  box-shadow: 14px 16px 0 rgba(33, 25, 20, .045), inset 0 1px 0 rgba(255, 255, 255, .5);
+  backdrop-filter: blur(3px);
   transform: translateY(-51%);
-  transition: opacity 500ms var(--expo), filter 500ms var(--expo), transform 500ms var(--expo);
+  transition: opacity 500ms var(--expo), filter 500ms var(--expo), transform 500ms var(--expo), box-shadow 260ms var(--expo);
+}
+
+.desktop-statement:hover {
+  box-shadow: 9px 11px 0 rgba(33, 25, 20, .075), inset 0 1px 0 rgba(255, 255, 255, .65);
 }
 
 .desktop.has-windows .desktop-statement {
@@ -551,11 +568,18 @@ img {
 
 .desktop-statement h2 {
   margin: 0;
-  font-size: clamp(48px, 5.2vw, 86px);
+  font-size: clamp(48px, 5.15vw, 88px);
   font-weight: 900;
-  letter-spacing: -.055em;
-  line-height: 1.08;
-  text-wrap: balance;
+  letter-spacing: -.045em;
+  line-height: 1.06;
+}
+
+.desktop-statement h2 > span,
+.desktop-statement h2 strong {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  white-space: nowrap;
 }
 
 .desktop-statement h2 strong {
@@ -615,13 +639,14 @@ img {
   color: var(--ink);
   background: transparent;
   cursor: default;
-  transition: background 160ms ease, border-color 160ms ease, transform 220ms var(--expo);
+  transition: background 160ms ease, border-color 160ms ease, transform 260ms var(--overshoot);
 }
 
 .desktop-icon:hover,
 .desktop-icon.is-selected {
   border-color: rgba(33, 25, 20, .15);
   background: rgba(248, 240, 232, .64);
+  transform: translateY(-2px);
 }
 
 .desktop-icon:active {
@@ -630,7 +655,9 @@ img {
 
 .desktop-icon > span:last-child {
   padding: 2px 5px;
+  border: 1px solid transparent;
   border-radius: 4px;
+  background: rgba(244, 238, 231, .54);
   font-size: 12px;
   font-weight: 800;
   text-align: center;
@@ -643,23 +670,27 @@ img {
 
 .icon-art {
   display: grid;
-  width: 50px;
-  height: 50px;
+  width: 54px;
+  height: 54px;
   place-items: center;
-  border: 1px solid rgba(33, 25, 20, .24);
-  border-radius: 12px;
-  box-shadow: 4px 4px 0 rgba(33, 25, 20, .15);
-  font-size: 19px;
-  font-weight: 900;
-  letter-spacing: -.04em;
+  border: 1px solid rgba(33, 25, 20, .2);
+  border-radius: 14px;
+  background: rgba(247, 239, 230, .9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .76), 4px 5px 0 rgba(33, 25, 20, .12);
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1;
+  transition: border-color 180ms ease, box-shadow 260ms var(--expo), transform 260ms var(--overshoot);
 }
 
-.icon-about { color: #f9eee4; background: var(--rust); }
-.icon-writing { color: var(--ink); background: #f1e0bd; }
-.icon-github { color: #f4eee7; background: var(--ink); }
-.icon-xhs { color: #fff5ee; background: #b1372f; }
-.icon-contact { color: var(--ink); background: var(--cyan); }
-.icon-archive { color: var(--paper-light); background: #75655b; font-size: 14px; }
+.desktop-icon:hover .icon-art,
+.desktop-icon.is-selected .icon-art {
+  border-color: rgba(189, 81, 45, .58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .82), 2px 3px 0 rgba(189, 81, 45, .24);
+  transform: translateY(-2px) rotate(-1deg);
+}
 
 /* Window manager */
 .window-layer {
@@ -1688,12 +1719,14 @@ img {
 
 @media (max-width: 980px) {
   .desktop-statement {
-    left: 190px;
-    width: calc(100vw - 250px);
+    right: 28px;
+    left: 174px;
+    width: auto;
+    padding: 28px 32px;
   }
 
   .desktop-statement h2 {
-    font-size: clamp(44px, 7vw, 68px);
+    font-size: clamp(44px, 6.5vw, 64px);
   }
 
   .os-window {
@@ -1719,7 +1752,7 @@ img {
 
   .os-wordmark {
     margin-bottom: 20px;
-    font-size: clamp(44px, 15vw, 68px);
+    font-size: clamp(44px, 14vw, 60px);
   }
 
   .terminal-body {
@@ -1774,9 +1807,12 @@ img {
   .desktop-statement {
     right: 18px;
     bottom: 94px;
-    left: 170px;
+    left: 18px;
     top: auto;
     width: auto;
+    max-width: none;
+    padding: 20px 22px;
+    border-radius: 15px;
     transform: none;
   }
 
@@ -1787,8 +1823,8 @@ img {
   }
 
   .desktop-statement h2 {
-    font-size: clamp(31px, 8.6vw, 42px);
-    line-height: 1.14;
+    font-size: clamp(27px, 7.4vw, 40px);
+    line-height: 1.08;
   }
 
   .desktop.has-windows .desktop-statement {
@@ -1809,8 +1845,9 @@ img {
   }
 
   .icon-art {
-    width: 46px;
-    height: 46px;
+    width: 48px;
+    height: 48px;
+    font-size: 25px;
   }
 
   .window-layer {
@@ -2015,9 +2052,10 @@ img {
   }
 
   .mobile-launcher span {
-    color: var(--rust-bright);
-    font-size: 12px;
-    font-weight: 900;
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    font-size: 19px;
+    font-weight: 400;
+    line-height: 1;
   }
 
   .mobile-launcher b {
@@ -2052,10 +2090,6 @@ img {
     height: 36px;
   }
 
-  .desktop-statement {
-    display: none;
-  }
-
   .about-portrait {
     width: 42%;
   }
@@ -2079,6 +2113,12 @@ img {
   .contact-list a,
   .contact-list button {
     grid-template-columns: 58px minmax(0, 1fr) auto;
+  }
+}
+
+@media (max-height: 560px) and (max-width: 720px) {
+  .desktop-statement {
+    display: none;
   }
 }
 

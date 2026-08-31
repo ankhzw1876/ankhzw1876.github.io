@@ -18,12 +18,12 @@
   const mobileQuery = window.matchMedia('(max-width: 720px)');
   const appIds = ['about', 'writing', 'github', 'xiaohongshu', 'contact', 'archive'];
   const appMeta = {
-    about: { title: '关于我', path: '~/about-me', mark: '我' },
-    writing: { title: '文章作品', path: '~/writing', mark: '文' },
-    github: { title: 'GitHub', path: '~/github', mark: 'GH' },
-    xiaohongshu: { title: '小红书', path: '~/xiaohongshu', mark: '薯' },
-    contact: { title: '联系我', path: '~/contact', mark: '@' },
-    archive: { title: '版本归档', path: '~/versions', mark: 'V7' }
+    about: { title: '关于我', path: '~/about-me', mark: '👋' },
+    writing: { title: '文章作品', path: '~/writing', mark: '✍️' },
+    github: { title: 'GitHub', path: '~/github', mark: '🐙' },
+    xiaohongshu: { title: '小红书', path: '~/xiaohongshu', mark: '📕' },
+    contact: { title: '联系我', path: '~/contact', mark: '✉️' },
+    archive: { title: '版本归档', path: '~/versions', mark: '🗂️' }
   };
 
   const windows = new Map();
@@ -246,11 +246,11 @@
     if (active?.status === 'visible') {
       if (activeAppLabel) activeAppLabel.textContent = active.meta.title;
       if (topbarPath) topbarPath.textContent = active.meta.path;
-      document.title = `${active.meta.title}｜TIANYU OS`;
+      document.title = `${active.meta.title}｜XiaHua OS`;
     } else {
       if (activeAppLabel) activeAppLabel.textContent = '桌面';
       if (topbarPath) topbarPath.textContent = '~/desktop';
-      document.title = 'TIANYU OS｜王天宇';
+      document.title = 'XiaHua OS｜王天宇';
     }
 
     document.querySelectorAll('.mobile-launcher [data-open-app]').forEach((button) => {
