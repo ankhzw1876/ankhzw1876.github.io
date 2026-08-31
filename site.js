@@ -468,7 +468,9 @@
       });
 
       element.querySelector('[data-window-action="minimize"]')?.addEventListener('click', () => minimizeApp(id));
-      element.querySelector('[data-window-action="close"]')?.addEventListener('click', () => closeApp(id));
+      element.querySelectorAll('[data-window-action="close"]').forEach((button) => {
+        button.addEventListener('click', () => closeApp(id));
+      });
     });
   };
 

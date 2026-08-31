@@ -11,7 +11,7 @@
     <meta property="og:image" content="assets/portrait.jpg" />
     <title>TIANYU OS｜王天宇</title>
     <script>document.documentElement.className = 'js';</script>
-    <link rel="stylesheet" href="site.css?v=8" />
+    <link rel="stylesheet" href="site.css?v=9" />
   </head>
   <body>
     <a class="skip-link" href="#desktop-icons">跳到桌面图标</a>
@@ -116,7 +116,7 @@
           <div class="window-layer" data-window-layer>
             <section class="os-window about-window" data-window="about" data-title="关于我" data-width="760" data-height="540" role="dialog" aria-modal="false" aria-labelledby="window-about-title" hidden>
               <header class="window-titlebar" data-drag-handle>
-                <span class="window-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+                <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭关于我" title="关闭关于我"><i></i><i></i><i></i></button>
                 <h2 id="window-about-title">~/about-me</h2>
                 <div class="window-actions">
                   <button type="button" data-window-action="minimize" aria-label="最小化关于我">─</button>
@@ -152,7 +152,7 @@
 
             <section class="os-window writing-window" data-window="writing" data-title="文章作品" data-width="820" data-height="560" role="dialog" aria-modal="false" aria-labelledby="window-writing-title" hidden>
               <header class="window-titlebar" data-drag-handle>
-                <span class="window-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+                <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭文章作品" title="关闭文章作品"><i></i><i></i><i></i></button>
                 <h2 id="window-writing-title">~/writing</h2>
                 <div class="window-actions">
                   <button type="button" data-window-action="minimize" aria-label="最小化文章作品">─</button>
@@ -184,7 +184,7 @@
 
             <section class="os-window github-window" data-window="github" data-title="GitHub" data-width="860" data-height="580" role="dialog" aria-modal="false" aria-labelledby="window-github-title" hidden>
               <header class="window-titlebar" data-drag-handle>
-                <span class="window-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+                <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭 GitHub" title="关闭 GitHub"><i></i><i></i><i></i></button>
                 <h2 id="window-github-title">~/github</h2>
                 <div class="window-actions">
                   <button type="button" data-window-action="minimize" aria-label="最小化 GitHub">─</button>
@@ -215,7 +215,7 @@
 
             <section class="os-window xhs-window" data-window="xiaohongshu" data-title="小红书" data-width="800" data-height="560" role="dialog" aria-modal="false" aria-labelledby="window-xhs-title" hidden>
               <header class="window-titlebar" data-drag-handle>
-                <span class="window-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+                <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭小红书" title="关闭小红书"><i></i><i></i><i></i></button>
                 <h2 id="window-xhs-title">~/xiaohongshu</h2>
                 <div class="window-actions">
                   <button type="button" data-window-action="minimize" aria-label="最小化小红书">─</button>
@@ -239,7 +239,7 @@
 
             <section class="os-window contact-window" data-window="contact" data-title="联系我" data-width="500" data-height="390" role="dialog" aria-modal="false" aria-labelledby="window-contact-title" hidden>
               <header class="window-titlebar" data-drag-handle>
-                <span class="window-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+                <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭联系我" title="关闭联系我"><i></i><i></i><i></i></button>
                 <h2 id="window-contact-title">~/contact</h2>
                 <div class="window-actions">
                   <button type="button" data-window-action="minimize" aria-label="最小化联系我">─</button>
@@ -260,7 +260,7 @@
 
             <section class="os-window archive-window" data-window="archive" data-title="版本归档" data-width="540" data-height="410" role="dialog" aria-modal="false" aria-labelledby="window-archive-title" hidden>
               <header class="window-titlebar" data-drag-handle>
-                <span class="window-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+                <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭版本归档" title="关闭版本归档"><i></i><i></i><i></i></button>
                 <h2 id="window-archive-title">~/versions</h2>
                 <div class="window-actions">
                   <button type="button" data-window-action="minimize" aria-label="最小化版本归档">─</button>
@@ -309,11 +309,11 @@
       <style>
         html,body{height:auto!important;overflow:auto!important}.os-shell{position:static!important;width:auto!important;height:auto!important}
         .welcome-screen,.boot-screen,.topbar,.desktop-icons,.desktop-statement,.taskbar,.mobile-launcher,.system-menu{display:none!important}
-        .desktop{display:block!important;position:static!important;width:auto!important;height:auto!important;overflow:visible!important}.wallpaper{display:block!important;min-height:0!important;padding:24px!important;overflow:visible!important}.window-layer{position:static!important}.os-window[hidden]{display:grid!important;position:relative!important;inset:auto!important;width:100%!important;height:auto!important;max-height:none!important;margin:0 0 24px!important;transform:none!important}.window-body{max-height:none!important}.window-actions{display:none!important}
+        .desktop{display:block!important;position:static!important;width:auto!important;height:auto!important;overflow:visible!important}.wallpaper{display:block!important;min-height:0!important;padding:24px!important;overflow:visible!important}.window-layer{position:static!important}.os-window[hidden]{display:grid!important;position:relative!important;inset:auto!important;width:100%!important;height:auto!important;max-height:none!important;margin:0 0 24px!important;transform:none!important}.window-body{max-height:none!important}.window-actions,.window-lights{display:none!important}
       </style>
       <p class="noscript-note">JavaScript 未启用，下面展示静态作品内容。</p>
     </noscript>
 
-    <script src="site.js?v=8" defer></script>
+    <script src="site.js?v=9" defer></script>
   </body>
 </html>
