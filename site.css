@@ -634,18 +634,16 @@ img {
   place-items: center;
   gap: 5px;
   padding: 7px 5px;
-  border: 1px solid transparent;
-  border-radius: 10px;
+  border: 0;
+  border-radius: 0;
   color: var(--ink);
   background: transparent;
   cursor: default;
-  transition: background 160ms ease, border-color 160ms ease, transform 260ms var(--overshoot);
+  transition: color 160ms ease, transform 260ms var(--overshoot);
 }
 
 .desktop-icon:hover,
 .desktop-icon.is-selected {
-  border-color: rgba(33, 25, 20, .15);
-  background: rgba(248, 240, 232, .64);
   transform: translateY(-2px);
 }
 
@@ -654,30 +652,51 @@ img {
 }
 
 .desktop-icon > span:last-child {
-  padding: 2px 5px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  background: rgba(244, 238, 231, .54);
+  padding: 2px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   font-size: 12px;
   font-weight: 800;
   text-align: center;
 }
 
 .desktop-icon.is-selected > span:last-child {
-  color: var(--paper-light);
-  background: var(--ink);
+  color: var(--rust);
+  background: transparent;
 }
 
 .icon-art {
+  position: relative;
   display: grid;
-  width: 54px;
-  height: 54px;
+  width: 56px;
+  height: 56px;
   place-items: center;
-  border: 2px solid rgba(33, 25, 20, .42);
-  border-radius: 6px;
-  background: rgba(247, 239, 230, .98);
-  box-shadow: inset -3px -3px 0 rgba(33, 25, 20, .08), 4px 4px 0 rgba(33, 25, 20, .16);
-  transition: border-color 180ms ease, box-shadow 260ms var(--expo), transform 260ms var(--overshoot);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  transition: transform 260ms var(--overshoot);
+}
+
+.icon-art::before,
+.icon-art::after {
+  position: absolute;
+  clip-path: polygon(4px 0, calc(100% - 4px) 0, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0 calc(100% - 4px), 0 4px);
+  content: "";
+}
+
+.icon-art::after {
+  z-index: 0;
+  inset: 4px 0 0 4px;
+  background: rgba(33, 25, 20, .22);
+}
+
+.icon-art::before {
+  z-index: 1;
+  inset: 0 4px 4px 0;
+  background: var(--ink);
+  box-shadow: inset 2px 2px 0 rgba(244, 238, 231, .14), inset -2px -2px 0 rgba(0, 0, 0, .24);
+  transition: background 160ms ease, box-shadow 160ms ease;
 }
 
 .pixel-icon,
@@ -690,15 +709,25 @@ img {
 }
 
 .icon-art .pixel-icon {
-  width: 32px;
-  height: 32px;
+  position: relative;
+  z-index: 2;
+  width: 24px;
+  height: 24px;
+  transform: translate(-2px, -2px);
 }
 
 .desktop-icon:hover .icon-art,
 .desktop-icon.is-selected .icon-art {
-  border-color: rgba(189, 81, 45, .76);
-  box-shadow: inset -3px -3px 0 rgba(189, 81, 45, .09), 2px 3px 0 rgba(189, 81, 45, .3);
   transform: translate(-1px, -2px);
+}
+
+.desktop-icon:hover .icon-art::before {
+  background: #30231d;
+}
+
+.desktop-icon.is-selected .icon-art::before {
+  background: var(--rust);
+  box-shadow: inset 2px 2px 0 rgba(255, 240, 226, .2), inset -2px -2px 0 rgba(74, 23, 10, .28);
 }
 
 /* Window manager */
@@ -1589,27 +1618,19 @@ img {
 }
 
 .task-pixel-icon {
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
 }
 
 .task-button::before {
-  width: 7px;
-  height: 7px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: #74685f;
-  content: "";
+  display: none;
 }
 
 .task-button.is-active {
-  border-color: var(--rust-bright);
+  border-color: rgba(227, 117, 73, .45);
   color: #fff0e5;
-  background: rgba(189, 81, 45, .2);
-}
-
-.task-button.is-active::before {
-  background: var(--rust-bright);
+  background: rgba(189, 81, 45, .14);
+  box-shadow: inset 0 -3px 0 var(--rust-bright);
 }
 
 .task-button.is-minimized {
@@ -2072,8 +2093,8 @@ img {
   }
 
   .mobile-launcher .pixel-icon {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
   }
 
   .mobile-launcher b {

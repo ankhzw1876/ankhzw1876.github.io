@@ -1,6 +1,3 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
-  <rect x="2" y="3" width="12" height="10" fill="#211914"/>
-  <rect x="3" y="4" width="10" height="8" fill="#79c8c2"/>
-  <path fill="#f4eee7" d="M3 4h10v2h-1v1h-1v1h-1v1H6V8H5V7H4V6H3z"/>
-  <rect x="7" y="8" width="2" height="2" fill="#bd512d"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" shape-rendering="crispEdges" aria-hidden="true">
+  <path fill="#f4eee7" d="M6 8h2v2H6zm2 2h2v2H8zm10-2h-2v2h2zm-2 2h-2v2h2zm-6 2h4v2h-4zM2 6h2v12H2zm18 0h2v12h-2zM4 4h16v2H4zm0 14h16v2H4z"/>
 </svg>
