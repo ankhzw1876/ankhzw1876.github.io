@@ -614,6 +614,11 @@
     const position = coverflow?.querySelector('[data-xhs-position]');
     if (!coverflow || !viewport || !cards.length) return;
 
+    cards.forEach((card) => {
+      const image = card.querySelector('img');
+      if (image) image.loading = 'eager';
+    });
+
     let index = 0;
     let pointerStart = null;
     let suppressClick = false;
