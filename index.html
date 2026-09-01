@@ -11,7 +11,7 @@
     <meta property="og:image" content="assets/portrait.jpg" />
     <title>XiaHua OS｜王天宇</title>
     <script>document.documentElement.className = 'js';</script>
-    <link rel="stylesheet" href="site.css?v=13" />
+    <link rel="stylesheet" href="site.css?v=18" />
   </head>
   <body>
     <a class="skip-link" href="#desktop-icons">跳到桌面图标</a>
@@ -114,7 +114,7 @@
           </ul>
 
           <div class="window-layer" data-window-layer>
-            <section class="os-window about-window" data-window="about" data-title="关于我" data-width="760" data-height="540" role="dialog" aria-modal="false" aria-labelledby="window-about-title" hidden>
+            <section class="os-window about-window" data-window="about" data-title="关于我" data-width="860" data-height="620" role="dialog" aria-modal="false" aria-labelledby="window-about-title" hidden>
               <header class="window-titlebar" data-drag-handle>
                 <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭关于我" title="关闭关于我"><i></i><i></i><i></i></button>
                 <h2 id="window-about-title">~/about-me</h2>
@@ -133,18 +133,19 @@
                   <figcaption>WANG TIANYU · 2026</figcaption>
                 </figure>
                 <div class="about-copy">
-                  <p class="app-kicker">AI PRODUCT MANAGER</p>
+                  <p class="app-kicker">AI PRODUCT MANAGER · AGENT EVALUATION</p>
                   <h3>你好，我是王天宇。</h3>
-                  <p>我关注 Agent、RAG、模型评估与数据策略，也用真实项目追问：一个能跑的 Demo，怎样才能成为稳定、可衡量、愿意被每天使用的产品。</p>
-                  <div class="focus-grid">
-                    <span><b>01</b>Agent 产品化</span>
-                    <span><b>02</b>RAG 数据与评估</span>
-                    <span><b>03</b>模型训练策略</span>
+                  <p>我做过移动端 GUI Agent 的任务与轨迹评测，也推进过跨团队 Agent MVP 和自动化评测方案。相比只讨论模型能力，我更关心用户意图怎样变成可执行任务、一次失败怎样留下可复核证据，以及不同角色怎样对同一个结果形成一致判断。</p>
+                  <p>工作之外，我会亲手做原型、数据工具和内容工作流，把复杂技术“咀嚼”成普通人能读懂、团队能继续使用的东西。</p>
+                  <div class="method-list" aria-label="我的产品方法">
+                    <div><span>01</span><p><b>把意图写成任务</b><small>明确目标、约束、起始状态和可验证终态。</small></p></div>
+                    <div><span>02</span><p><b>沿轨迹找到首错</b><small>不只看最终成败，回到截图、动作和第一个关键偏差。</small></p></div>
+                    <div><span>03</span><p><b>让评测推动下一轮</b><small>用 Badcase、判断边界和回归任务连接版本迭代。</small></p></div>
                   </div>
-                  <blockquote>“不只问模型能不能做，也问用户为什么继续用。”</blockquote>
+                  <blockquote>我想做的不是一个“会演示”的模型，而是一套能被解释、被验证、被继续使用的产品。</blockquote>
                   <div class="app-actions">
                     <button class="os-button primary" type="button" data-open-app="writing">从文章认识我 →</button>
-                    <button class="os-button" type="button" data-copy="ankhzw">复制微信 ankhzw</button>
+                    <button class="os-button" type="button" data-open-app="contact">直接联系我 →</button>
                   </div>
                 </div>
               </div>
@@ -218,7 +219,7 @@
               </div>
             </section>
 
-            <section class="os-window xhs-window" data-window="xiaohongshu" data-title="小红书" data-width="800" data-height="560" role="dialog" aria-modal="false" aria-labelledby="window-xhs-title" hidden>
+            <section class="os-window xhs-window" data-window="xiaohongshu" data-title="小红书" data-width="900" data-height="620" role="dialog" aria-modal="false" aria-labelledby="window-xhs-title" hidden>
               <header class="window-titlebar" data-drag-handle>
                 <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭小红书" title="关闭小红书"><i></i><i></i><i></i></button>
                 <h2 id="window-xhs-title">~/xiaohongshu</h2>
@@ -229,20 +230,60 @@
               </header>
               <div class="window-body xhs-app">
                 <div class="xhs-profile">
-                  <div><span class="xhs-avatar" aria-hidden="true">🍤</span><p><strong>咀嚼虾滑</strong><small>AI 概念、产品观察与学习笔记</small></p></div>
+                  <div><span class="xhs-avatar" aria-hidden="true">🍤</span><p><strong>咀嚼虾滑</strong><small>把复杂 AI 概念，咀嚼成能读懂的卡片</small></p></div>
                   <p><b>12</b> 篇笔记</p>
                   <a href="https://www.xiaohongshu.com/user/profile/608b486a0000000001004399" target="_blank" rel="noopener noreferrer">进入主页 ↗</a>
                 </div>
-                <div class="xhs-board" role="list" aria-label="近期小红书主题">
-                  <button class="xhs-note note-rust is-selected" type="button" data-xhs-topic="Harness" data-xhs-detail="模型没换，为什么用工具、上下文和反馈回路就能让能力翻倍？" aria-pressed="true"><span>AI 产品词典 · 01</span><b>HARNESS</b><strong>模型没换，<br />能力为什么能翻倍？</strong><small>MODEL × TOOL × CONTEXT</small></button>
-                  <button class="xhs-note note-ink" type="button" data-xhs-topic="Generative UI" data-xhs-detail="当界面不再预先固定，而是根据任务现场生长，产品经理应该如何定义边界？" aria-pressed="false"><span>产品观察 · 02</span><b>GENERATIVE UI</b><strong>界面开始按问题<br />现场生长</strong><small>INTERFACE ON DEMAND</small></button>
-                  <button class="xhs-note note-paper" type="button" data-xhs-topic="Agentic RAG" data-xhs-detail="一次搜索没有答案时，系统如何判断、改写问题并继续检索？" aria-pressed="false"><span>RAG 进阶 · 03</span><b>AGENTIC RAG</b><strong>一次搜不到，<br />它会自己再查。</strong><small>SEARCH / JUDGE / RETRY</small></button>
+                <div class="xhs-coverflow" data-xhs-coverflow>
+                  <div class="xhs-coverflow-viewport" data-xhs-viewport tabindex="0" role="list" aria-label="12 篇小红书笔记，可点击侧边卡片、滑动或使用左右方向键切换">
+                    <article class="xhs-cover-card is-active" role="listitem" data-xhs-card data-xhs-title="Multi-Agent Scaling：多放几个 Agent" aria-current="true">
+                      <button type="button" data-xhs-select aria-label="查看 Multi-Agent Scaling：多放几个 Agent"><img src="assets/xhs-covers/01-multi-agent-scaling.webp" alt="Multi-Agent Scaling：多放几个 Agent 笔记封面" width="640" height="853" draggable="false" /></button>
+                    </article>
+                    <article class="xhs-cover-card" role="listitem" data-xhs-card data-xhs-title="Harness：模型没换，能力为什么能翻倍">
+                      <button type="button" data-xhs-select aria-label="查看 Harness：模型没换，能力为什么能翻倍"><img src="assets/xhs-covers/02-harness.webp" alt="Harness：模型没换，能力为什么能翻倍 笔记封面" width="640" height="853" loading="lazy" decoding="async" draggable="false" /></button>
+                    </article>
+                    <article class="xhs-cover-card" role="listitem" data-xhs-card data-xhs-title="Generative UI：界面开始按问题现场生长">
+                      <button type="button" data-xhs-select aria-label="查看 Generative UI：界面开始按问题现场生长"><img src="assets/xhs-covers/03-generative-ui.webp" alt="Generative UI：界面开始按问题现场生长 笔记封面" width="640" height="853" loading="lazy" decoding="async" draggable="false" /></button>
+                    </article>
+                    <article class="xhs-cover-card" role="listitem" data-xhs-card data-xhs-title="Deep Research：它为什么会查几十个网页">
+                      <button type="button" data-xhs-select aria-label="查看 Deep Research：它为什么会查几十个网页"><img src="assets/xhs-covers/04-deep-research.webp" alt="Deep Research：它为什么会查几十个网页 笔记封面" width="640" height="853" loading="lazy" decoding="async" draggable="false" /></button>
+                    </article>
+                    <article class="xhs-cover-card" role="listitem" data-xhs-card data-xhs-title="Context Engineering：窗口越大就越聪明吗">
+                      <button type="button" data-xhs-select aria-label="查看 Context Engineering：窗口越大就越聪明吗"><img src="assets/xhs-covers/05-context-engineering.webp" alt="Context Engineering：窗口越大就越聪明吗 笔记封面" width="640" height="853" loading="lazy" decoding="async" draggable="false" /></button>
+                    </article>
+                    <article class="xhs-cover-card" role="listitem" data-xhs-card data-xhs-title="Agentic RAG：一次搜不到，它会自己再查">
+                      <button type="button" data-xhs-select aria-label="查看 Agentic RAG：一次搜不到，它会自己再查"><img src="assets/xhs-covers/06-agentic-rag.webp" alt="Agentic RAG：一次搜不到，它会自己再查 笔记封面" width="640" height="853" loading="lazy" decoding="async" draggable="false" /></button>
+                    </article>
+                    <article class="xhs-cover-card" role="listitem" data-xhs-card data-xhs-title="Agent Skills：Agent 也能按需安装专业能力">
+                      <button type="button" data-xhs-select aria-label="查看 Agent Skills：Agent 也能按需安装专业能力"><img src="assets/xhs-covers/07-agent-skills.webp" alt="Agent Skills：Agent 也能按需安装专业能力 笔记封面" width="640" height="853" loading="lazy" decoding="async" draggable="false" /></button>
+                    </article>
+                    <article class="xhs-cover-card" role="listitem" data-xhs-card data-xhs-title="Agent Sandbox：Agent 执行命令怎么不失控">
+                      <button type="button" data-xhs-select aria-label="查看 Agent Sandbox：Agent 执行命令怎么不失控"><img src="assets/xhs-covers/08-agent-sandbox.webp" alt="Agent Sandbox：Agent 执行命令怎么不失控 笔记封面" width="640" height="853" loading="lazy" decoding="async" draggable="false" /></button>
+                    </article>
+                    <article class="xhs-cover-card" role="listitem" data-xhs-card data-xhs-title="A2UI：Agent 生成 UI，为什么不用 HTML">
+                      <button type="button" data-xhs-select aria-label="查看 A2UI：Agent 生成 UI，为什么不用 HTML"><img src="assets/xhs-covers/09-a2ui.webp" alt="A2UI：Agent 生成 UI，为什么不用 HTML 笔记封面" width="640" height="853" loading="lazy" decoding="async" draggable="false" /></button>
+                    </article>
+                    <article class="xhs-cover-card" role="listitem" data-xhs-card data-xhs-title="A2A Protocol：不同公司的 Agent 怎么对话">
+                      <button type="button" data-xhs-select aria-label="查看 A2A Protocol：不同公司的 Agent 怎么对话"><img src="assets/xhs-covers/10-a2a-protocol.webp" alt="A2A Protocol：不同公司的 Agent 怎么对话 笔记封面" width="640" height="853" loading="lazy" decoding="async" draggable="false" /></button>
+                    </article>
+                    <article class="xhs-cover-card" role="listitem" data-xhs-card data-xhs-title="Loop Engineering：别再亲手追着 Agent 改">
+                      <button type="button" data-xhs-select aria-label="查看 Loop Engineering：别再亲手追着 Agent 改"><img src="assets/xhs-covers/11-loop-engineering.webp" alt="Loop Engineering：别再亲手追着 Agent 改 笔记封面" width="640" height="853" loading="lazy" decoding="async" draggable="false" /></button>
+                    </article>
+                    <article class="xhs-cover-card" role="listitem" data-xhs-card data-xhs-title="Grokking：模型过拟合后，为什么突然会了">
+                      <button type="button" data-xhs-select aria-label="查看 Grokking：模型过拟合后，为什么突然会了"><img src="assets/xhs-covers/12-grokking.webp" alt="Grokking：模型过拟合后，为什么突然会了 笔记封面" width="640" height="853" loading="lazy" decoding="async" draggable="false" /></button>
+                    </article>
+                  </div>
+                  <div class="xhs-coverflow-controls">
+                    <button type="button" data-xhs-prev aria-label="上一篇小红书笔记">←</button>
+                    <p><b data-xhs-position>1 / 12</b><span>点击侧卡 · 拖动 · 使用方向键</span></p>
+                    <button type="button" data-xhs-next aria-label="下一篇小红书笔记">→</button>
+                  </div>
                 </div>
-                <div class="xhs-detail" aria-live="polite"><span data-xhs-topic-title>HARNESS</span><p data-xhs-topic-detail>模型没换，为什么用工具、上下文和反馈回路就能让能力翻倍？</p></div>
+                <div class="xhs-detail" aria-live="polite"><span>当前笔记</span><p data-xhs-topic-title>Multi-Agent Scaling：多放几个 Agent</p><a href="https://www.xiaohongshu.com/user/profile/608b486a0000000001004399" target="_blank" rel="noopener noreferrer">在主页查看 ↗</a></div>
               </div>
             </section>
 
-            <section class="os-window contact-window" data-window="contact" data-title="联系我" data-width="500" data-height="390" role="dialog" aria-modal="false" aria-labelledby="window-contact-title" hidden>
+            <section class="os-window contact-window" data-window="contact" data-title="联系我" data-width="540" data-height="545" role="dialog" aria-modal="false" aria-labelledby="window-contact-title" hidden>
               <header class="window-titlebar" data-drag-handle>
                 <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭联系我" title="关闭联系我"><i></i><i></i><i></i></button>
                 <h2 id="window-contact-title">~/contact</h2>
@@ -253,12 +294,14 @@
               </header>
               <div class="window-body contact-app">
                 <p class="app-kicker">LET'S CONNECT</p>
-                <h3>如果你也在做 AI 产品，欢迎来聊。</h3>
+                <h3>项目合作、AI 产品交流或内容共创，都可以直接找我。</h3>
                 <div class="contact-list">
+                  <a href="mailto:15801699141@163.com"><span>邮箱</span><b>15801699141@163.com</b><i>写邮件</i></a>
+                  <a href="tel:15801699141"><span>电话</span><b>15801699141</b><i>拨打</i></a>
                   <button type="button" data-copy="ankhzw"><span>微信</span><b>ankhzw</b><i>复制</i></button>
                   <a href="https://github.com/ankhzw1876" target="_blank" rel="noopener noreferrer"><span>GitHub</span><b>@ankhzw1876</b><i>↗</i></a>
-                  <a href="https://www.woshipm.com/u/1663812" target="_blank" rel="noopener noreferrer"><span>文章</span><b>人人都是产品经理</b><i>↗</i></a>
                   <a href="https://www.xiaohongshu.com/user/profile/608b486a0000000001004399" target="_blank" rel="noopener noreferrer"><span>小红书</span><b>🍤咀嚼虾滑</b><i>↗</i></a>
+                  <a href="https://www.woshipm.com/u/1663812" target="_blank" rel="noopener noreferrer"><span>文章</span><b>人人都是产品经理</b><i>↗</i></a>
                 </div>
               </div>
             </section>
@@ -315,10 +358,11 @@
         html,body{height:auto!important;overflow:auto!important}.os-shell{position:static!important;width:auto!important;height:auto!important}
         .welcome-screen,.boot-screen,.topbar,.desktop-icons,.desktop-statement,.taskbar,.mobile-launcher,.system-menu{display:none!important}
         .desktop{display:block!important;position:static!important;width:auto!important;height:auto!important;overflow:visible!important}.wallpaper{display:block!important;min-height:0!important;padding:24px!important;overflow:visible!important}.window-layer{position:static!important}.os-window[hidden]{display:grid!important;position:relative!important;inset:auto!important;width:100%!important;height:auto!important;max-height:none!important;margin:0 0 24px!important;transform:none!important}.window-body{max-height:none!important}.window-actions,.window-lights{display:none!important}
+        .xhs-coverflow-viewport{display:flex!important;gap:12px!important;height:auto!important;overflow-x:auto!important;perspective:none!important}.xhs-cover-card{position:relative!important;inset:auto!important;flex:0 0 min(220px,70vw)!important;opacity:1!important;visibility:visible!important;transform:none!important}.xhs-coverflow-controls{display:none!important}
       </style>
       <p class="noscript-note">JavaScript 未启用，下面展示静态作品内容。</p>
     </noscript>
 
-    <script src="site.js?v=13" defer></script>
+    <script src="site.js?v=18" defer></script>
   </body>
 </html>

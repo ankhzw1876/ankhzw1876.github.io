@@ -606,26 +606,119 @@
     if (image?.complete && image.naturalWidth > 0) markImageLoaded();
   };
 
-  const bindXhsBoard = () => {
-    const notes = [...document.querySelectorAll('[data-xhs-topic]')];
+  const bindXhsCoverflow = () => {
+    const coverflow = document.querySelector('[data-xhs-coverflow]');
+    const viewport = coverflow?.querySelector('[data-xhs-viewport]');
+    const cards = [...(coverflow?.querySelectorAll('[data-xhs-card]') || [])];
     const title = document.querySelector('[data-xhs-topic-title]');
-    const detail = document.querySelector('[data-xhs-topic-detail]');
-    notes.forEach((note) => {
-      note.addEventListener('click', () => {
-        notes.forEach((candidate) => {
-          const selected = candidate === note;
-          candidate.classList.toggle('is-selected', selected);
-          candidate.setAttribute('aria-pressed', String(selected));
-        });
-        if (title) title.textContent = String(note.dataset.xhsTopic || '').toUpperCase();
-        if (detail) detail.textContent = note.dataset.xhsDetail || '';
-        if (mobileQuery.matches) {
-          const board = note.parentElement;
-          const left = note.offsetLeft - (board.clientWidth - note.offsetWidth) / 2;
-          board.scrollTo({ left, behavior: motionQuery.matches ? 'auto' : 'smooth' });
+    const position = coverflow?.querySelector('[data-xhs-position]');
+    if (!coverflow || !viewport || !cards.length) return;
+
+    let index = 0;
+    let pointerStart = null;
+    let suppressClick = false;
+
+    const wrapOffset = (cardIndex) => {
+      let offset = cardIndex - index;
+      if (offset > cards.length / 2) offset -= cards.length;
+      if (offset < -cards.length / 2) offset += cards.length;
+      return offset;
+    };
+
+    const render = () => {
+      const viewportWidth = viewport.clientWidth || 760;
+      const cardWidth = cards[0]?.offsetWidth || (mobileQuery.matches ? 200 : 232);
+      const firstStep = mobileQuery.matches
+        ? Math.min(viewportWidth * .34, cardWidth * .7)
+        : Math.min(viewportWidth * .245, cardWidth * .84);
+      const secondStep = mobileQuery.matches ? firstStep * 1.72 : firstStep * 1.65;
+
+      cards.forEach((card, cardIndex) => {
+        const offset = wrapOffset(cardIndex);
+        const distance = Math.abs(offset);
+        const direction = Math.sign(offset);
+        const active = distance === 0;
+        const selectable = distance > 0 && distance <= 2;
+        const far = distance > 2;
+        const x = distance === 0 ? 0 : direction * (distance === 1 ? firstStep : secondStep);
+        const select = card.querySelector('[data-xhs-select]');
+
+        card.id = `xhs-cover-${cardIndex + 1}`;
+        card.style.setProperty('--xhs-x', `${x.toFixed(1)}px`);
+        card.style.setProperty('--xhs-y', `${Math.min(distance, 2) * 5}px`);
+        card.style.setProperty('--xhs-z', `${Math.min(distance, 2) * -155}px`);
+        card.style.setProperty('--xhs-rotate', `${direction * (distance === 1 ? -23 : -29)}deg`);
+        card.style.setProperty('--xhs-scale', active ? '1' : distance === 1 ? '.88' : '.75');
+        card.style.setProperty('--xhs-opacity', active ? '1' : distance === 1 ? '.7' : distance === 2 ? '.4' : '0');
+        card.style.setProperty('--xhs-saturation', active ? '1' : distance === 1 ? '.76' : '.55');
+        card.style.setProperty('--xhs-brightness', active ? '1' : distance === 1 ? '.83' : '.66');
+        card.style.setProperty('--xhs-order', String(20 - distance));
+        card.classList.toggle('is-active', active);
+        card.classList.toggle('is-selectable', selectable);
+        card.classList.toggle('is-far', far);
+        card.inert = far;
+        if (far) card.setAttribute('aria-hidden', 'true');
+        else card.removeAttribute('aria-hidden');
+        if (active) card.setAttribute('aria-current', 'true');
+        else card.removeAttribute('aria-current');
+        if (select) select.tabIndex = selectable ? 0 : -1;
+      });
+
+      const activeCard = cards[index];
+      coverflow.dataset.index = String(index);
+      if (title) title.textContent = activeCard.dataset.xhsTitle || '';
+      if (position) position.textContent = `${index + 1} / ${cards.length}`;
+    };
+
+    const goTo = (nextIndex) => {
+      index = (nextIndex + cards.length) % cards.length;
+      render();
+    };
+
+    cards.forEach((card, cardIndex) => {
+      card.querySelector('[data-xhs-select]')?.addEventListener('click', (event) => {
+        if (suppressClick) {
+          event.preventDefault();
+          return;
         }
+        goTo(cardIndex);
+        viewport.focus({ preventScroll: true });
       });
     });
+
+    coverflow.querySelector('[data-xhs-prev]')?.addEventListener('click', () => goTo(index - 1));
+    coverflow.querySelector('[data-xhs-next]')?.addEventListener('click', () => goTo(index + 1));
+
+    viewport.addEventListener('keydown', (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      if (event.key === 'ArrowLeft') goTo(index - 1);
+      if (event.key === 'ArrowRight') goTo(index + 1);
+      if (event.key === 'Home') goTo(0);
+      if (event.key === 'End') goTo(cards.length - 1);
+    });
+
+    viewport.addEventListener('pointerdown', (event) => {
+      if (!event.isPrimary) return;
+      pointerStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
+      try { viewport.setPointerCapture?.(event.pointerId); } catch { /* Pointer already ended. */ }
+    }, { passive: true });
+
+    viewport.addEventListener('pointerup', (event) => {
+      if (!pointerStart || pointerStart.id !== event.pointerId) return;
+      const dx = event.clientX - pointerStart.x;
+      const dy = event.clientY - pointerStart.y;
+      pointerStart = null;
+      if (Math.abs(dx) < 46 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+      suppressClick = true;
+      goTo(dx < 0 ? index + 1 : index - 1);
+      window.setTimeout(() => { suppressClick = false; }, 260);
+    }, { passive: true });
+
+    viewport.addEventListener('pointercancel', () => { pointerStart = null; }, { passive: true });
+    if ('ResizeObserver' in window) new ResizeObserver(render).observe(viewport);
+    else window.addEventListener('resize', render);
+    render();
   };
 
   const copyText = async (value) => {
@@ -761,7 +854,7 @@
   bindLaunchers();
   bindArticleExplorer();
   bindRepoExplorer();
-  bindXhsBoard();
+  bindXhsCoverflow();
   bindCopyButtons();
   bindPortraitTilt();
   bindGlobalEvents();
