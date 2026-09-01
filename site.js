@@ -564,6 +564,7 @@
     const description = document.querySelector('[data-repo-preview-description]');
     const image = document.querySelector('[data-repo-preview-image]');
     const open = document.querySelector('[data-repo-open]');
+    const imageOpen = document.querySelector('[data-repo-image-open]');
     const imageWrap = image?.closest('.repo-image');
     const markImageLoaded = () => {
       imageWrap?.classList.add('is-loaded');
@@ -581,10 +582,15 @@
         if (kind) kind.textContent = row.dataset.repoKind || '';
         if (description) description.textContent = row.dataset.repoDescription || '';
         if (open) open.href = row.dataset.repoUrl || '#';
+        if (imageOpen) {
+          imageOpen.href = row.dataset.repoUrl || '#';
+          imageOpen.setAttribute('aria-label', `打开${row.dataset.repoTitle || '项目'}仓库`);
+        }
         if (image) {
           imageWrap?.classList.remove('is-error', 'is-loaded');
           image.src = row.dataset.repoImage || '';
           image.alt = `${row.dataset.repoTitle || 'GitHub'} 项目预览`;
+          image.style.setProperty('--repo-image-position', row.dataset.repoPosition || 'center');
           requestAnimationFrame(() => {
             if (image.complete && image.naturalWidth > 0) markImageLoaded();
           });
@@ -676,21 +682,26 @@
 
   const updateGithubData = async () => {
     try {
-      const userResponse = await fetch('https://api.github.com/users/ankhzw1876');
+      const [userResponse, reposResponse] = await Promise.all([
+        fetch('https://api.github.com/users/ankhzw1876'),
+        fetch('https://api.github.com/users/ankhzw1876/repos?per_page=100&sort=updated')
+      ]);
       if (userResponse.ok) {
         const user = await userResponse.json();
         document.querySelectorAll('[data-repo-count]').forEach((node) => {
           node.textContent = node.closest('.boot-log') ? `${user.public_repos} repos` : String(user.public_repos);
         });
       }
-
-      const repos = [...document.querySelectorAll('[data-repo]')];
-      await Promise.all(repos.map(async (row) => {
-        const response = await fetch(`https://api.github.com/repos/ankhzw1876/${row.dataset.repo}`);
-        if (!response.ok) return;
-        const repo = await response.json();
-        row.querySelectorAll('[data-repo-stars]').forEach((node) => { node.textContent = String(repo.stargazers_count); });
-      }));
+      if (reposResponse.ok) {
+        const repoMap = new Map((await reposResponse.json()).map((repo) => [repo.name, repo]));
+        document.querySelectorAll('[data-repo]').forEach((row) => {
+          const repo = repoMap.get(row.dataset.repo);
+          if (!repo) return;
+          row.querySelectorAll('[data-repo-stars]').forEach((node) => {
+            node.textContent = String(repo.stargazers_count);
+          });
+        });
+      }
     } catch {
       // Static portfolio values stay visible if GitHub is unavailable or rate-limited.
     }
