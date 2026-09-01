@@ -94,7 +94,7 @@
       bootScreen.classList.remove('is-ending');
     }
 
-    showToast('系统就绪 · 双击图标开始', 2600);
+    showToast('系统就绪 · 单击图标开始', 2600);
     const deepLink = getValidHash();
     if (deepLink) {
       window.setTimeout(() => openApp(deepLink, document.querySelector(`[data-app-icon="${deepLink}"]`), { syncHash: false }), motionQuery.matches ? 0 : 240);
@@ -501,17 +501,7 @@
     document.querySelectorAll('[data-app-icon]').forEach((icon) => {
       const id = icon.dataset.appIcon;
       icon.setAttribute('aria-pressed', 'false');
-      icon.addEventListener('click', () => {
-        clearIconSelection(icon);
-        if (coarseQuery.matches) openApp(id, icon);
-      });
-      icon.addEventListener('dblclick', () => openApp(id, icon));
-      icon.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
-        event.preventDefault();
-        clearIconSelection(icon);
-        openApp(id, icon);
-      });
+      icon.addEventListener('click', () => openApp(id, icon));
     });
 
     document.querySelectorAll('[data-open-app]').forEach((button) => {
