@@ -16,12 +16,12 @@
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const coarseQuery = window.matchMedia('(pointer: coarse)');
   const mobileQuery = window.matchMedia('(max-width: 720px)');
-  const appIds = ['about', 'writing', 'github', 'game', 'xiaohongshu', 'contact', 'archive'];
+  const appIds = ['about', 'writing', 'github', 'xiaohongshu', 'game', 'contact', 'archive'];
   const appMeta = {
     about: { title: '关于我', path: '~/about-me', icon: 'assets/pixel-icons/about.svg?v=2' },
     writing: { title: '文章作品', path: '~/writing', icon: 'assets/pixel-icons/writing.svg?v=2' },
     github: { title: 'GitHub', path: '~/github', icon: 'assets/pixel-icons/github.svg?v=2' },
-    game: { title: 'Joker 游戏', path: '~/games/joker-card', icon: 'assets/pixel-icons/game.svg?v=1' },
+    game: { title: '游戏文件夹', path: '~/games', icon: 'assets/pixel-icons/game.svg?v=1' },
     xiaohongshu: { title: '小红书', path: '~/xiaohongshu', icon: 'assets/pixel-icons/xiaohongshu.svg?v=2' },
     contact: { title: '联系我', path: '~/contact', icon: 'assets/pixel-icons/contact.svg?v=2' },
     archive: { title: '版本归档', path: '~/versions', icon: 'assets/pixel-icons/archive.svg?v=2' }
@@ -35,6 +35,7 @@
   let activeId = null;
   let toastTimer = 0;
   let wallpaperFrame = 0;
+  let resetGameView = () => {};
 
   const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
@@ -376,6 +377,7 @@
     const state = windows.get(id);
     if (!state || state.status === 'closed') return;
     const wasActive = activeId === id;
+    if (id === 'game') resetGameView({ focus: false, unload: true });
     state.status = 'closed';
     state.element.dataset.state = 'closed';
     state.element.hidden = true;
@@ -770,14 +772,90 @@
   };
 
   const bindGamePlayer = () => {
+    const gameApp = document.querySelector('[data-game-app]');
+    const library = document.querySelector('[data-game-library]');
+    const player = document.querySelector('[data-game-player]');
+    const gameItems = [...document.querySelectorAll('[data-game-item]')];
+    const back = document.querySelector('[data-game-back]');
+    const windowPath = document.querySelector('[data-game-window-path]');
+    const playerTitle = document.querySelector('[data-game-player-title]');
+    const playerSubtitle = document.querySelector('[data-game-player-subtitle]');
+    const standalone = document.querySelector('[data-game-standalone]');
+    const repository = document.querySelector('[data-game-repository]');
     const frame = document.querySelector('[data-game-frame]');
     const stage = document.querySelector('[data-game-stage]');
     const reload = document.querySelector('[data-game-reload]');
     const fullscreen = document.querySelector('[data-game-fullscreen]');
-    if (!frame || !stage) return;
+    if (!gameApp || !library || !player || !frame || !stage) return;
+
+    const syncGamePath = (path) => {
+      const nextPath = path ? `~/games/${path}` : '~/games';
+      if (windowPath) windowPath.textContent = nextPath;
+      appMeta.game.path = nextPath;
+      if (activeId === 'game') syncChrome();
+    };
+
+    const showLibrary = ({ focus = true, unload = false } = {}) => {
+      gameApp.dataset.view = 'library';
+      library.hidden = false;
+      library.inert = false;
+      player.hidden = true;
+      player.inert = true;
+      syncGamePath('');
+      if (unload) {
+        frame.removeAttribute('src');
+        delete frame.dataset.loaded;
+        delete frame.dataset.activeSrc;
+      }
+      if (focus) requestAnimationFrame(() => gameItems[0]?.focus({ preventScroll: true }));
+    };
+
+    const openGame = (item) => {
+      const title = item.dataset.gameTitle || '游戏';
+      const subtitle = item.dataset.gameSubtitle || '可即时试玩';
+      const source = item.dataset.gameSrc || item.href;
+      const path = item.dataset.gamePath || title.toLowerCase().replace(/\s+/g, '-');
+      const repo = item.dataset.gameRepo || '';
+
+      if (playerTitle) playerTitle.textContent = title.toUpperCase();
+      if (playerSubtitle) playerSubtitle.textContent = subtitle;
+      if (standalone) standalone.href = source;
+      if (repository) {
+        repository.hidden = !repo;
+        if (repo) repository.href = repo;
+      }
+      player.setAttribute('aria-label', `${title} 即时试玩`);
+      frame.title = `${title} 即时试玩`;
+      frame.dataset.activeSrc = source;
+      if (frame.dataset.loaded !== source) {
+        frame.src = source;
+        frame.dataset.loaded = source;
+      }
+
+      gameApp.dataset.view = 'player';
+      library.hidden = true;
+      library.inert = true;
+      player.hidden = false;
+      player.inert = false;
+      syncGamePath(path);
+      requestAnimationFrame(() => back?.focus({ preventScroll: true }));
+      showToast(`${title} 已启动`);
+    };
+
+    gameItems.forEach((item) => {
+      item.addEventListener('click', (event) => {
+        event.preventDefault();
+        openGame(item);
+      });
+    });
+
+    back?.addEventListener('click', () => showLibrary());
+    resetGameView = showLibrary;
 
     reload?.addEventListener('click', () => {
-      frame.src = frame.src;
+      const source = frame.dataset.activeSrc;
+      if (!source) return;
+      frame.src = source;
       showToast('新的一局已经洗好牌');
     });
 
@@ -791,10 +869,11 @@
         if (document.fullscreenElement) await document.exitFullscreen();
         else await stage.requestFullscreen();
       } catch {
-        window.open(frame.src, '_blank', 'noopener,noreferrer');
+        window.open(frame.dataset.activeSrc || standalone?.href, '_blank', 'noopener,noreferrer');
       }
     });
     document.addEventListener('fullscreenchange', syncFullscreenLabel);
+    showLibrary({ focus: false });
   };
 
   const updateGithubData = async () => {

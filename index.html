@@ -4,14 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#241a15" />
-    <meta name="description" content="XiaHua OS：王天宇的 AI 产品工作台。通过可交互窗口浏览个人档案、文章、GitHub 项目、可玩游戏与小红书内容。" />
+    <meta name="description" content="XiaHua OS：王天宇的 AI 产品工作台。通过可交互窗口浏览个人档案、文章、GitHub 项目与小红书内容。" />
     <meta property="og:title" content="XiaHua OS｜王天宇" />
     <meta property="og:description" content="把模型能力，做成有人用的产品。" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="assets/portrait.jpg" />
     <title>XiaHua OS｜王天宇</title>
     <script>document.documentElement.className = 'js';</script>
-    <link rel="stylesheet" href="site.css?v=21" />
+    <link rel="stylesheet" href="site.css?v=22" />
   </head>
   <body>
     <a class="skip-link" href="#desktop-icons">跳到桌面图标</a>
@@ -32,7 +32,7 @@
                 <div><dt>用户</dt><dd>王天宇</dd></div>
                 <div><dt>角色</dt><dd>AI 产品经理</dd></div>
                 <div><dt>关注</dt><dd>Agent / RAG / 评估</dd></div>
-                <div><dt>模块</dt><dd>档案 / 作品 / 游戏 / 内容</dd></div>
+                <div><dt>模块</dt><dd>档案 / 文章 / 仓库 / 内容</dd></div>
               </dl>
             </div>
           </div>
@@ -51,7 +51,7 @@
             <li data-boot-line>加载个人档案................ <b>ok</b></li>
             <li data-boot-line>挂载文章作品................ <b>3 + 1</b></li>
             <li data-boot-line>连接 GitHub................. <b data-repo-count>15 repos</b></li>
-            <li data-boot-line>加载 Joker 游戏............. <b>playable</b></li>
+            <li data-boot-line>编排作品入口................ <b>ready</b></li>
             <li data-boot-line>索引知识吞吐................ <b>12 notes</b></li>
             <li data-boot-line>启动窗口管理器.............. <b>ok</b></li>
           </ol>
@@ -76,7 +76,6 @@
             <div class="desktop-stats" aria-label="内容概览">
               <span><b>3</b> 篇文章</span>
               <span><b data-repo-count>15</b> 个仓库</span>
-              <span><b>1</b> 个游戏</span>
               <span><b>12</b> 篇笔记</span>
             </div>
             <small>单击左侧图标打开应用 · 窗口可以拖动与叠放</small>
@@ -99,13 +98,13 @@
               </button>
             </li>
             <li>
-              <button class="desktop-icon" type="button" data-app-icon="game" data-label="Joker 游戏">
-                <span class="icon-art icon-game" aria-hidden="true"><img class="pixel-icon" src="assets/pixel-icons/game.svg?v=1" alt="" width="24" height="24" /></span><span>游戏</span>
+              <button class="desktop-icon" type="button" data-app-icon="xiaohongshu" data-label="小红书">
+                <span class="icon-art icon-xhs" aria-hidden="true"><img class="pixel-icon" src="assets/pixel-icons/xiaohongshu.svg?v=2" alt="" width="24" height="24" /></span><span>小红书</span>
               </button>
             </li>
             <li>
-              <button class="desktop-icon" type="button" data-app-icon="xiaohongshu" data-label="小红书">
-                <span class="icon-art icon-xhs" aria-hidden="true"><img class="pixel-icon" src="assets/pixel-icons/xiaohongshu.svg?v=2" alt="" width="24" height="24" /></span><span>小红书</span>
+              <button class="desktop-icon" type="button" data-app-icon="game" data-label="游戏文件夹">
+                <span class="icon-art icon-game" aria-hidden="true"><img class="pixel-icon" src="assets/pixel-icons/game.svg?v=1" alt="" width="24" height="24" /></span><span>游戏</span>
               </button>
             </li>
             <li>
@@ -169,7 +168,6 @@
                   <div class="app-actions">
                     <button class="os-button primary" type="button" data-open-app="writing">从文章认识我 →</button>
                     <button class="os-button" type="button" data-open-app="github">看我做的东西 →</button>
-                    <button class="os-button" type="button" data-open-app="game">玩一局 Joker →</button>
                     <button class="os-button" type="button" data-open-app="contact">联系我 →</button>
                   </div>
                 </div>
@@ -244,33 +242,72 @@
               </div>
             </section>
 
-            <section class="os-window game-window" data-window="game" data-title="Joker 游戏" data-width="1120" data-height="740" role="dialog" aria-modal="false" aria-labelledby="window-game-title" hidden>
+            <section class="os-window game-window" data-window="game" data-title="游戏文件夹" data-width="1120" data-height="740" role="dialog" aria-modal="false" aria-labelledby="window-game-title" hidden>
               <header class="window-titlebar" data-drag-handle>
-                <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭 Joker 游戏" title="关闭 Joker 游戏"><i></i><i></i><i></i></button>
-                <h2 id="window-game-title">~/games/joker-card</h2>
+                <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭游戏文件夹" title="关闭游戏文件夹"><i></i><i></i><i></i></button>
+                <h2 id="window-game-title" data-game-window-path>~/games</h2>
                 <div class="window-actions">
-                  <button type="button" data-window-action="minimize" aria-label="最小化 Joker 游戏">─</button>
-                  <button type="button" data-window-action="close" aria-label="关闭 Joker 游戏">×</button>
+                  <button type="button" data-window-action="minimize" aria-label="最小化游戏文件夹">─</button>
+                  <button type="button" data-window-action="close" aria-label="关闭游戏文件夹">×</button>
                 </div>
               </header>
-              <div class="window-body game-app">
-                <div class="game-toolbar">
-                  <div class="game-identity">
-                    <span class="game-live-dot" aria-hidden="true"></span>
-                    <p><strong>JOKER CARD</strong><small>Vue + GSAP · 3 关盲注 · 打开就能玩</small></p>
+              <div class="window-body game-app" data-game-app data-view="library">
+                <section class="game-library" data-game-library aria-labelledby="game-library-title">
+                  <header class="game-library-head">
+                    <div>
+                      <p>PLAYGROUND / BUILT TO RUN</p>
+                      <h3 id="game-library-title">游戏文件夹</h3>
+                    </div>
+                    <span>CURRENT BUILD</span>
+                  </header>
+                  <div class="game-folder-grid">
+                    <a class="game-file" href="https://ankhzw1876.github.io/joker-game/" target="_blank" rel="noopener noreferrer" data-game-item data-game-title="Joker Card" data-game-subtitle="Vue + GSAP · 3 关盲注 · 可即时试玩" data-game-path="joker-card" data-game-src="https://ankhzw1876.github.io/joker-game/" data-game-repo="https://github.com/ankhzw1876/joker-game" aria-label="打开 Joker Card 小丑牌游戏">
+                      <span class="game-file-preview">
+                        <img src="assets/project-previews/joker-game.png" alt="Joker Card 小丑牌游戏界面" width="1200" height="750" loading="lazy" />
+                        <i>PLAY ↗</i>
+                      </span>
+                      <span class="game-file-copy">
+                        <small>01 / PLAYABLE BUILD</small>
+                        <strong>Joker Card</strong>
+                        <span>扑克策略 · Vue + GSAP</span>
+                      </span>
+                    </a>
+                    <aside class="game-folder-note">
+                      <p>ABOUT THIS FOLDER</p>
+                      <h4>收纳已经能跑的东西。</h4>
+                      <span>不放纯概念图。点开一个文件，先亲手试，再决定它是不是值得继续迭代。</span>
+                      <div class="game-empty-slot" aria-label="为下一个游戏预留的位置">
+                        <small>NEXT SLOT</small>
+                        <b>留给下一次构建</b>
+                      </div>
+                    </aside>
                   </div>
-                  <div class="game-actions">
-                    <button type="button" data-game-reload>重新发牌</button>
-                    <button type="button" data-game-fullscreen>全屏游戏</button>
-                    <a href="https://ankhzw1876.github.io/joker-game/" target="_blank" rel="noopener noreferrer">独立打开 ↗</a>
-                    <a href="https://github.com/ankhzw1876/joker-game" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+                  <footer class="game-folder-status">
+                    <span><i aria-hidden="true"></i> READY TO OPEN</span>
+                    <p>新作品会继续放进这个文件夹。</p>
+                  </footer>
+                </section>
+
+                <section class="game-player" data-game-player hidden inert aria-label="Joker Card 即时试玩">
+                  <div class="game-toolbar">
+                    <div class="game-identity">
+                      <button class="game-back" type="button" data-game-back aria-label="返回游戏文件夹">← <span>文件夹</span></button>
+                      <span class="game-live-dot" aria-hidden="true"></span>
+                      <p><strong data-game-player-title>JOKER CARD</strong><small data-game-player-subtitle>Vue + GSAP · 3 关盲注 · 可即时试玩</small></p>
+                    </div>
+                    <div class="game-actions">
+                      <button type="button" data-game-reload>重新发牌</button>
+                      <button type="button" data-game-fullscreen>全屏游戏</button>
+                      <a href="https://ankhzw1876.github.io/joker-game/" data-game-standalone target="_blank" rel="noopener noreferrer">独立打开 ↗</a>
+                      <a href="https://github.com/ankhzw1876/joker-game" data-game-repository target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+                    </div>
                   </div>
-                </div>
-                <div class="game-stage" data-game-stage>
-                  <div class="game-loading" aria-hidden="true"><span>♦</span><p>正在洗牌……</p></div>
-                  <iframe class="game-frame" data-game-frame src="https://ankhzw1876.github.io/joker-game/" title="Joker Card 即时试玩" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                  <p class="game-mobile-note">横屏体验更完整，可在游戏内横向滑动查看手牌。</p>
-                </div>
+                  <div class="game-stage" data-game-stage>
+                    <div class="game-loading" aria-hidden="true"><span>♦</span><p>正在洗牌……</p></div>
+                    <iframe class="game-frame" data-game-frame data-game-src="https://ankhzw1876.github.io/joker-game/" title="Joker Card 即时试玩" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    <p class="game-mobile-note">横屏体验更完整，可在游戏内横向滑动查看手牌。</p>
+                  </div>
+                </section>
               </div>
             </section>
 
@@ -392,7 +429,7 @@
         <div class="system-menu" id="system-menu" data-system-menu hidden>
           <p><strong>XiaHua OS</strong><span>AI 产品工作台</span></p>
           <button type="button" data-open-app="about">打开关于我</button>
-          <button type="button" data-open-app="game">打开 Joker 游戏</button>
+          <button type="button" data-open-app="game">打开游戏文件夹</button>
           <button type="button" data-reset-layout>重新排列窗口</button>
           <button type="button" data-reboot>回到欢迎页</button>
           <a href="https://github.com/ankhzw1876" target="_blank" rel="noopener noreferrer">打开 GitHub ↗</a>
@@ -402,8 +439,8 @@
           <button type="button" data-open-app="about"><img class="pixel-icon" src="assets/pixel-icons/about.svg?v=2" alt="" width="24" height="24" aria-hidden="true" /><b>关于</b></button>
           <button type="button" data-open-app="writing"><img class="pixel-icon" src="assets/pixel-icons/writing.svg?v=2" alt="" width="24" height="24" aria-hidden="true" /><b>文章</b></button>
           <button type="button" data-open-app="github"><img class="pixel-icon" src="assets/pixel-icons/github.svg?v=2" alt="" width="24" height="24" aria-hidden="true" /><b>GitHub</b></button>
-          <button type="button" data-open-app="game"><img class="pixel-icon" src="assets/pixel-icons/game.svg?v=1" alt="" width="24" height="24" aria-hidden="true" /><b>游戏</b></button>
           <button type="button" data-open-app="xiaohongshu"><img class="pixel-icon" src="assets/pixel-icons/xiaohongshu.svg?v=2" alt="" width="24" height="24" aria-hidden="true" /><b>小红书</b></button>
+          <button type="button" data-open-app="game"><img class="pixel-icon" src="assets/pixel-icons/game.svg?v=1" alt="" width="24" height="24" aria-hidden="true" /><b>游戏</b></button>
         </nav>
       </main>
     </div>
@@ -420,6 +457,6 @@
       <p class="noscript-note">JavaScript 未启用，下面展示静态作品内容。</p>
     </noscript>
 
-    <script src="site.js?v=21" defer></script>
+    <script src="site.js?v=22" defer></script>
   </body>
 </html>

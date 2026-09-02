@@ -50,5 +50,7 @@ Research date: 2026-09-02.
 - Verified gameplay: a 52-card deck deals eight cards, the player selects one to five, and the game calculates poker-hand score as Chips × Mult. The three blind targets are 300, 500 and 800. Passing a blind opens a shop for Joker modifiers.
 - Direct browser testing confirmed that selecting a card and playing it updates the score and remaining plays. This is a functioning game, not a static mockup.
 - Direct browser testing also confirmed that the GitHub Pages build can load inside an iframe and does not return a frame-blocking response header.
-- Integration uses an iframe rather than copying the build. This keeps the game repository as the source of truth and lets future game deployments appear in XiaHua OS without duplicating Vue/Vite/GSAP code.
+- The Games app opens as a general-purpose folder, not as Joker itself. Joker is the first real file in that folder; future playable projects can be added as more file items without changing the homepage story.
+- Selecting the Joker file lazily loads its deployed site in an iframe rather than copying the build. This keeps the game repository as the source of truth and avoids loading the game before a visitor chooses it.
+- Minimizing and restoring preserves the current game session. Closing the Games window or rebooting XiaHua OS returns to the folder and unloads the iframe.
 - The game is desktop-first. XiaHua OS provides fullscreen and separate-tab controls plus a mobile landscape hint rather than claiming a fully responsive mobile game.
