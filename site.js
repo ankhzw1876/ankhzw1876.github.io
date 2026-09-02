@@ -16,11 +16,12 @@
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const coarseQuery = window.matchMedia('(pointer: coarse)');
   const mobileQuery = window.matchMedia('(max-width: 720px)');
-  const appIds = ['about', 'writing', 'github', 'xiaohongshu', 'contact', 'archive'];
+  const appIds = ['about', 'writing', 'github', 'game', 'xiaohongshu', 'contact', 'archive'];
   const appMeta = {
     about: { title: '关于我', path: '~/about-me', icon: 'assets/pixel-icons/about.svg?v=2' },
     writing: { title: '文章作品', path: '~/writing', icon: 'assets/pixel-icons/writing.svg?v=2' },
     github: { title: 'GitHub', path: '~/github', icon: 'assets/pixel-icons/github.svg?v=2' },
+    game: { title: 'Joker 游戏', path: '~/games/joker-card', icon: 'assets/pixel-icons/game.svg?v=1' },
     xiaohongshu: { title: '小红书', path: '~/xiaohongshu', icon: 'assets/pixel-icons/xiaohongshu.svg?v=2' },
     contact: { title: '联系我', path: '~/contact', icon: 'assets/pixel-icons/contact.svg?v=2' },
     archive: { title: '版本归档', path: '~/versions', icon: 'assets/pixel-icons/archive.svg?v=2' }
@@ -159,7 +160,7 @@
     window.setTimeout(() => document.querySelector('[data-enter]')?.focus(), 0);
   };
 
-  const getFocusable = (windowElement) => [...windowElement.querySelectorAll('a[href], button, input, textarea, select, [tabindex]')];
+  const getFocusable = (windowElement) => [...windowElement.querySelectorAll('a[href], button, input, textarea, select, iframe, [tabindex]')];
 
   const setWindowFocusable = (windowElement, enabled) => {
     getFocusable(windowElement).forEach((node) => {
@@ -768,6 +769,34 @@
     motionQuery.addEventListener?.('change', reset);
   };
 
+  const bindGamePlayer = () => {
+    const frame = document.querySelector('[data-game-frame]');
+    const stage = document.querySelector('[data-game-stage]');
+    const reload = document.querySelector('[data-game-reload]');
+    const fullscreen = document.querySelector('[data-game-fullscreen]');
+    if (!frame || !stage) return;
+
+    reload?.addEventListener('click', () => {
+      frame.src = frame.src;
+      showToast('新的一局已经洗好牌');
+    });
+
+    const syncFullscreenLabel = () => {
+      if (!fullscreen) return;
+      fullscreen.textContent = document.fullscreenElement ? '退出全屏' : '全屏游戏';
+    };
+
+    fullscreen?.addEventListener('click', async () => {
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else await stage.requestFullscreen();
+      } catch {
+        window.open(frame.src, '_blank', 'noopener,noreferrer');
+      }
+    });
+    document.addEventListener('fullscreenchange', syncFullscreenLabel);
+  };
+
   const updateGithubData = async () => {
     try {
       const [userResponse, reposResponse] = await Promise.all([
@@ -781,7 +810,16 @@
         });
       }
       if (reposResponse.ok) {
-        const repoMap = new Map((await reposResponse.json()).map((repo) => [repo.name, repo]));
+        const repos = await reposResponse.json();
+        const repoMap = new Map(repos.map((repo) => [repo.name, repo]));
+        const originalRepos = repos.filter((repo) => !repo.fork);
+        const originalStars = originalRepos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
+        document.querySelectorAll('[data-original-count]').forEach((node) => {
+          node.textContent = String(originalRepos.length);
+        });
+        document.querySelectorAll('[data-original-stars]').forEach((node) => {
+          node.textContent = String(originalStars);
+        });
         document.querySelectorAll('[data-repo]').forEach((row) => {
           const repo = repoMap.get(row.dataset.repo);
           if (!repo) return;
@@ -852,6 +890,7 @@
   bindXhsCoverflow();
   bindCopyButtons();
   bindPortraitTilt();
+  bindGamePlayer();
   bindGlobalEvents();
   updateClock();
   window.setInterval(updateClock, 1000);

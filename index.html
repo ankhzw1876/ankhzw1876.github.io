@@ -4,14 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#241a15" />
-    <meta name="description" content="XiaHua OS：王天宇的 AI 产品工作台。通过可交互窗口浏览自我介绍、文章、GitHub 项目与小红书内容。" />
+    <meta name="description" content="XiaHua OS：王天宇的 AI 产品工作台。通过可交互窗口浏览个人档案、文章、GitHub 项目、可玩游戏与小红书内容。" />
     <meta property="og:title" content="XiaHua OS｜王天宇" />
     <meta property="og:description" content="把模型能力，做成有人用的产品。" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="assets/portrait.jpg" />
     <title>XiaHua OS｜王天宇</title>
     <script>document.documentElement.className = 'js';</script>
-    <link rel="stylesheet" href="site.css?v=20" />
+    <link rel="stylesheet" href="site.css?v=21" />
   </head>
   <body>
     <a class="skip-link" href="#desktop-icons">跳到桌面图标</a>
@@ -32,7 +32,7 @@
                 <div><dt>用户</dt><dd>王天宇</dd></div>
                 <div><dt>角色</dt><dd>AI 产品经理</dd></div>
                 <div><dt>关注</dt><dd>Agent / RAG / 评估</dd></div>
-                <div><dt>模块</dt><dd>作品与内容工作台</dd></div>
+                <div><dt>模块</dt><dd>档案 / 作品 / 游戏 / 内容</dd></div>
               </dl>
             </div>
           </div>
@@ -50,7 +50,8 @@
           <ol class="boot-log" aria-live="polite">
             <li data-boot-line>加载个人档案................ <b>ok</b></li>
             <li data-boot-line>挂载文章作品................ <b>3 + 1</b></li>
-            <li data-boot-line>连接 GitHub................. <b data-repo-count>14 repos</b></li>
+            <li data-boot-line>连接 GitHub................. <b data-repo-count>15 repos</b></li>
+            <li data-boot-line>加载 Joker 游戏............. <b>playable</b></li>
             <li data-boot-line>索引知识吞吐................ <b>12 notes</b></li>
             <li data-boot-line>启动窗口管理器.............. <b>ok</b></li>
           </ol>
@@ -74,7 +75,8 @@
             <h2><span>把模型能力，</span><strong>做成有人用的产品。</strong></h2>
             <div class="desktop-stats" aria-label="内容概览">
               <span><b>3</b> 篇文章</span>
-              <span><b data-repo-count>14</b> 个仓库</span>
+              <span><b data-repo-count>15</b> 个仓库</span>
+              <span><b>1</b> 个游戏</span>
               <span><b>12</b> 篇笔记</span>
             </div>
             <small>单击左侧图标打开应用 · 窗口可以拖动与叠放</small>
@@ -97,6 +99,11 @@
               </button>
             </li>
             <li>
+              <button class="desktop-icon" type="button" data-app-icon="game" data-label="Joker 游戏">
+                <span class="icon-art icon-game" aria-hidden="true"><img class="pixel-icon" src="assets/pixel-icons/game.svg?v=1" alt="" width="24" height="24" /></span><span>游戏</span>
+              </button>
+            </li>
+            <li>
               <button class="desktop-icon" type="button" data-app-icon="xiaohongshu" data-label="小红书">
                 <span class="icon-art icon-xhs" aria-hidden="true"><img class="pixel-icon" src="assets/pixel-icons/xiaohongshu.svg?v=2" alt="" width="24" height="24" /></span><span>小红书</span>
               </button>
@@ -114,7 +121,7 @@
           </ul>
 
           <div class="window-layer" data-window-layer>
-            <section class="os-window about-window" data-window="about" data-title="关于我" data-width="860" data-height="620" role="dialog" aria-modal="false" aria-labelledby="window-about-title" hidden>
+            <section class="os-window about-window" data-window="about" data-title="关于我" data-width="980" data-height="680" role="dialog" aria-modal="false" aria-labelledby="window-about-title" hidden>
               <header class="window-titlebar" data-drag-handle>
                 <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭关于我" title="关闭关于我"><i></i><i></i><i></i></button>
                 <h2 id="window-about-title">~/about-me</h2>
@@ -131,21 +138,39 @@
                     </div>
                   </div>
                   <figcaption>WANG TIANYU · 2026</figcaption>
+                  <div class="about-nameplate">
+                    <strong>王天宇</strong>
+                    <span>AI 产品经理</span>
+                  </div>
+                  <ul class="identity-stack" aria-label="身份标签">
+                    <li>AGENT 评测实践者</li>
+                    <li>原型 BUILDER</li>
+                    <li>技术内容作者</li>
+                  </ul>
                 </figure>
                 <div class="about-copy">
-                  <p class="app-kicker">AI PRODUCT MANAGER · AGENT EVALUATION</p>
-                  <h3>你好，我是王天宇。</h3>
-                  <p>我做过移动端 GUI Agent 的任务与轨迹评测，也推进过跨团队 Agent MVP 和自动化评测方案。相比只讨论模型能力，我更关心用户意图怎样变成可执行任务、一次失败怎样留下可复核证据，以及不同角色怎样对同一个结果形成一致判断。</p>
-                  <p>工作之外，我会亲手做原型、数据工具和内容工作流，把复杂技术“咀嚼”成普通人能读懂、团队能继续使用的东西。</p>
-                  <div class="method-list" aria-label="我的产品方法">
-                    <div><span>01</span><p><b>把意图写成任务</b><small>明确目标、约束、起始状态和可验证终态。</small></p></div>
-                    <div><span>02</span><p><b>沿轨迹找到首错</b><small>不只看最终成败，回到截图、动作和第一个关键偏差。</small></p></div>
-                    <div><span>03</span><p><b>让评测推动下一轮</b><small>用 Badcase、判断边界和回归任务连接版本迭代。</small></p></div>
+                  <p class="app-kicker">PRODUCT × EVALUATION × BUILD</p>
+                  <h3>我给 Agent 出题，也追它第一次犯错。</h3>
+                  <p class="about-lead">专注 Agent 产品化与全链路评测，会把模糊意图写成可验证任务，把一次失败还原到第一处关键偏差，再把方法亲手做成能跑的原型、工具和内容。</p>
+                  <div class="credential-grid" aria-label="经历与作品数据">
+                    <article><strong>21</strong><span>款 App</span><small>GUI Agent 任务与轨迹评测</small></article>
+                    <article><strong>≈200</strong><span>条输出</span><small>双侧评分，拉齐判断边界</small></article>
+                    <article><strong>+40–60%</strong><span>评测吞吐</span><small>数据生产效率提升</small></article>
+                    <article><strong><i data-original-count>7</i> / <i data-original-stars>70</i>★</strong><span>原创仓库</span><small>非 Fork 公开作品</small></article>
                   </div>
-                  <blockquote>我想做的不是一个“会演示”的模型，而是一套能被解释、被验证、被继续使用的产品。</blockquote>
+                  <div class="brag-tags" aria-label="个人特征">
+                    <span>把失败定位到第一步</span>
+                    <span>Judge 有边界</span>
+                    <span>Badcase 要进回归集</span>
+                    <span>从召回一路追到最后一屏</span>
+                    <span>不只写 PRD，也把 Demo 跑起来</span>
+                  </div>
+                  <blockquote>我不迷信“模型又变强了”，我更相信任务、证据和可回归的下一版。</blockquote>
                   <div class="app-actions">
                     <button class="os-button primary" type="button" data-open-app="writing">从文章认识我 →</button>
-                    <button class="os-button" type="button" data-open-app="contact">直接联系我 →</button>
+                    <button class="os-button" type="button" data-open-app="github">看我做的东西 →</button>
+                    <button class="os-button" type="button" data-open-app="game">玩一局 Joker →</button>
+                    <button class="os-button" type="button" data-open-app="contact">联系我 →</button>
                   </div>
                 </div>
               </div>
@@ -194,7 +219,7 @@
               </header>
               <div class="window-body finder-app github-app">
                 <div class="app-toolbar">
-                  <p><strong data-repo-count>14</strong> 个公开仓库 · 精选 5 个</p>
+                  <p><strong data-repo-count>15</strong> 个公开仓库 · 精选 5 个</p>
                   <a href="https://github.com/ankhzw1876" target="_blank" rel="noopener noreferrer">@ankhzw1876 ↗</a>
                 </div>
                 <div class="finder-layout repo-layout">
@@ -215,6 +240,36 @@
                     <p data-repo-preview-description>以数据完整性为先的全球市场雷达，把实时行情、市场广度、分化证据与 40 日曲线组织成可执行的研究视图。</p>
                     <a class="os-button primary" data-repo-open href="https://github.com/ankhzw1876/meridian-market-radar" target="_blank" rel="noopener noreferrer">打开仓库 ↗</a>
                   </article>
+                </div>
+              </div>
+            </section>
+
+            <section class="os-window game-window" data-window="game" data-title="Joker 游戏" data-width="1120" data-height="740" role="dialog" aria-modal="false" aria-labelledby="window-game-title" hidden>
+              <header class="window-titlebar" data-drag-handle>
+                <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭 Joker 游戏" title="关闭 Joker 游戏"><i></i><i></i><i></i></button>
+                <h2 id="window-game-title">~/games/joker-card</h2>
+                <div class="window-actions">
+                  <button type="button" data-window-action="minimize" aria-label="最小化 Joker 游戏">─</button>
+                  <button type="button" data-window-action="close" aria-label="关闭 Joker 游戏">×</button>
+                </div>
+              </header>
+              <div class="window-body game-app">
+                <div class="game-toolbar">
+                  <div class="game-identity">
+                    <span class="game-live-dot" aria-hidden="true"></span>
+                    <p><strong>JOKER CARD</strong><small>Vue + GSAP · 3 关盲注 · 打开就能玩</small></p>
+                  </div>
+                  <div class="game-actions">
+                    <button type="button" data-game-reload>重新发牌</button>
+                    <button type="button" data-game-fullscreen>全屏游戏</button>
+                    <a href="https://ankhzw1876.github.io/joker-game/" target="_blank" rel="noopener noreferrer">独立打开 ↗</a>
+                    <a href="https://github.com/ankhzw1876/joker-game" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+                  </div>
+                </div>
+                <div class="game-stage" data-game-stage>
+                  <div class="game-loading" aria-hidden="true"><span>♦</span><p>正在洗牌……</p></div>
+                  <iframe class="game-frame" data-game-frame src="https://ankhzw1876.github.io/joker-game/" title="Joker Card 即时试玩" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                  <p class="game-mobile-note">横屏体验更完整，可在游戏内横向滑动查看手牌。</p>
                 </div>
               </div>
             </section>
@@ -337,6 +392,7 @@
         <div class="system-menu" id="system-menu" data-system-menu hidden>
           <p><strong>XiaHua OS</strong><span>AI 产品工作台</span></p>
           <button type="button" data-open-app="about">打开关于我</button>
+          <button type="button" data-open-app="game">打开 Joker 游戏</button>
           <button type="button" data-reset-layout>重新排列窗口</button>
           <button type="button" data-reboot>回到欢迎页</button>
           <a href="https://github.com/ankhzw1876" target="_blank" rel="noopener noreferrer">打开 GitHub ↗</a>
@@ -346,6 +402,7 @@
           <button type="button" data-open-app="about"><img class="pixel-icon" src="assets/pixel-icons/about.svg?v=2" alt="" width="24" height="24" aria-hidden="true" /><b>关于</b></button>
           <button type="button" data-open-app="writing"><img class="pixel-icon" src="assets/pixel-icons/writing.svg?v=2" alt="" width="24" height="24" aria-hidden="true" /><b>文章</b></button>
           <button type="button" data-open-app="github"><img class="pixel-icon" src="assets/pixel-icons/github.svg?v=2" alt="" width="24" height="24" aria-hidden="true" /><b>GitHub</b></button>
+          <button type="button" data-open-app="game"><img class="pixel-icon" src="assets/pixel-icons/game.svg?v=1" alt="" width="24" height="24" aria-hidden="true" /><b>游戏</b></button>
           <button type="button" data-open-app="xiaohongshu"><img class="pixel-icon" src="assets/pixel-icons/xiaohongshu.svg?v=2" alt="" width="24" height="24" aria-hidden="true" /><b>小红书</b></button>
         </nav>
       </main>
@@ -363,6 +420,6 @@
       <p class="noscript-note">JavaScript 未启用，下面展示静态作品内容。</p>
     </noscript>
 
-    <script src="site.js?v=20" defer></script>
+    <script src="site.js?v=21" defer></script>
   </body>
 </html>
