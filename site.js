@@ -891,14 +891,6 @@
       if (reposResponse.ok) {
         const repos = await reposResponse.json();
         const repoMap = new Map(repos.map((repo) => [repo.name, repo]));
-        const originalRepos = repos.filter((repo) => !repo.fork);
-        const originalStars = originalRepos.reduce((sum, repo) => sum + repo.stargazers_count, 0);
-        document.querySelectorAll('[data-original-count]').forEach((node) => {
-          node.textContent = String(originalRepos.length);
-        });
-        document.querySelectorAll('[data-original-stars]').forEach((node) => {
-          node.textContent = String(originalStars);
-        });
         document.querySelectorAll('[data-repo]').forEach((row) => {
           const repo = repoMap.get(row.dataset.repo);
           if (!repo) return;

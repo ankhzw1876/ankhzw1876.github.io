@@ -25,10 +25,11 @@ Primary factual sources:
 Research date: 2026-09-02.
 
 - Public profile structure reference: https://github.com/liyupi. The useful pattern is a short combined identity followed by quantified proof and direct routes to projects and content. None of liyupi's employer, follower, founder, ranking or publication claims are reused.
+- Local source materials support saying that the user led the first-version product flow and evaluation-boundary alignment for a cross-platform food-ordering Agent MVP, organized the evaluation data, and supported the module's launch. The page does not claim sole engineering ownership or final release authority.
 - Local source materials support an anonymized claim of GUI Agent task and trajectory evaluation across 21 mainstream apps. The public page does not expose the app list, real queries, internal systems, company names or sensitive fields.
 - Local source materials support a cross-team Agent MVP evaluation batch of approximately 200 outputs scored by two sides. The page says `≈200` and does not describe them as 200 disputed cases.
-- Local source materials support evaluation-data production throughput improving from 4–5 to 6–8 items per hour, summarized as `+40–60%`. This is explicitly labeled as evaluation throughput, not model-quality improvement.
-- GitHub's public repository API reported 15 public repositories, including 7 non-fork repositories with 70 aggregate stars on 2026-09-02. The About page keeps 7 / 70★ as static fallbacks and recomputes both values from the public API at runtime.
+- Local source materials support evaluation-data production throughput improving from 4–5 to 6–8 items per hour, summarized as `+40–60%`. This is explicitly labeled as evaluation throughput, not model-quality improvement. The same materials support a three-tier evaluation strategy, with the first tier exceeding 80% human-machine agreement; that percentage is not a model-success rate.
+- GitHub's public repository API reported 15 public repositories, including 7 non-fork repositories with 70 aggregate stars on 2026-09-02. Repository and star information stays in the GitHub app instead of being used as proof of product impact on the About page.
 - Existing public content provides three published long-form articles and twelve Xiaohongshu AI knowledge notes.
 
 Local evidence files:
