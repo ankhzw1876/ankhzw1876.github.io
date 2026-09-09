@@ -786,7 +786,55 @@
     const stage = document.querySelector('[data-game-stage]');
     const reload = document.querySelector('[data-game-reload]');
     const fullscreen = document.querySelector('[data-game-fullscreen]');
+    const loadingIcon = document.querySelector('.game-loading [data-game-loading-icon]');
+    const loadingText = document.querySelector('[data-game-loading-text]');
+    const mobileNote = document.querySelector('.game-mobile-note[data-game-mobile-note]');
+    const loadingState = document.querySelector('[data-game-loading-state]');
     if (!gameApp || !library || !player || !frame || !stage) return;
+    let lastGameItem = null;
+    let loadingTimer = 0;
+
+    const notifyFrameVisibility = (visible) => {
+      if (!frame.contentWindow) return;
+      let targetOrigin = '*';
+      try {
+        const resolvedOrigin = new URL(frame.dataset.activeSrc || frame.src || '', location.href).origin;
+        if (resolvedOrigin && resolvedOrigin !== 'null') targetOrigin = resolvedOrigin;
+      } catch {
+        targetOrigin = '*';
+      }
+      try {
+        frame.contentWindow.postMessage({ type: 'xiahua:visibility', visible }, targetOrigin);
+      } catch {
+        // A cross-origin frame can disappear between resolving its URL and posting.
+      }
+    };
+
+    const clearLoadingTimer = () => {
+      window.clearTimeout(loadingTimer);
+      loadingTimer = 0;
+    };
+
+    const showLoadingState = (label) => {
+      clearLoadingTimer();
+      frame.classList.remove('is-ready');
+      if (loadingText) loadingText.textContent = label;
+      if (loadingState) loadingState.hidden = false;
+      loadingTimer = window.setTimeout(() => {
+        if (loadingText) loadingText.textContent = '加载时间较长，可尝试“独立打开”。';
+      }, 9000);
+    };
+
+    const showLoadedFrame = () => {
+      if (!frame.dataset.activeSrc) return;
+      clearLoadingTimer();
+      frame.dataset.readySrc = frame.dataset.activeSrc;
+      if (loadingState) loadingState.hidden = true;
+      frame.classList.add('is-ready');
+      notifyFrameVisibility(true);
+    };
+
+    frame.addEventListener('load', showLoadedFrame);
 
     const syncGamePath = (path) => {
       const nextPath = path ? `~/games/${path}` : '~/games';
@@ -796,6 +844,9 @@
     };
 
     const showLibrary = ({ focus = true, unload = false } = {}) => {
+      notifyFrameVisibility(false);
+      clearLoadingTimer();
+      if (loadingState) loadingState.hidden = true;
       gameApp.dataset.view = 'library';
       library.hidden = false;
       library.inert = false;
@@ -803,11 +854,15 @@
       player.inert = true;
       syncGamePath('');
       if (unload) {
+        clearLoadingTimer();
+        frame.classList.remove('is-ready');
+        if (loadingState) loadingState.hidden = true;
         frame.removeAttribute('src');
         delete frame.dataset.loaded;
+        delete frame.dataset.readySrc;
         delete frame.dataset.activeSrc;
       }
-      if (focus) requestAnimationFrame(() => gameItems[0]?.focus({ preventScroll: true }));
+      if (focus) requestAnimationFrame(() => (lastGameItem || gameItems[0])?.focus({ preventScroll: true }));
     };
 
     const openGame = (item) => {
@@ -816,20 +871,46 @@
       const source = item.dataset.gameSrc || item.href;
       const path = item.dataset.gamePath || title.toLowerCase().replace(/\s+/g, '-');
       const repo = item.dataset.gameRepo || '';
+      const reloadLabel = item.dataset.gameReloadLabel || '重新载入';
+      const fullscreenLabel = item.dataset.gameFullscreenLabel || '全屏体验';
+      const loadingLabel = item.dataset.gameLoading || '正在载入……';
+      const loadingMark = item.dataset.gameLoadingIcon || '◆';
+      const mobileMessage = item.dataset.gameMobileNote || '';
+      lastGameItem = item;
 
       if (playerTitle) playerTitle.textContent = title.toUpperCase();
       if (playerSubtitle) playerSubtitle.textContent = subtitle;
+      if (reload) reload.textContent = reloadLabel;
+      if (fullscreen) {
+        fullscreen.dataset.defaultLabel = fullscreenLabel;
+        fullscreen.textContent = fullscreenLabel;
+      }
+      if (loadingText) loadingText.textContent = loadingLabel;
+      if (loadingIcon) loadingIcon.textContent = loadingMark;
+      if (mobileNote) {
+        mobileNote.textContent = mobileMessage;
+        mobileNote.hidden = !mobileMessage;
+      }
       if (standalone) standalone.href = source;
       if (repository) {
         repository.hidden = !repo;
         if (repo) repository.href = repo;
       }
-      player.setAttribute('aria-label', `${title} 即时试玩`);
-      frame.title = `${title} 即时试玩`;
+      player.setAttribute('aria-label', `${title} 互动体验`);
+      frame.title = `${title} 互动体验`;
       frame.dataset.activeSrc = source;
+      frame.dataset.loadingLabel = loadingLabel;
       if (frame.dataset.loaded !== source) {
+        delete frame.dataset.readySrc;
+        showLoadingState(loadingLabel);
         frame.src = source;
         frame.dataset.loaded = source;
+      } else if (frame.dataset.readySrc === source) {
+        clearLoadingTimer();
+        if (loadingState) loadingState.hidden = true;
+        frame.classList.add('is-ready');
+      } else {
+        showLoadingState(loadingLabel);
       }
 
       gameApp.dataset.view = 'player';
@@ -838,12 +919,16 @@
       player.hidden = false;
       player.inert = false;
       syncGamePath(path);
-      requestAnimationFrame(() => back?.focus({ preventScroll: true }));
+      requestAnimationFrame(() => {
+        notifyFrameVisibility(true);
+        back?.focus({ preventScroll: true });
+      });
       showToast(`${title} 已启动`);
     };
 
     gameItems.forEach((item) => {
       item.addEventListener('click', (event) => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         event.preventDefault();
         openGame(item);
       });
@@ -855,13 +940,16 @@
     reload?.addEventListener('click', () => {
       const source = frame.dataset.activeSrc;
       if (!source) return;
+      delete frame.dataset.readySrc;
+      showLoadingState(frame.dataset.loadingLabel || '正在重新载入……');
       frame.src = source;
-      showToast('新的一局已经洗好牌');
+      const title = playerTitle?.textContent || '作品';
+      showToast(`${title} 已重新载入`);
     });
 
     const syncFullscreenLabel = () => {
       if (!fullscreen) return;
-      fullscreen.textContent = document.fullscreenElement ? '退出全屏' : '全屏游戏';
+      fullscreen.textContent = document.fullscreenElement ? '退出全屏' : (fullscreen.dataset.defaultLabel || '全屏体验');
     };
 
     fullscreen?.addEventListener('click', async () => {

@@ -11,7 +11,7 @@
     <meta property="og:image" content="assets/portrait.jpg" />
     <title>XiaHua OS｜王天宇</title>
     <script>document.documentElement.className = 'js';</script>
-    <link rel="stylesheet" href="site.css?v=22" />
+    <link rel="stylesheet" href="site.css?v=23" />
   </head>
   <body>
     <a class="skip-link" href="#desktop-icons">跳到桌面图标</a>
@@ -263,51 +263,62 @@
                     <span>CURRENT BUILD</span>
                   </header>
                   <div class="game-folder-grid">
-                    <a class="game-file" href="https://ankhzw1876.github.io/joker-game/" target="_blank" rel="noopener noreferrer" data-game-item data-game-title="Joker Card" data-game-subtitle="Vue + GSAP · 3 关盲注 · 可即时试玩" data-game-path="joker-card" data-game-src="https://ankhzw1876.github.io/joker-game/" data-game-repo="https://github.com/ankhzw1876/joker-game" aria-label="打开 Joker Card 小丑牌游戏">
-                      <span class="game-file-preview">
-                        <img src="assets/project-previews/joker-game.png" alt="Joker Card 小丑牌游戏界面" width="1200" height="750" loading="lazy" />
-                        <i>PLAY ↗</i>
-                      </span>
-                      <span class="game-file-copy">
-                        <small>01 / PLAYABLE BUILD</small>
-                        <strong>Joker Card</strong>
-                        <span>扑克策略 · Vue + GSAP</span>
-                      </span>
-                    </a>
+                    <div class="game-files">
+                      <a class="game-file" href="https://ankhzw1876.github.io/joker-game/" target="_blank" rel="noopener noreferrer" data-game-item data-game-title="Joker Card" data-game-subtitle="Vue + GSAP · 3 关盲注 · 可即时试玩" data-game-path="joker-card" data-game-src="https://ankhzw1876.github.io/joker-game/" data-game-repo="https://github.com/ankhzw1876/joker-game" data-game-reload-label="重新发牌" data-game-fullscreen-label="全屏游戏" data-game-loading="正在洗牌……" data-game-loading-icon="♦" data-game-mobile-note="横屏体验更完整，可在游戏内横向滑动查看手牌。" aria-label="打开 Joker Card 小丑牌游戏">
+                        <span class="game-file-preview">
+                          <img src="assets/project-previews/joker-game.png" alt="Joker Card 小丑牌游戏界面" width="1200" height="750" loading="lazy" />
+                          <i>PLAY ↗</i>
+                        </span>
+                        <span class="game-file-copy">
+                          <small>01 / PLAYABLE BUILD</small>
+                          <strong>Joker Card</strong>
+                          <span>扑克策略 · Vue + GSAP</span>
+                        </span>
+                      </a>
+
+                      <a class="game-file" href="experiments/qr-skyline/index.html" target="_blank" rel="noopener noreferrer" data-game-item data-game-title="URL City" data-game-subtitle="Canvas · QR 规则映射 · 可扫码验证" data-game-path="url-city" data-game-src="experiments/qr-skyline/index.html" data-game-repo="https://github.com/ankhzw1876/ankhzw1876.github.io/tree/main/experiments/qr-skyline" data-game-reload-label="重新生成" data-game-fullscreen-label="全屏体验" data-game-loading="正在生成城市……" data-game-loading-icon="▦" aria-label="打开 URL City 二维码城市实验">
+                        <span class="game-file-preview">
+                          <img src="assets/project-previews/qr-skyline.png" alt="URL City 由二维码生成的 2.5D 像素城市" width="1200" height="750" loading="lazy" />
+                          <i>RUN ↗</i>
+                        </span>
+                        <span class="game-file-copy">
+                          <small>02 / INTERACTIVE EXPERIMENT</small>
+                          <strong>URL City</strong>
+                          <span>链接身份 · QR 可视化</span>
+                        </span>
+                      </a>
+                    </div>
                     <aside class="game-folder-note">
                       <p>ABOUT THIS FOLDER</p>
                       <h4>收纳已经能跑的东西。</h4>
-                      <span>不放纯概念图。点开一个文件，先亲手试，再决定它是不是值得继续迭代。</span>
-                      <div class="game-empty-slot" aria-label="为下一个游戏预留的位置">
-                        <small>NEXT SLOT</small>
-                        <b>留给下一次构建</b>
-                      </div>
+                      <span>一个是规则驱动的游戏原型，一个是把 QR 矩阵变成城市的交互实验。都可以直接运行，也都保留验证路径。</span>
+                      <p class="game-folder-manifest">2 RUNNABLE FILES<br />1 GAME / 1 EXPERIMENT</p>
                     </aside>
                   </div>
                   <footer class="game-folder-status">
                     <span><i aria-hidden="true"></i> READY TO OPEN</span>
-                    <p>新作品会继续放进这个文件夹。</p>
+                    <p>先运行，再看实现。</p>
                   </footer>
                 </section>
 
-                <section class="game-player" data-game-player hidden inert aria-label="Joker Card 即时试玩">
+                <section class="game-player" data-game-player hidden inert aria-label="可运行作品播放器">
                   <div class="game-toolbar">
                     <div class="game-identity">
                       <button class="game-back" type="button" data-game-back aria-label="返回游戏文件夹">← <span>文件夹</span></button>
                       <span class="game-live-dot" aria-hidden="true"></span>
-                      <p><strong data-game-player-title>JOKER CARD</strong><small data-game-player-subtitle>Vue + GSAP · 3 关盲注 · 可即时试玩</small></p>
+                      <p><strong data-game-player-title>PLAYGROUND</strong><small data-game-player-subtitle>选择一个文件开始运行</small></p>
                     </div>
                     <div class="game-actions">
-                      <button type="button" data-game-reload>重新发牌</button>
-                      <button type="button" data-game-fullscreen>全屏游戏</button>
+                      <button type="button" data-game-reload>重新载入</button>
+                      <button type="button" data-game-fullscreen>全屏体验</button>
                       <a href="https://ankhzw1876.github.io/joker-game/" data-game-standalone target="_blank" rel="noopener noreferrer">独立打开 ↗</a>
                       <a href="https://github.com/ankhzw1876/joker-game" data-game-repository target="_blank" rel="noopener noreferrer">GitHub ↗</a>
                     </div>
                   </div>
                   <div class="game-stage" data-game-stage>
-                    <div class="game-loading" aria-hidden="true"><span>♦</span><p>正在洗牌……</p></div>
-                    <iframe class="game-frame" data-game-frame data-game-src="https://ankhzw1876.github.io/joker-game/" title="Joker Card 即时试玩" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                    <p class="game-mobile-note">横屏体验更完整，可在游戏内横向滑动查看手牌。</p>
+                    <div class="game-loading" data-game-loading-state role="status" aria-live="polite" hidden><span data-game-loading-icon aria-hidden="true">◆</span><p data-game-loading-text>正在载入……</p></div>
+                    <iframe class="game-frame" data-game-frame title="互动作品播放器" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    <p class="game-mobile-note" data-game-mobile-note>横屏体验更完整，可在游戏内横向滑动查看手牌。</p>
                   </div>
                 </section>
               </div>
@@ -459,6 +470,6 @@
       <p class="noscript-note">JavaScript 未启用，下面展示静态作品内容。</p>
     </noscript>
 
-    <script src="site.js?v=22" defer></script>
+    <script src="site.js?v=23" defer></script>
   </body>
 </html>
