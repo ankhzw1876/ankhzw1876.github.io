@@ -51,21 +51,39 @@ Research date: 2026-09-02.
 - Verified gameplay: a 52-card deck deals eight cards, the player selects one to five, and the game calculates poker-hand score as Chips × Mult. The three blind targets are 300, 500 and 800. Passing a blind opens a shop for Joker modifiers.
 - Direct browser testing confirmed that selecting a card and playing it updates the score and remaining plays. This is a functioning game, not a static mockup.
 - Direct browser testing also confirmed that the GitHub Pages build can load inside an iframe and does not return a frame-blocking response header.
-- The Games app opens as a general-purpose Playground folder, not as Joker itself. It currently contains Joker Card and URL City as two real runnable files; future projects can be added as more file items without changing the homepage story.
+- The Games app opens as a general-purpose Playground folder, not as Joker itself. It currently contains Joker Card and URL Worlds as two real runnable files; future projects can be added as more file items without changing the homepage story.
 - Selecting the Joker file lazily loads its deployed site in an iframe rather than copying the build. This keeps the game repository as the source of truth and avoids loading the game before a visitor chooses it.
 - Minimizing and restoring preserves the current game session. Closing the Games window or rebooting XiaHua OS returns to the folder and unloads the iframe.
 - The game is desktop-first. XiaHua OS provides fullscreen and separate-tab controls plus a mobile landscape hint rather than claiming a fully responsive mobile game.
 
-## URL City experiment
+## URL Worlds experiment — current implementation
 
-Research and implementation date: 2026-09-09.
+Upgrade date: 2026-09-10. Initial reference research: 2026-09-09.
 
 - Visual inspiration: the Xiaohongshu post “二维码竟然能长成了樱花树？！”: https://www.xiaohongshu.com/explore/6a9538da000000001f004395
 - Technical comparison: Every QR Code is an MIT-licensed React/Web Component project using WebGPU for Tree and Terrain forms: https://github.com/AlbertAZ1992/every-qrcode. Its public materials are consistent with the observed visual idea, but no direct attribution chain from the Xiaohongshu post to that repository was independently verified; the two sources are cited separately.
-- This portfolio version is an independently written, zero-build HTML/CSS/JavaScript experiment using a 2.5D Canvas city. It does not reuse Every QR Code code, components, branding or assets and does not claim WebGPU rendering.
-- QR generation uses vendored `qrcode-generator` 1.4.4 by Kazuhiko Arase under the MIT License. UTF-8 byte encoding is enabled and the upstream license is retained in `experiments/qr-skyline/vendor/LICENSE`.
-- Inputs are limited to HTTP(S), capped at 512 typed characters, and normalized with the browser URL parser; missing schemes receive `https://`. Inputs that exceed QR capacity are rejected with a shortening prompt.
-- In the current algorithm version, one QR column maps to one building, column density influences height, and every dark module maps to one lit window. URL-seeded randomness controls non-QR visual details. CITY ID is a short visual fingerprint, not a cryptographic or globally unique identifier.
-- The QR endpoint redraws the original error-correction-level-M matrix in black on white with a four-module quiet zone. High-density matrices skip the morph animation to protect mobile rendering performance.
-- URL City is the second item in the existing Playground folder rather than a new top-level desktop app. It loads lazily in the generic iframe player, pauses when the player is hidden, and restores focus to its file card on return.
-- Chromium `BarcodeDetector` decoded normalized URLs in standalone 1200×750, 390×844 and 320×700 layouts, and inside the homepage player at desktop and 320×700 parent viewports. Tests included the default homepage URL, a Chinese-and-emoji URL, and a 1,640-character normalized high-density URL. This is automated browser verification, not a physical-phone scan; physical-device scanning remains pending.
+- URL Worlds is an independently written, zero-build HTML/CSS/JavaScript experiment with real WebGL 3D rendering. It offers City, Forest, Highlands, Snowfield, Desert and Towers scenes. It does not reuse Every QR Code code, components, branding or assets and does not claim WebGPU rendering.
+- Three.js 0.160.1 is vendored locally under the MIT License, retained in `experiments/qr-skyline/vendor/THREE-LICENSE`. QR generation uses vendored `qrcode-generator` 1.4.4 by Kazuhiko Arase under the MIT License, retained in `experiments/qr-skyline/vendor/LICENSE`.
+- The experiment works directly from `file://` without a build step, server or CDN. The existing `experiments/qr-skyline/` directory and URL remain in place for compatibility with published URL City links.
+- Each QR module occupies a fixed square on the world XZ plane. Dark-cell objects and light terrain preserve the QR polarity in top-down projection, with a four-module quiet zone. Terrain scenes vary their height while retaining the same grid boundaries.
+- Switching from an oblique view to the scan view changes only the orthographic camera's orientation and framing. For a given URL and scene, mesh positions and vertex colors remain unchanged; there is no module rearrangement or separate flat QR overlay. Changing the URL or scene rebuilds the geometry.
+- QR encoding uses error-correction level M and UTF-8 bytes. Inputs are limited to HTTP(S), capped at 512 typed characters and 1,800 characters after browser URL normalization. Missing schemes receive `https://`; invalid protocols and capacity errors are rejected with a visible prompt.
+- URL-seeded generation is deterministic for the same normalized URL, scene and algorithm version. High-density scenes omit city windows and limit towers to three levels to bound geometry cost.
+- Browsers without WebGL receive a standard QR fallback. Reduced-motion mode skips camera transitions and automatic orbiting. Rendering pauses when the document or parent player is hidden.
+- URL Worlds remains the second file in the existing Playground folder and uses the generic lazy-loading iframe player. No additional top-level desktop app is introduced.
+
+Current-version verification completed on 2026-09-10:
+
+- Chromium `BarcodeDetector` decoded the default homepage URL from all six scenes at desktop, 390×844 and 320×700 viewport sizes. The mobile layouts had no horizontal overflow.
+- Chinese-and-emoji URL normalization and decoding, invalid-protocol rejection, and host-with-port normalization passed.
+- Checksums of geometry positions and colors were identical in oblique and top-down views, confirming that camera changes do not replace or mutate the landscape.
+- All six scenes decoded a 153×153 QR matrix for a long Chinese URL at 320×700 and DPR 1. The final camera framing aligns both module size and grid origin to integer physical pixels, with smooth framing interpolation during the final 15 degrees of elevation.
+- Current-version homepage iframe decoded the default URL at 1440×900 desktop and 320×700 mobile parent viewports without horizontal overflow. Returning to the folder pauses rendering and restores focus to the file card; re-opening resumes, and closing unloads the iframe. Physical-phone scanning remains pending; browser decoding is not a physical-device scan.
+
+## URL City v1 — historical implementation
+
+Implementation date: 2026-09-09. Superseded by URL Worlds on 2026-09-10.
+
+- The old version rendered a 2.5D city using Canvas 2D. One QR column mapped to one building and each dark module to a lit window. Switching to QR rearranged the windows into the original matrix.
+- Its CITY ID, column-density mapping and high-density morph skipping belong only to v1 and are not the current UI or rendering mechanism.
+- v1 passed standalone desktop/mobile and homepage iframe decoding, including a 1,640-character normalized high-density URL. These historical results do not certify the replacement 3D implementation's high-density or iframe behavior.
