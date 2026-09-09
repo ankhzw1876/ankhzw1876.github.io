@@ -56,7 +56,7 @@ Research date: 2026-09-02.
 - Minimizing and restoring preserves the current game session. Closing the Games window or rebooting XiaHua OS returns to the folder and unloads the iframe.
 - The game is desktop-first. XiaHua OS provides fullscreen and separate-tab controls plus a mobile landscape hint rather than claiming a fully responsive mobile game.
 
-## URL Worlds experiment — current implementation
+## URL Worlds experiment — retained six-scene implementation
 
 Upgrade date: 2026-09-10. Initial reference research: 2026-09-09.
 
@@ -87,3 +87,19 @@ Implementation date: 2026-09-09. Superseded by URL Worlds on 2026-09-10.
 - The old version rendered a 2.5D city using Canvas 2D. One QR column mapped to one building and each dark module to a lit window. Switching to QR rearranged the windows into the original matrix.
 - Its CITY ID, column-density mapping and high-density morph skipping belong only to v1 and are not the current UI or rendering mechanism.
 - v1 passed standalone desktop/mobile and homepage iframe decoding, including a 1,640-character normalized high-density URL. These historical results do not certify the replacement 3D implementation's high-density or iframe behavior.
+
+## Sakura QR experiment — current Playground entry
+
+Implementation record: 2026-09-10. This section updates the current Playground entry; the URL Worlds sections above describe the retained six-scene implementation, not Sakura QR.
+
+- The reference video was directly inspected: one pink blossom tree stands on a grass-bordered checker platform. Clicking moves the camera overhead while the tree and foliage transform into a colored QR; entering a different URL generates a new tree. A fixed-model, camera-only projection does not describe this reference or the new implementation.
+- Visual reference: https://www.xiaohongshu.com/explore/6a9538da000000001f004395. Source-code basis: the MIT-licensed Every QR Code repository, pinned to commit `ed404c6cba9d48c04d5e08de780293cff1b242de` (npm 0.1.2), https://github.com/AlbertAZ1992/every-qrcode. No verified attribution chain establishes that this is the video author's original code; no pixel-identical reproduction is claimed.
+- The new `experiments/qr-sakura/` page adapts the upstream WebGPU engine into a local single-tree recipe: curved branching trunk, pink flowers, grass perimeter and cream/sand checker platform. Camera, geometry and material transitions jointly reveal the colored QR. The local visual revision is `sakura-study-1`, retaining upstream QR/DNA `generatorVersion: 1`.
+- Engine sources, pinned build dependencies and rebuilding/verification instructions are retained under `experiments/qr-sakura/engine-src/`. The self-contained local bundle needs no runtime CDN, server-side URL processing or external model assets. Full 3D requires HTTPS or localhost and a usable WebGPU adapter.
+- Upstream MIT copyright and permission are retained in `experiments/qr-sakura/engine-src/upstream/LICENSE` and `experiments/qr-sakura/vendor/THIRD_PARTY_LICENSES.txt`, including bundled dependency notices. The page additionally loads the old locally vendored `qrcode-generator` as an engine-missing fallback, with its original MIT license retained in `experiments/qr-skyline/vendor/LICENSE`.
+- The same normalized URL produces deterministic tree geometry under the same generator recipe; different URLs influence the tree's proportions, branches and flower distribution. This is not a uniqueness guarantee for every possible URL.
+- Inputs accept HTTP(S), normalize missing schemes and reject embedded credentials. The text field permits 512 characters, normalization is capped at 1,800 characters, and the upstream engine's QR version 6 ceiling is the stricter content-dependent capacity boundary. Over-capacity URLs receive a short-link prompt; the character limits do not promise equivalent QR capacity.
+- Unavailable or failed WebGPU rendering falls back to a standard high-contrast QR. Reduced-motion preference freezes ambient motion and makes transitions immediate. Document, stage and same-origin parent-player visibility control rendering pause/resume.
+- The homepage's second Playground file is now wired to Sakura QR. The existing `experiments/qr-skyline/` six-world app and its address remain intact, linked from the new page's footer. This changes the folder entry without adding a top-level desktop application.
+- During development, the browser's native `BarcodeDetector` successfully decoded `https://ankhzw1876.github.io/` from a real browser screenshot of the WebGPU QR view. Reading the submitted WebGPU canvas directly can return a cleared frame; screenshot-based decoding is the appropriate visual test path here.
+- Local checks passed for desktop and 320×700 screenshot decoding (default, Unicode URL, and a 41×41 matrix), 390×844 non-overflow layout, iframe decoding, minimize/restore and folder pause, unsupported-WebGPU fallback, reduced motion, invalid protocol and over-capacity rejection. Browser decoding is not a physical-phone scan; no universal device support is claimed. The prior URL Worlds results remain evidence for that implementation only.
