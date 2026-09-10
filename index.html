@@ -11,7 +11,7 @@
     <meta property="og:image" content="assets/portrait.jpg" />
     <title>XiaHua OS｜王天宇</title>
     <script>document.documentElement.className = 'js';</script>
-    <link rel="stylesheet" href="site.css?v=25" />
+    <link rel="stylesheet" href="site.css?v=26" />
   </head>
   <body>
     <a class="skip-link" href="#desktop-icons">跳到桌面图标</a>
@@ -81,22 +81,6 @@
             <small>单击左侧图标打开应用 · 窗口可以拖动与叠放</small>
           </section>
 
-          <aside class="desktop-sakura" data-sakura-widget aria-labelledby="desktop-sakura-title">
-            <div class="desktop-sakura-meta">
-              <p><i aria-hidden="true"></i> LIVE OBJECT / 001</p>
-              <span>WARM SPRING</span>
-            </div>
-            <div class="desktop-sakura-stage">
-              <img src="assets/project-previews/qr-sakura.png" alt="" width="1152" height="689" aria-hidden="true" />
-              <iframe data-sakura-preview data-src="experiments/qr-sakura/index.html?embed=1&amp;palette=spring&amp;world=sakura" title="暖春樱花树交互预览" loading="lazy"></iframe>
-              <p class="desktop-sakura-loading" data-sakura-loading role="status"><i aria-hidden="true"></i>正在长出一棵树</p>
-            </div>
-            <div class="desktop-sakura-caption">
-              <p><strong id="desktop-sakura-title">暖春的樱花树</strong><span>拖拽检视 · 轻点变成二维码</span></p>
-              <a href="experiments/qr-sakura/index.html?palette=spring&amp;world=sakura" target="_blank" rel="noopener noreferrer">打开完整作品 ↗</a>
-            </div>
-          </aside>
-
           <ul class="desktop-icons" id="desktop-icons" aria-label="桌面应用">
             <li>
               <button class="desktop-icon" type="button" data-app-icon="about" data-label="关于我">
@@ -121,6 +105,11 @@
             <li>
               <button class="desktop-icon" type="button" data-app-icon="game" data-label="游戏文件夹">
                 <span class="icon-art icon-game" aria-hidden="true"><img class="pixel-icon" src="assets/pixel-icons/game.svg?v=1" alt="" width="24" height="24" /></span><span>游戏</span>
+              </button>
+            </li>
+            <li>
+              <button class="desktop-icon" type="button" data-app-icon="sakura" data-label="暖春樱花树">
+                <span class="icon-art icon-sakura" aria-hidden="true"><img class="pixel-icon" src="assets/pixel-icons/sakura.svg?v=1" alt="" width="24" height="24" /></span><span>樱花树</span>
               </button>
             </li>
             <li>
@@ -340,6 +329,32 @@
               </div>
             </section>
 
+            <section class="os-window sakura-window" data-window="sakura" data-title="暖春樱花树" data-width="820" data-height="700" role="dialog" aria-modal="false" aria-labelledby="window-sakura-title" hidden>
+              <header class="window-titlebar" data-drag-handle>
+                <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭暖春樱花树" title="关闭暖春樱花树"><i></i><i></i><i></i></button>
+                <h2 id="window-sakura-title">~/warm-spring-sakura</h2>
+                <div class="window-actions">
+                  <button type="button" data-window-action="minimize" aria-label="最小化暖春樱花树">─</button>
+                  <button type="button" data-window-action="close" aria-label="关闭暖春樱花树">×</button>
+                </div>
+              </header>
+              <div class="window-body sakura-app" data-sakura-widget>
+                <header class="sakura-app-meta">
+                  <p><i aria-hidden="true"></i> LIVE OBJECT / 001</p>
+                  <span>WARM SPRING · SCANNABLE</span>
+                </header>
+                <div class="sakura-window-stage">
+                  <img src="assets/project-previews/qr-sakura.png" alt="" width="1152" height="689" aria-hidden="true" />
+                  <iframe data-sakura-preview data-src="experiments/qr-sakura/index.html?embed=1&amp;palette=spring&amp;world=sakura&amp;qr=profile" title="暖春樱花树交互预览" loading="lazy"></iframe>
+                  <p class="sakura-window-loading" data-sakura-loading role="status"><i aria-hidden="true"></i>正在长出一棵树</p>
+                </div>
+                <footer class="sakura-window-caption">
+                  <p><strong>暖春的樱花树</strong><span>拖拽检视 · 轻点俯视 · 扫码打开微信入口</span></p>
+                  <a href="experiments/qr-sakura/index.html?palette=spring&amp;world=sakura" target="_blank" rel="noopener noreferrer">完整实验 ↗</a>
+                </footer>
+              </div>
+            </section>
+
             <section class="os-window xhs-window" data-window="xiaohongshu" data-title="小红书" data-width="900" data-height="620" role="dialog" aria-modal="false" aria-labelledby="window-xhs-title" hidden>
               <header class="window-titlebar" data-drag-handle>
                 <button class="window-lights" type="button" data-window-action="close" aria-label="点击左侧圆点关闭小红书" title="关闭小红书"><i></i><i></i><i></i></button>
@@ -459,6 +474,7 @@
           <p><strong>XiaHua OS</strong><span>AI 产品工作台</span></p>
           <button type="button" data-open-app="about">打开关于我</button>
           <button type="button" data-open-app="game">打开游戏文件夹</button>
+          <button type="button" data-open-app="sakura">打开暖春樱花树</button>
           <button type="button" data-reset-layout>重新排列窗口</button>
           <button type="button" data-reboot>回到欢迎页</button>
           <a href="https://github.com/ankhzw1876" target="_blank" rel="noopener noreferrer">打开 GitHub ↗</a>
@@ -486,6 +502,6 @@
       <p class="noscript-note">JavaScript 未启用，下面展示静态作品内容。</p>
     </noscript>
 
-    <script src="site.js?v=25" defer></script>
+    <script src="site.js?v=26" defer></script>
   </body>
 </html>

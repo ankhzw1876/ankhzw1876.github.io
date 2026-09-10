@@ -18,13 +18,13 @@
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const coarseQuery = window.matchMedia('(pointer: coarse)');
   const mobileQuery = window.matchMedia('(max-width: 720px)');
-  const sakuraPreviewQuery = window.matchMedia('(min-width: 1121px)');
-  const appIds = ['about', 'writing', 'github', 'xiaohongshu', 'game', 'contact', 'archive'];
+  const appIds = ['about', 'writing', 'github', 'xiaohongshu', 'game', 'sakura', 'contact', 'archive'];
   const appMeta = {
     about: { title: '关于我', path: '~/about-me', icon: 'assets/pixel-icons/about.svg?v=2' },
     writing: { title: '文章作品', path: '~/writing', icon: 'assets/pixel-icons/writing.svg?v=2' },
     github: { title: 'GitHub', path: '~/github', icon: 'assets/pixel-icons/github.svg?v=2' },
     game: { title: '游戏文件夹', path: '~/games', icon: 'assets/pixel-icons/game.svg?v=1' },
+    sakura: { title: '暖春樱花树', path: '~/warm-spring-sakura', icon: 'assets/pixel-icons/sakura.svg?v=1' },
     xiaohongshu: { title: '小红书', path: '~/xiaohongshu', icon: 'assets/pixel-icons/xiaohongshu.svg?v=2' },
     contact: { title: '联系我', path: '~/contact', icon: 'assets/pixel-icons/contact.svg?v=2' },
     archive: { title: '版本归档', path: '~/versions', icon: 'assets/pixel-icons/archive.svg?v=2' }
@@ -40,6 +40,7 @@
   let wallpaperFrame = 0;
   let resetGameView = () => {};
   let syncSakuraPreviewVisibility = () => {};
+  let resetSakuraPreview = () => {};
 
   const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
@@ -92,7 +93,6 @@
     void desktop.offsetWidth;
     desktop.classList.add('is-entering');
     setPhase('desktop');
-    syncSakuraPreviewVisibility(true);
 
     if (bootScreen && !bootScreen.hidden) {
       bootScreen.classList.add('is-ending');
@@ -257,9 +257,9 @@
   const syncChrome = () => {
     const visible = [...windows.values()].filter((state) => state.status === 'visible');
     desktop?.classList.toggle('has-windows', visible.length > 0);
-    syncSakuraPreviewVisibility(visible.length === 0);
 
     const active = activeId ? windows.get(activeId) : null;
+    syncSakuraPreviewVisibility(active?.id === 'sakura' && active.status === 'visible');
     if (active?.status === 'visible') {
       if (activeAppLabel) activeAppLabel.textContent = active.meta.title;
       if (topbarPath) topbarPath.textContent = active.meta.path;
@@ -384,6 +384,7 @@
     if (!state || state.status === 'closed') return;
     const wasActive = activeId === id;
     if (id === 'game') resetGameView({ focus: false, unload: true });
+    if (id === 'sakura') resetSakuraPreview({ unload: true });
     state.status = 'closed';
     state.element.dataset.state = 'closed';
     state.element.hidden = true;
@@ -983,21 +984,33 @@
     };
 
     syncSakuraPreviewVisibility = (requested) => {
-      const visible = Boolean(requested && phase === 'desktop' && sakuraPreviewQuery.matches);
+      const visible = Boolean(requested && phase === 'desktop');
       sakuraWidget.classList.toggle('is-suspended', !visible);
-      if (visible && !sakuraPreview.hasAttribute('src')) sakuraPreview.src = sakuraPreview.dataset.src;
+      if (visible && !sakuraPreview.hasAttribute('src')) {
+        sakuraWidget.classList.remove('is-ready');
+        if (loading) loading.hidden = false;
+        sakuraPreview.src = sakuraPreview.dataset.src;
+      }
       notifyVisibility(visible);
     };
 
+    resetSakuraPreview = ({ unload = false } = {}) => {
+      notifyVisibility(false);
+      if (!unload) return;
+      sakuraPreview.removeAttribute('src');
+      sakuraWidget.classList.remove('is-ready', 'is-suspended');
+      if (loading) loading.hidden = false;
+    };
+
     sakuraPreview.addEventListener('load', () => {
-      notifyVisibility(phase === 'desktop' && sakuraPreviewQuery.matches && !desktop?.classList.contains('has-windows'));
+      const state = windows.get('sakura');
+      notifyVisibility(phase === 'desktop' && activeId === 'sakura' && state?.status === 'visible');
     });
     window.addEventListener('message', (event) => {
       if (event.source !== sakuraPreview.contentWindow || event.origin !== location.origin || event.data?.type !== 'xiahua:sakura-ready') return;
       sakuraWidget.classList.add('is-ready');
       if (loading) loading.hidden = true;
     });
-    sakuraPreviewQuery.addEventListener?.('change', () => syncSakuraPreviewVisibility(!desktop?.classList.contains('has-windows')));
   };
 
   const updateGithubData = async () => {

@@ -10,7 +10,7 @@
          platform, coordinated color studies, camera + material morph to a colored QR.
          Adapted MIT engine is credited below. The prior six worlds remain intact. -->
     <script src="themes.js?v=2"></script>
-    <link rel="stylesheet" href="sakura.css?v=5" />
+    <link rel="stylesheet" href="sakura.css?v=8" />
   </head>
   <body>
     <main class="garden">
@@ -35,6 +35,7 @@
       <div class="stage" id="stage" role="button" tabindex="0" aria-label="拖拽旋转樱花树，轻点转为二维码" aria-describedby="gestureHint orbitHelp">
         <canvas id="sceneCanvas" aria-hidden="true"></canvas>
         <canvas id="fallbackCanvas" hidden aria-hidden="true"></canvas>
+        <img class="exact-qr-image" id="exactQrImage" alt="" width="430" height="430" decoding="async" draggable="false" hidden aria-hidden="true" />
         <div class="loading" id="loading" aria-hidden="true"><span></span><b id="loadingText">正在长出一棵树</b></div>
       </div>
       <div class="stage-tools">
@@ -55,6 +56,6 @@
     </main>
     <script src="../qr-skyline/vendor/qrcode.min.js"></script>
     <script src="vendor/sakura-engine.js?v=6"></script>
-    <script src="sakura.js?v=6"></script>
+    <script src="sakura.js?v=7"></script>
   </body>
 </html>

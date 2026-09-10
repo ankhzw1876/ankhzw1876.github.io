@@ -73,9 +73,10 @@ function createHarness({ gpu = true, reducedMotion = false, missingBundle = fals
     replaceWith(next) { elements.set(`#${this.id}`, next); }
     getContext() { return { fillRect() {} }; }
   }
-  for (const id of ['stage', 'urlInput', 'status', 'sceneCanvas', 'fallbackCanvas', 'treeView', 'qrView', 'gestureHint', 'resetView', 'loading', 'loadingText', 'urlForm']) {
+  for (const id of ['stage', 'urlInput', 'status', 'sceneCanvas', 'fallbackCanvas', 'exactQrImage', 'treeView', 'qrView', 'gestureHint', 'resetView', 'loading', 'loadingText', 'urlForm']) {
     elements.set(`#${id}`, new Element(id));
   }
+  elements.get('#exactQrImage').hidden = true;
   const palettes = ['night', 'moon', 'spring'].map(key => {
     const element = new Element(key, 'BUTTON'); element.dataset.palette = key; return element;
   });
@@ -94,8 +95,9 @@ function createHarness({ gpu = true, reducedMotion = false, missingBundle = fals
   };
   elements.get('#urlInput').value = 'https://example.com/';
   const media = new EventSurface(); media.matches = reducedMotion;
+  const launchPalette = new URLSearchParams(search).get('palette');
   const themes = {
-    current: 'night', active: { name: '测试', colors: { bg: '#fff' } }, scene: { effect: 'calm' },
+    current: ['night', 'moon', 'spring'].includes(launchPalette) ? launchPalette : 'night', active: { name: '测试', colors: { bg: '#fff' } }, scene: { effect: 'calm' },
     apply(key) { if (!palettes.some(element => element.dataset.palette === key)) return false; this.current = key; return true; },
   };
   const mockEngine = {
@@ -175,6 +177,47 @@ assert.equal(embeddedReceipt?.message?.type, 'xiahua:sakura-ready');
 assert.equal(embeddedReceipt?.message?.world, 'library');
 assert.equal(embeddedReceipt?.message?.palette, 'night');
 assert.equal(embeddedReceipt?.targetOrigin, 'https://example.com', 'embedded preview reports readiness to its same-origin parent');
+
+const profilePreset = await mount({ search: '?embed=1&palette=spring&world=sakura&qr=profile' });
+assert.equal(profilePreset.api.state.exactQr, true, 'the internal warm-spring launch enables the exact QR preset');
+assert.equal(profilePreset.api.state.url, 'http://weixin.qq.com/r/mp/9RM9JQPEX14grUdG90bn');
+assert.equal(profilePreset.el('urlInput').value, profilePreset.api.state.url, 'the generated tree and supplied QR encode the same target');
+assert.equal(profilePreset.el('exactQrImage').src, '../../assets/qr/warm-spring-profile-qr.jpg');
+assert.equal(profilePreset.el('exactQrImage').hidden, false);
+assert.equal(profilePreset.api.state.exactQrVisible, false, 'the exact image stays hidden in tree view');
+profilePreset.el('exactQrImage').emit('load');
+tap(profilePreset);
+assert.equal(profilePreset.api.state.exactQrVisible, false, 'the generated morph reaches its final QR before the exact image appears');
+profilePreset.advance(0);
+assert.equal(profilePreset.api.state.exactQrVisible, true);
+tap(profilePreset);
+assert.equal(profilePreset.api.state.exactQrVisible, false, 'returning to the tree removes the exact QR immediately');
+
+for (const search of [
+  '?palette=spring&world=sakura&qr=profile',
+  '?embed=1&palette=night&world=sakura&qr=profile',
+  '?embed=1&palette=spring&world=library&qr=profile',
+  '?embed=1&palette=spring&world=sakura&qr=../../secret',
+  '?embed=1&palette=spring&world=sakura&qr=__proto__',
+]) {
+  const ignored = await mount({ search });
+  assert.equal(ignored.api.state.exactQr, false, `ignore unsupported exact-QR launch contract: ${search}`);
+  assert.equal(ignored.el('urlInput').value, 'https://example.com/');
+}
+
+const pausedProfile = await mount({ search: '?embed=1&palette=spring&world=sakura&qr=profile' });
+pausedProfile.el('exactQrImage').emit('load');
+pausedProfile.api.setView(true);
+pausedProfile.rootEvents.emit('message', { source: pausedProfile.context.parent, origin: 'https://example.com', data: { type: 'xiahua:visibility', visible: false } });
+pausedProfile.advance(0);
+assert.equal(pausedProfile.api.state.exactQrVisible, false, 'a hidden parent cannot reveal the exact QR on a stale frame');
+pausedProfile.rootEvents.emit('message', { source: pausedProfile.context.parent, origin: 'https://example.com', data: { type: 'xiahua:visibility', visible: true } });
+pausedProfile.advance(0);
+assert.equal(pausedProfile.api.state.exactQrVisible, true, 'restoring the parent resumes the final handoff');
+
+const fallbackProfile = await mount({ gpu: false, search: '?embed=1&palette=spring&world=sakura&qr=profile' });
+fallbackProfile.el('exactQrImage').emit('load');
+assert.equal(fallbackProfile.api.state.exactQrVisible, true, 'unsupported WebGPU falls back to the supplied scannable QR');
 
 const click = await mount();
 tap(click); assert.equal(click.api.state.flat, true, 'tap opens QR');

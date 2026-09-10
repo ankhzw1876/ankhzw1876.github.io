@@ -615,209 +615,6 @@ img {
   font-size: 12px;
 }
 
-.desktop-sakura {
-  position: absolute;
-  z-index: 10;
-  top: 50%;
-  right: clamp(28px, 4vw, 76px);
-  display: grid;
-  width: clamp(390px, 35vw, 540px);
-  height: min(72vh, 640px);
-  min-height: 480px;
-  grid-template-rows: 36px minmax(0, 1fr) 66px;
-  color: var(--ink);
-  border-top: 1px solid rgba(65, 48, 38, .45);
-  border-bottom: 1px solid rgba(65, 48, 38, .28);
-  background: rgba(244, 238, 231, .28);
-  transform: translateY(-50%);
-  transition: opacity 500ms var(--expo), filter 500ms var(--expo), transform 500ms var(--expo);
-}
-
-.desktop-sakura-meta,
-.desktop-sakura-caption {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.desktop-sakura-meta {
-  padding: 0 4px;
-  border-bottom: 1px solid rgba(65, 48, 38, .18);
-  color: rgba(33, 25, 20, .58);
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: .15em;
-}
-
-.desktop-sakura-meta p,
-.desktop-sakura-caption p,
-.desktop-sakura-loading {
-  margin: 0;
-}
-
-.desktop-sakura-meta p {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.desktop-sakura-meta i {
-  width: 7px;
-  height: 7px;
-  background: var(--green);
-  box-shadow: 0 0 0 3px rgba(108, 121, 80, .12);
-}
-
-.desktop-sakura-meta > span {
-  color: var(--rust);
-}
-
-.desktop-sakura-stage {
-  position: relative;
-  min-height: 0;
-  overflow: hidden;
-  background: #f7eee4;
-}
-
-.desktop-sakura-stage::after {
-  position: absolute;
-  inset: 0;
-  border: 1px solid rgba(85, 67, 57, .12);
-  content: "";
-  pointer-events: none;
-}
-
-.desktop-sakura-stage > img,
-.desktop-sakura-stage > iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-.desktop-sakura-stage > img {
-  object-fit: cover;
-  object-position: center;
-  filter: saturate(.82) sepia(.05);
-  transition: opacity 500ms ease;
-}
-
-.desktop-sakura-stage > iframe {
-  opacity: 0;
-  background: #f7eee4;
-  transition: opacity 500ms ease;
-}
-
-.desktop-sakura.is-ready .desktop-sakura-stage > img {
-  opacity: 0;
-}
-
-.desktop-sakura.is-ready .desktop-sakura-stage > iframe {
-  opacity: 1;
-}
-
-.desktop-sakura-loading {
-  position: absolute;
-  z-index: 2;
-  right: 16px;
-  bottom: 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  color: #6f5849;
-  background: rgba(255, 248, 240, .86);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: .08em;
-  backdrop-filter: blur(8px);
-}
-
-.desktop-sakura-loading i {
-  width: 6px;
-  height: 6px;
-  background: #b56b49;
-  animation: sakura-preview-pulse 1s ease-in-out infinite alternate;
-}
-
-@keyframes sakura-preview-pulse {
-  to { opacity: .32; transform: scale(.7); }
-}
-
-.desktop-sakura-caption {
-  padding: 10px 4px 8px;
-}
-
-.desktop-sakura-caption p {
-  display: grid;
-  min-width: 0;
-  gap: 3px;
-}
-
-.desktop-sakura-caption strong {
-  font-size: 15px;
-  letter-spacing: -.02em;
-}
-
-.desktop-sakura-caption span {
-  color: rgba(33, 25, 20, .52);
-  font-size: 9px;
-  letter-spacing: .05em;
-}
-
-.desktop-sakura-caption a {
-  flex: 0 0 auto;
-  padding: 9px 0 7px;
-  border-bottom: 1px solid rgba(165, 90, 61, .45);
-  color: var(--rust);
-  font-size: 10px;
-  font-weight: 900;
-  text-decoration: none;
-  transition: color 160ms ease, border-color 160ms ease, transform 260ms var(--expo);
-}
-
-.desktop-sakura-caption a:hover,
-.desktop-sakura-caption a:focus-visible {
-  color: var(--ink);
-  border-color: var(--ink);
-  transform: translateX(3px);
-}
-
-.desktop-sakura.is-suspended,
-.desktop.has-windows .desktop-sakura {
-  opacity: .12;
-  filter: blur(2px);
-  transform: translateY(-50%) scale(.96);
-  pointer-events: none;
-}
-
-@media (min-width: 1121px) {
-  .desktop-statement {
-    right: clamp(446px, calc(39vw + 16px), 766px);
-    left: clamp(152px, 11vw, 210px);
-  }
-
-  .desktop-statement h2 {
-    font-size: clamp(48px, 4.3vw, 76px);
-  }
-}
-
-@media (max-width: 1120px) {
-  .desktop-sakura {
-    display: none;
-  }
-}
-
-@media (max-height: 620px) and (min-width: 1121px) {
-  .desktop-sakura {
-    height: calc(100% - 32px);
-    min-height: 0;
-  }
-}
-
 .desktop-icons {
   position: absolute;
   z-index: 80;
@@ -1278,6 +1075,181 @@ img {
   flex-wrap: wrap;
   gap: 9px;
   margin-top: 20px;
+}
+
+/* Warm-spring sakura as a first-class XiaHua OS app. */
+.sakura-app {
+  display: grid;
+  min-height: 0;
+  grid-template-rows: 40px minmax(0, 1fr) 76px;
+  overflow: hidden;
+  color: #241b16;
+  background: #f3eae1;
+}
+
+.sakura-app-meta,
+.sakura-window-caption {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.sakura-app-meta {
+  padding: 0 18px;
+  border-bottom: 1px solid rgba(82, 58, 44, .18);
+  color: rgba(36, 27, 22, .56);
+  background: rgba(255, 250, 244, .58);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .15em;
+}
+
+.sakura-app-meta p,
+.sakura-window-caption p,
+.sakura-window-loading {
+  margin: 0;
+}
+
+.sakura-app-meta p {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.sakura-app-meta i {
+  width: 7px;
+  height: 7px;
+  background: #6c7950;
+  box-shadow: 0 0 0 3px rgba(108, 121, 80, .12);
+}
+
+.sakura-app-meta > span {
+  color: #a55a3d;
+  white-space: nowrap;
+}
+
+.sakura-window-stage {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  background: #f8eee5;
+}
+
+.sakura-window-stage::after {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  border: 1px solid rgba(85, 67, 57, .13);
+  content: "";
+  pointer-events: none;
+}
+
+.sakura-window-stage > img,
+.sakura-window-stage > iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.sakura-window-stage > img {
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(.8) sepia(.06);
+  transition: opacity 420ms ease;
+}
+
+.sakura-window-stage > iframe {
+  opacity: 0;
+  background: #f8eee5;
+  transition: opacity 420ms ease;
+}
+
+.sakura-app.is-ready .sakura-window-stage > img {
+  opacity: 0;
+}
+
+.sakura-app.is-ready .sakura-window-stage > iframe {
+  opacity: 1;
+}
+
+.sakura-window-loading {
+  position: absolute;
+  z-index: 4;
+  right: 18px;
+  bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 11px;
+  color: #6f5849;
+  background: rgba(255, 248, 240, .9);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  backdrop-filter: blur(8px);
+}
+
+.sakura-window-loading i {
+  width: 6px;
+  height: 6px;
+  background: #b56b49;
+  animation: sakura-preview-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes sakura-preview-pulse {
+  to { opacity: .32; transform: scale(.7); }
+}
+
+.sakura-window-caption {
+  padding: 12px 18px 13px;
+  border-top: 1px solid rgba(82, 58, 44, .18);
+  background: rgba(255, 250, 244, .66);
+}
+
+.sakura-window-caption p {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.sakura-window-caption strong {
+  color: #2f221b;
+  font-size: 17px;
+  letter-spacing: -.02em;
+}
+
+.sakura-window-caption span {
+  color: rgba(36, 27, 22, .56);
+  font-size: 10px;
+  letter-spacing: .04em;
+}
+
+.sakura-window-caption a {
+  flex: 0 0 auto;
+  padding: 10px 12px;
+  border: 1px solid rgba(165, 90, 61, .42);
+  color: #994c31;
+  background: rgba(165, 90, 61, .05);
+  font-size: 10px;
+  font-weight: 900;
+  text-decoration: none;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease, transform 260ms var(--expo);
+}
+
+.sakura-window-caption a:hover,
+.sakura-window-caption a:focus-visible {
+  border-color: #61301f;
+  color: #421f14;
+  background: rgba(165, 90, 61, .1);
+  transform: translateX(2px);
+}
+
+.sakura-app.is-suspended .sakura-window-stage > iframe {
+  pointer-events: none;
 }
 
 /* Expandable game folder */
@@ -2752,6 +2724,23 @@ img {
   }
 }
 
+@media (min-width: 721px) and (max-height: 820px) {
+  .desktop-icons {
+    top: 8px;
+    gap: 2px;
+  }
+
+  .desktop-icon {
+    min-height: 72px;
+    padding-block: 4px;
+  }
+
+  .icon-art {
+    width: 48px;
+    height: 48px;
+  }
+}
+
 @media (max-width: 720px) {
   :root {
     --topbar-h: 44px;
@@ -2900,6 +2889,36 @@ img {
   .about-app {
     display: block;
     overflow: auto;
+  }
+
+  .sakura-app {
+    grid-template-rows: 36px minmax(0, 1fr) 70px;
+  }
+
+  .sakura-app-meta {
+    padding-inline: 12px;
+    font-size: 8px;
+  }
+
+  .sakura-window-caption {
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .sakura-window-caption strong {
+    font-size: 15px;
+  }
+
+  .sakura-window-caption span {
+    font-size: 9px;
+    letter-spacing: 0;
+  }
+
+  .sakura-window-caption a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding-inline: 10px;
   }
 
   .about-portrait {
