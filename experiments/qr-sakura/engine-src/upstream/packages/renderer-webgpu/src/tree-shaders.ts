@@ -232,16 +232,16 @@ fn fragmentMain(input: BlockOutput) -> @location(0) vec4f {
   var treeColor = pow(mapped, vec3f(1.0 / 2.2));
   let gray = dot(treeColor, vec3f(0.299, 0.587, 0.114));
   treeColor = mix(vec3f(gray), treeColor, 1.0);
-  // Ground uses four explicit display-RGB ceramic/earth tones; bypass the
-  // legacy exposure chain which washed all pale input colors nearly white.
+  // Four coordinated ceramic tones follow the palette in display RGB.
+  // Keep bypassing the legacy exposure chain, which washed pale tiles white.
   if (input.layer < 0.5) {
-    var tile = vec3f(0.94, 0.925, 0.865);
-    if (noiseA > 0.48 && noiseA <= 0.69) { tile = vec3f(0.77, 0.70, 0.53); }
-    if (noiseA > 0.69 && noiseA <= 0.84) { tile = vec3f(0.82, 0.80, 0.63); }
-    if (noiseA > 0.84) { tile = vec3f(0.73, 0.77, 0.61); }
-    if (input.blockType == 3u) { tile = mix(vec3f(0.48, 0.56, 0.26), vec3f(0.65, 0.64, 0.41), noiseB); }
+    var tile = mix(uniforms.themeFifth.rgb, uniforms.themeThird.rgb, 0.18);
+    if (noiseA > 0.48 && noiseA <= 0.69) { tile = uniforms.themeThird.rgb * 0.9; }
+    if (noiseA > 0.69 && noiseA <= 0.84) { tile = mix(uniforms.themeThird.rgb, uniforms.themePrimary.rgb, 0.12); }
+    if (noiseA > 0.84) { tile = mix(uniforms.themeThird.rgb, uniforms.themeSecondary.rgb, 0.2); }
+    if (input.blockType == 3u) { tile = mix(uniforms.themeSecondary.rgb, uniforms.themeFourth.rgb, noiseB); }
     treeColor = tile * (0.94 + treeShadow * 0.06);
-    if (abs(normal.y) < 0.5) { treeColor = vec3f(0.62, 0.61, 0.43); }
+    if (abs(normal.y) < 0.5) { treeColor = mix(uniforms.themeThird.rgb, uniforms.themeFourth.rgb, 0.45) * 0.82; }
   }
   let qrPaper = mix(uniforms.themeFifth.rgb, vec3f(1.0), 0.52);
   let qrReveal = smoothstep(0.64, 0.96, uniforms.progress);
@@ -370,6 +370,7 @@ ${SEED_UNIFORMS_WGSL}
 struct ShadowOutput {
   @builtin(position) position: vec4f,
   @location(0) uv: vec2f,
+  @location(1) @interpolate(flat) paper: u32,
 }
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -380,8 +381,20 @@ fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> ShadowOutput {
     vec2f(-1.0, -1.0), vec2f(1.0, -1.0), vec2f(-1.0, 1.0),
     vec2f(-1.0, 1.0), vec2f(1.0, -1.0), vec2f(1.0, 1.0),
   );
-  let uv = quad[vertexIndex];
+  let uv = quad[vertexIndex % 6u];
   let gridWidth = uniforms.gridSize * uniforms.blockSize;
+  var output: ShadowOutput;
+  output.uv = uv;
+  output.paper = select(0u, 1u, vertexIndex >= 6u);
+  if (output.paper == 1u) {
+    // Keep four light modules around the QR even against a dark page.
+    // Draw below the existing matrix; this is a paper margin, not a QR overlay.
+    let radius = gridWidth * 0.5 + uniforms.blockSize * 4.0;
+    output.position = projectPosition(vec3f(
+      uv.x * radius, -uniforms.blockSize * 0.02, uv.y * radius,
+    ));
+    return output;
+  }
   let center = vec2f(gridWidth * 0.045, gridWidth * 0.03);
   let radius = vec2f(gridWidth * 0.38, gridWidth * 0.31);
   let localPos = vec3f(
@@ -389,14 +402,17 @@ fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> ShadowOutput {
     uniforms.blockSize * 1.018,
     center.y + uv.y * radius.y,
   );
-  var output: ShadowOutput;
   output.position = projectPosition(localPos);
-  output.uv = uv;
   return output;
 }
 
 @fragment
 fn fragmentMain(input: ShadowOutput) -> @location(0) vec4f {
+  if (input.paper == 1u) {
+    let opacity = smoothstep(0.78, 0.98, uniforms.progress);
+    if (opacity < 0.01) { discard; }
+    return vec4f(mix(uniforms.themeFifth.rgb, vec3f(1.0), 0.52), opacity);
+  }
   let visibility = smoothstep(0.30, 0.82, 1.0 - uniforms.progress);
   let canopy = 1.0 - smoothstep(0.18, 1.0, length(input.uv));
   let trunk = 1.0 - smoothstep(
@@ -780,7 +796,7 @@ fn fragmentMain(input: FlowerOutput) -> @location(0) vec4f {
     baseColor = vec3f(0.92, 0.78, 0.35) * (0.9 + fract(seed * 13.3) * 0.15);
   } else {
     let base = themeFlower(seed);
-    let tip = mix(uniforms.themePrimary.rgb, vec3f(0.84, 0.42, 0.56), 0.45);
+    let tip = uniforms.themePrimary.rgb;
     baseColor = mix(base, tip, smoothstep(0.62, 1.0, input.petalT) * 0.78);
     baseColor *= 1.0 - (1.0 - abs(input.petalT - 0.5) * 2.0) * 0.03;
   }

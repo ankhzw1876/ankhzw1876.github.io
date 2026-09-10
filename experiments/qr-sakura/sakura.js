@@ -3,8 +3,7 @@
   const $ = selector => document.querySelector(selector);
   const stage = $('#stage'), input = $('#urlInput'), status = $('#status');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const background = [250 / 255, 247 / 255, 242 / 255];
-  const palette = [[.91,.48,.64],[.20,.56,.08],[.91,.88,.79],[.31,.43,.18],[.965,.945,.906]];
+  const themes = window.SakuraThemes;
   let canvas = $('#sceneCanvas');
   let renderer = null, identity = null, model = null, flat = false, fallback = false;
   let revision = 0, mountToken = 0, debounce = 0, statusTimer = 0, parentVisible = true, intersecting = true;
@@ -30,6 +29,9 @@
   }
 
   function syncView() {
+    document.querySelectorAll('[data-palette]').forEach(button => {
+      if (button.tagName === 'BUTTON') button.setAttribute('aria-pressed', String(button.dataset.palette === themes.current));
+    });
     $('#treeView').setAttribute('aria-pressed', String(!flat));
     $('#qrView').setAttribute('aria-pressed', String(flat));
     $('#treeView').disabled = fallback;
@@ -66,7 +68,7 @@
     c.width = Math.round(stage.clientWidth * ratio); c.height = Math.round(stage.clientHeight * ratio);
     const cell = Math.max(1, Math.floor(Math.min(c.width, c.height) * .84 / (matrix.size + 8)));
     const total = cell * (matrix.size + 8), x = Math.floor((c.width - total) / 2), y = Math.floor((c.height - total) / 2);
-    ctx.fillStyle = '#faf7f2'; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fillStyle = themes.active.colors.bg; ctx.fillRect(0, 0, c.width, c.height);
     ctx.fillStyle = '#fff'; ctx.fillRect(x, y, total, total);
     ctx.fillStyle = '#382f30';
     for (let r = 0; r < matrix.size; r++) for (let col = 0; col < matrix.size; col++) {
@@ -121,7 +123,7 @@
     $('#loading').hidden = false; syncView(); message('正在为这个链接长出一棵树……');
     if (!window.SakuraEngine || !navigator.gpu) { useFallback(new Error('WebGPU unavailable')); return; }
     try {
-      renderer = SakuraEngine.mountSeed(canvas, model, { background, palette, effect: 'calm' }, 'tree', {
+      renderer = SakuraEngine.mountSeed(canvas, model, themes.scene, 'tree', {
         onReady() {
           if (mount !== mountToken || disposed) return;
           ready = true; $('#loading').hidden = true;
@@ -136,6 +138,16 @@
     } catch (error) { useFallback(error); }
   }
 
+  function setPalette(key) {
+    if (!themes.apply(key)) return;
+    renderer?.setScene(themes.scene);
+    if (fallback) drawFallback();
+    syncView();
+    message(`已切换为「${themes.active.name}」配色。`);
+  }
+  document.querySelectorAll('.palette-tabs button').forEach(button => {
+    button.addEventListener('click', () => setPalette(button.dataset.palette));
+  });
   $('#urlForm').addEventListener('submit', event => { event.preventDefault(); clearTimeout(debounce); generate(input.value); });
   input.addEventListener('input', () => {
     clearTimeout(debounce); ++revision; input.removeAttribute('aria-invalid');
@@ -172,10 +184,11 @@
   });
   addEventListener('pageshow', event => { if (event.persisted) syncVisibility(); });
   window.sakuraGarden = {
-    get state() { return { ready, flat, fallback, url: currentUrl, qrSize: identity?.qr.size, visible: isVisible(), renderer: canvas.dataset.renderer, progress: Number(canvas.dataset.morphProgress || 0), lastError }; },
+    get state() { return { ready, flat, fallback, palette: themes.current, url: currentUrl, qrSize: identity?.qr.size, visible: isVisible(), renderer: canvas.dataset.renderer, progress: Number(canvas.dataset.morphProgress || 0), lastError }; },
     get model() { return model; },
     get matrix() { return identity?.qr; },
-    setView
+    setView,
+    setPalette
   };
   generate(input.value);
 })();

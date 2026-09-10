@@ -57,6 +57,7 @@ Exported fallback helper `createQRSvgPath(identity.qr)` returns `{ size, path }`
 - Flowers use raised cup-shaped petals with pale pink bodies and darker pink tips. QR ink is independent: interior fallen-petal modules remain stronger pink, perimeter grass modules remain green. WebGPU device loss is forwarded to `onError` so the wrapper can switch to its static fallback.
 - The legacy elevated voxel scaffold is clipped throughout the morph. It previously appeared as white cubes/specks between tree and QR; the independent branches, blossoms, grass and complete base QR layer are retained.
 - Blossoms now fade out before the final QR reveal instead of shrinking twice into opaque subpixel specks. Petal size is bounded during the fade, near-transparent geometry is clipped, and reverse transitions use the same progress-based opacity. Tree and QR endpoints are unchanged.
+- Live color studies use `setScene` without remounting geometry. Grass, ceramic tiles, petal tips and QR ink follow the five-color palette; bark and yellow flower centers retain their natural material colors. The existing shadow pass also draws a light four-module QR margin below the matrix late in the morph, with framing adjusted to keep the full margin visible. No particle effects are enabled.
 
 Run `node verify.mjs` after rebuilding to check deterministic geometry, finite buffers, canonical QR fallback geometry, rejected schemes/versions, and lifecycle behavior without WebGPU. GPU shader compilation and composition are verified in the containing browser page.
 

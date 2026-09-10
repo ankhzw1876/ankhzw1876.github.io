@@ -87,7 +87,9 @@ fn themeLeaf(noise: f32) -> vec3f {
 
 fn themeGrass(noise: f32) -> vec3f {
   let tier = fract(noise * 7.31);
-  return mix(vec3f(0.23, 0.39, 0.095), vec3f(0.39, 0.57, 0.18), tier);
+  let deep = uniforms.themeSecondary.rgb * 0.78;
+  let light = mix(uniforms.themeSecondary.rgb, uniforms.themeFifth.rgb, 0.22);
+  return mix(deep, light, tier);
 }
 
 fn qrContrast(hue: vec3f) -> vec3f {
@@ -101,8 +103,8 @@ fn themeQr(blockType: u32, noise: f32) -> vec3f {
   if (blockType == 3u) {
     hue = uniforms.themeSecondary.rgb;
   } else if (blockType == 4u) {
-    // Fallen petals are the interior QR ink: pink, independently of the 3D pastel flowers.
-    hue = mix(uniforms.themePrimary.rgb, vec3f(0.79, 0.37, 0.53), 0.12);
+    // QR ink follows the selected palette, independently of the pastel 3D flowers.
+    hue = uniforms.themePrimary.rgb;
   } else if (blockType == 2u || blockType == 5u) {
     hue = uniforms.themeFourth.rgb;
   }
@@ -134,8 +136,10 @@ fn projectPosition(localPos: vec3f) -> vec4f {
   let rxZ = localPos.y * sx + ryZ * cx;
   let portraitBoost = select(1.0, 1.2, uniforms.aspectRatio < 0.8);
   let morphPulse = 1.0 - sin(progress * 3.14159265) * 0.08;
+  // Fit the paper margin into the same footprint as the original QR.
+  let qrFraming = mix(1.0, uniforms.gridSize / (uniforms.gridSize + 8.0), smoothstep(0.64, 1.0, progress));
   let viewScale = (mix(41.5, 46.4, progress) / uniforms.gridSize)
-    * portraitBoost * morphPulse * uniforms.camera.x;
+    * portraitBoost * morphPulse * uniforms.camera.x * qrFraming;
   let scaleX = viewScale / max(uniforms.aspectRatio, 1.0);
   let scaleY = viewScale / max(1.0 / uniforms.aspectRatio, 1.0);
   let yOffset = mix(-0.12, 0.08, progress);

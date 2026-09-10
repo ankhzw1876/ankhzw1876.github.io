@@ -770,7 +770,7 @@ function encodeScenePass(encoder: GPUCommandEncoder, gpu: SeedGpuResources): voi
     pass.draw(gpu.blockField.blocks.length * 36);
     pass.setPipeline(gpu.pipelines.shadow);
     pass.setBindGroup(0, gpu.bindGroups.grass);
-    pass.draw(6);
+    pass.draw(12); // canopy shadow + the QR's light paper margin
     pass.setPipeline(gpu.pipelines.grass);
     pass.setBindGroup(0, gpu.bindGroups.grass);
     pass.draw(gpu.scene.grassCount * 3);
