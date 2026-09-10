@@ -124,8 +124,10 @@ fn themeSnow() -> vec3f {
 
 fn projectPosition(localPos: vec3f) -> vec4f {
   let progress = uniforms.progress;
-  let isoAngleY = mix(0.78, 0.0, progress) + uniforms.cameraBobX;
-  let isoAngleX = mix(-0.55, -1.5708, progress) + uniforms.cameraBobY;
+  let treeYaw = 0.78 + uniforms.camera.y;
+  let shortestYaw = atan2(sin(treeYaw), cos(treeYaw));
+  let isoAngleY = mix(shortestYaw, 0.0, progress) + uniforms.cameraBobX;
+  let isoAngleX = mix(-0.55 + uniforms.camera.z, -1.5708, progress) + uniforms.cameraBobY;
   let cy = cos(isoAngleY);
   let sy = sin(isoAngleY);
   let cx = cos(isoAngleX);
@@ -136,13 +138,17 @@ fn projectPosition(localPos: vec3f) -> vec4f {
   let rxZ = localPos.y * sx + ryZ * cx;
   let portraitBoost = select(1.0, 1.2, uniforms.aspectRatio < 0.8);
   let morphPulse = 1.0 - sin(progress * 3.14159265) * 0.08;
+  // Recenter near overhead and leave room for the slab's corners without
+  // changing the initial tree view or the final scanning view.
+  let overhead = smoothstep(0.0, 0.9, -uniforms.camera.z);
+  let orbitFraming = mix(1.0, 0.86, overhead * (1.0 - progress));
   // Fit the paper margin into the same footprint as the original QR.
   let qrFraming = mix(1.0, uniforms.gridSize / (uniforms.gridSize + 8.0), smoothstep(0.64, 1.0, progress));
   let viewScale = (mix(41.5, 46.4, progress) / uniforms.gridSize)
-    * portraitBoost * morphPulse * uniforms.camera.x * qrFraming;
+    * portraitBoost * morphPulse * uniforms.camera.x * qrFraming * orbitFraming;
   let scaleX = viewScale / max(uniforms.aspectRatio, 1.0);
   let scaleY = viewScale / max(1.0 / uniforms.aspectRatio, 1.0);
-  let yOffset = mix(-0.12, 0.08, progress);
+  let yOffset = mix(mix(-0.12, -0.02, overhead), 0.08, progress);
   let xOffset = mix(0.0, 0.015, progress);
   return vec4f(
     (ryX + xOffset) * scaleX,

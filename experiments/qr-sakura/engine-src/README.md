@@ -39,6 +39,7 @@ renderer.resume();
 renderer.setReducedMotion(true); // freezes ambient time and stops continuous RAF
 renderer.resize();
 renderer.setZoom(1.12); // clamped to 0.82–1.45
+renderer.setOrbit(Math.PI, -0.3); // tree orbit in radians; QR stays top-down
 renderer.dispose();
 ```
 
@@ -47,6 +48,8 @@ renderer.dispose();
 Exported fallback helper `createQRSvgPath(identity.qr)` returns `{ size, path }`; set a square SVG viewBox and draw the path in black on white. The canonical matrix and fallback remain upstream's tested QR encoder. Interactive 3D needs HTTPS or localhost and a usable WebGPU adapter. Lower-level `mountSeed` reports initialization errors to `onError`; it does not insert fallback UI itself.
 
 ## Local artistic changes
+
+`setOrbit(yaw, pitch)` uses radians relative to the default tree camera. Yaw wraps continuously through 360°; pitch offsets clamp to -0.9–0.35 radians to keep the view above the ground. Non-finite inputs normalize to zero. Camera state survives GPU initialization, pause/resume and palette changes; reduced-motion input redraws one frame without starting an animation loop. `projectPosition` blends the orbit back to the canonical QR camera and frames near-overhead inspection to keep the slab visible. The wrapper blocks rotation during morphing and in QR mode, and resets camera state on URL regeneration. This addition is for the tree renderer, not the unused terrain form.
 
 - One thick, curved, tapering brown trunk with five tiers of spreading boughs, forks and upward twig ends. URL DNA determines height, lean, branch angles, lengths, cluster placement and density.
 - Only flattened clusters at actual twig tips; the full spherical `addCanopySurface()` overlay is not used. No random conifer/banana/multiple-trunk substitution.

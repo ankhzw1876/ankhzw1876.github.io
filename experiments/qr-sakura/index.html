@@ -10,7 +10,7 @@
          platform, coordinated color studies, camera + material morph to a colored QR.
          Adapted MIT engine is credited below. The prior six worlds remain intact. -->
     <script src="themes.js?v=1"></script>
-    <link rel="stylesheet" href="sakura.css?v=2" />
+    <link rel="stylesheet" href="sakura.css?v=3" />
   </head>
   <body>
     <main class="garden">
@@ -26,12 +26,16 @@
           <button type="button" id="qrView" aria-pressed="false">二维码</button>
         </div>
       </header>
-      <div class="stage" id="stage" role="button" tabindex="0" aria-label="点击樱花树，转为二维码" aria-describedby="gestureHint">
+      <div class="stage" id="stage" role="button" tabindex="0" aria-label="拖拽旋转樱花树，轻点转为二维码" aria-describedby="gestureHint orbitHelp">
         <canvas id="sceneCanvas" aria-hidden="true"></canvas>
         <canvas id="fallbackCanvas" hidden aria-hidden="true"></canvas>
         <div class="loading" id="loading" aria-hidden="true"><span></span>正在长出一棵树</div>
       </div>
-      <p class="gesture-hint" id="gestureHint">点一下，换个视角。</p>
+      <div class="stage-tools">
+        <p class="gesture-hint" id="gestureHint">拖拽 360° 检视 · 轻点切换二维码</p>
+        <button type="button" class="reset-view" id="resetView" disabled aria-label="重置树景视角">复位</button>
+      </div>
+      <span class="sr-only" id="orbitHelp">树景支持鼠标或单指拖拽。聚焦画面后，方向键旋转，R 复位，Enter 或空格切换视角，Escape 返回树景。</span>
       <form class="url-form" id="urlForm" novalidate>
         <label class="sr-only" for="urlInput">输入一个网页链接</label>
         <input id="urlInput" type="url" inputmode="url" autocomplete="url" autocapitalize="none" spellcheck="false" maxlength="512" value="https://ankhzw1876.github.io/" placeholder="输入一个网址，让它长成一棵树" aria-describedby="status" />
@@ -44,7 +48,7 @@
       </footer>
     </main>
     <script src="../qr-skyline/vendor/qrcode.min.js"></script>
-    <script src="vendor/sakura-engine.js?v=4"></script>
-    <script src="sakura.js?v=2"></script>
+    <script src="vendor/sakura-engine.js?v=5"></script>
+    <script src="sakura.js?v=3"></script>
   </body>
 </html>

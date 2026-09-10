@@ -7,7 +7,7 @@ export {
 } from "./upstream/packages/core/src/index.js";
 export { createSeedGpuScene } from "./upstream/packages/renderer-webgpu/src/gpu-scene.js";
 export { createSeedBlockField } from "./upstream/packages/renderer-webgpu/src/seed-model.js";
-export { mountSeed, MORPH_DURATION_MS } from "./upstream/packages/renderer-webgpu/src/renderer.js";
+export { mountSeed, MORPH_DURATION_MS, normalizeSeedOrbit } from "./upstream/packages/renderer-webgpu/src/renderer.js";
 import {
   createSeedModel as createUpstreamSeedModel,
   type CreateSeedModelOptions,

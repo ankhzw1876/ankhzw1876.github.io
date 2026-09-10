@@ -22,6 +22,7 @@ export type SeedRenderer = {
   setReducedMotion: (enabled: boolean) => void;
   setScene: (scene: SeedSceneConfig) => void;
   setZoom: (zoom: number) => void;
+  setOrbit: (yaw: number, pitch: number) => void;
 };
 
 export type SeedRendererOptions = {
@@ -194,6 +195,8 @@ type SeedGpuResources = {
   targets: RenderTargets | undefined;
   sceneEffect: number;
   zoom: number;
+  orbitYaw: number;
+  orbitPitch: number;
 };
 
 function createClearColor(scene: SeedSceneConfig): GPUColor {
@@ -248,7 +251,18 @@ type RendererState = {
   toggleTime: number;
   velocity: number;
   zoom: number;
+  orbitYaw: number;
+  orbitPitch: number;
 };
+
+/** Unlimited horizontal orbit; keep the camera above the ground and upright. */
+export function normalizeSeedOrbit(yaw: number, pitch: number): readonly [number, number] {
+  const angle = Number.isFinite(yaw) ? yaw % (Math.PI * 2) : 0;
+  return [
+    Math.atan2(Math.sin(angle), Math.cos(angle)),
+    Math.max(-0.9, Math.min(0.35, Number.isFinite(pitch) ? pitch : 0)),
+  ];
+}
 
 type PipelineSpec = {
   readonly blend?: GPUBlendState;
@@ -738,6 +752,8 @@ function writeUniforms(
     values[offset + 3] = 1;
   }
   values[56] = gpu.zoom;
+  values[57] = gpu.orbitYaw;
+  values[58] = gpu.orbitPitch;
   gpu.device.queue.writeBuffer(gpu.buffers.uniforms, 0, values);
 }
 
@@ -873,6 +889,8 @@ async function initializeGpu(
     terrainPalette: createTerrainPalette(palette),
     targets: undefined,
     zoom: 1,
+    orbitYaw: 0,
+    orbitPitch: 0,
   };
 }
 
@@ -944,6 +962,8 @@ function createInitialState(): RendererState {
     toggleTime: now,
     velocity: 0,
     zoom: 1,
+    orbitYaw: 0,
+    orbitPitch: 0,
   };
 }
 
@@ -975,6 +995,8 @@ export function mountSeed(
       }
       updateGpuScene(gpu, sceneConfig);
       gpu.zoom = state.zoom;
+      gpu.orbitYaw = state.orbitYaw;
+      gpu.orbitPitch = state.orbitPitch;
       state.gpu = gpu;
       // Surface device loss through the same fallback contract as initialization.
       void gpu.device.lost.then((info) => {
@@ -1070,6 +1092,16 @@ export function mountSeed(
     setZoom: (zoom) => {
       state.zoom = clampSeedZoom(zoom);
       if (state.gpu) state.gpu.zoom = state.zoom;
+      if (state.reducedMotion && !state.paused) drawCurrentFrame();
+    },
+    setOrbit: (yaw, pitch) => {
+      if (state.closed) return;
+      [state.orbitYaw, state.orbitPitch] = normalizeSeedOrbit(yaw, pitch);
+      if (state.gpu) {
+        state.gpu.orbitYaw = state.orbitYaw;
+        state.gpu.orbitPitch = state.orbitPitch;
+      }
+      // Direct input remains responsive with reduced motion, without a RAF loop.
       if (state.reducedMotion && !state.paused) drawCurrentFrame();
     },
   };

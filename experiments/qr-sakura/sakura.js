@@ -9,6 +9,7 @@
   let revision = 0, mountToken = 0, debounce = 0, statusTimer = 0, parentVisible = true, intersecting = true;
   let ready = false, currentUrl = '', lastError = '', disposed = false;
   let pointer = null;
+  let orbitYaw = 0, orbitPitch = 0;
 
   function message(text, error = false) {
     clearTimeout(statusTimer);
@@ -35,14 +36,17 @@
     $('#treeView').setAttribute('aria-pressed', String(!flat));
     $('#qrView').setAttribute('aria-pressed', String(flat));
     $('#treeView').disabled = fallback;
-    stage.setAttribute('aria-label', fallback ? '可扫描的二维码' : flat ? '点击二维码，返回樱花树' : '点击樱花树，转为二维码');
+    stage.dataset.flat = String(flat);
+    stage.setAttribute('aria-label', fallback ? '可扫描的二维码' : flat ? '点击二维码，返回樱花树' : '拖拽旋转樱花树，轻点转为二维码');
     stage.setAttribute('role', fallback ? 'img' : 'button');
     stage.tabIndex = fallback ? -1 : 0;
-    $('#gestureHint').textContent = fallback ? '当前浏览器暂不支持此 3D 效果，已保留可扫描二维码。' : flat ? '扫码打开链接，或点一下回到樱花树。' : '点一下，换个视角。';
+    $('#gestureHint').textContent = fallback ? '当前浏览器暂不支持此 3D 效果，已保留可扫描二维码。' : flat ? '扫码打开链接 · 轻点回到树景' : '拖拽 360° 检视 · 轻点切换二维码';
+    syncOrbitUi();
   }
 
   function setView(next, immediate = reduced.matches) {
     if (!ready || fallback) return;
+    cancelGesture();
     flat = next;
     renderer.setFlat(flat, { immediate });
     syncView();
@@ -58,7 +62,33 @@
   }
   function syncVisibility() {
     if (isVisible()) renderer?.resume();
-    else renderer?.pause();
+    else { cancelGesture(); renderer?.pause(); }
+  }
+
+  function syncOrbitUi() {
+    $('#resetView').hidden = fallback;
+    $('#resetView').disabled = !ready || flat || fallback || (Math.abs(orbitYaw) < .001 && Math.abs(orbitPitch) < .001);
+  }
+  function canOrbit() {
+    // The scannable QR remains square; don't interrupt a camera morph with a drag.
+    return ready && !fallback && !flat && Number(canvas.dataset.morphProgress || 0) === 0;
+  }
+  function setOrbit(yaw, pitch) {
+    if (!ready || fallback) return;
+    [orbitYaw, orbitPitch] = SakuraEngine.normalizeSeedOrbit(yaw, pitch);
+    renderer?.setOrbit(orbitYaw, orbitPitch);
+    syncOrbitUi();
+  }
+  function resetOrbit() {
+    cancelGesture();
+    setOrbit(0, 0);
+    message('已回到初始视角。');
+  }
+  function cancelGesture() {
+    const active = pointer;
+    pointer = null;
+    stage.classList.remove('is-dragging');
+    if (active && stage.hasPointerCapture(active.id)) stage.releasePointerCapture(active.id);
   }
 
   function drawFallback() {
@@ -77,6 +107,7 @@
   }
 
   function useFallback(error) {
+    cancelGesture();
     renderer?.dispose(); renderer = null;
     fallback = true; flat = true; ready = true;
     lastError = error instanceof Error ? error.message : String(error || 'WebGPU unavailable');
@@ -115,9 +146,11 @@
     if (request !== revision || disposed) return;
     input.removeAttribute('aria-invalid');
     const mount = ++mountToken;
+    cancelGesture();
     renderer?.dispose(); renderer = null;
     identity = nextIdentity; model = nextModel; currentUrl = url;
     ready = false; fallback = false; flat = false; lastError = '';
+    orbitYaw = 0; orbitPitch = 0;
     $('#fallbackCanvas').hidden = true;
     const fresh = canvas.cloneNode(); canvas.replaceWith(fresh); canvas = fresh; canvas.hidden = false;
     $('#loading').hidden = false; syncView(); message('正在为这个链接长出一棵树……');
@@ -127,6 +160,7 @@
         onReady() {
           if (mount !== mountToken || disposed) return;
           ready = true; $('#loading').hidden = true;
+          syncOrbitUi();
           fitScene();
           renderer?.setReducedMotion(reduced.matches);
           message('每个链接，都有自己的树形。'); syncVisibility();
@@ -156,15 +190,54 @@
   input.addEventListener('change', () => { clearTimeout(debounce); generate(input.value); });
   $('#treeView').addEventListener('click', () => setView(false));
   $('#qrView').addEventListener('click', () => setView(true));
-  stage.addEventListener('pointerdown', e => { pointer = { x: e.clientX, y: e.clientY }; });
-  stage.addEventListener('pointerup', e => {
-    if (pointer && Math.hypot(e.clientX - pointer.x, e.clientY - pointer.y) < 10) setView(!flat);
-    pointer = null;
+  $('#resetView').addEventListener('click', resetOrbit);
+  stage.addEventListener('pointerdown', e => {
+    if (e.isPrimary === false || (pointer && pointer.id !== e.pointerId)) { cancelGesture(); return; }
+    if (!ready || fallback || e.button !== 0) return;
+    pointer = { id: e.pointerId, x: e.clientX, y: e.clientY, yaw: orbitYaw, pitch: orbitPitch, dragged: false, canRotate: canOrbit() };
+    stage.setPointerCapture(e.pointerId);
+    stage.focus({ preventScroll: true });
+    e.preventDefault();
   });
-  stage.addEventListener('pointercancel', () => { pointer = null; });
+  stage.addEventListener('pointermove', e => {
+    if (!pointer || pointer.id !== e.pointerId) return;
+    if (e.pointerType === 'mouse' && e.buttons === 0) { cancelGesture(); return; }
+    const dx = e.clientX - pointer.x, dy = e.clientY - pointer.y;
+    if (!pointer.dragged && Math.hypot(dx, dy) >= 6) {
+      // Latch this even if the pointer later returns to its starting position.
+      pointer.dragged = true;
+      if (pointer.canRotate) {
+        stage.classList.add('is-dragging');
+        message('正在环绕检视 · 松开保留当前角度');
+      }
+    }
+    if (pointer.dragged && pointer.canRotate && canOrbit()) {
+      const turn = Math.PI * 2 / Math.max(320, stage.clientWidth * .8);
+      setOrbit(pointer.yaw + dx * turn, pointer.pitch + dy * .0045);
+    }
+    e.preventDefault();
+  });
+  stage.addEventListener('pointerup', e => {
+    if (!pointer || pointer.id !== e.pointerId) return;
+    const active = pointer, bounds = stage.getBoundingClientRect();
+    const tap = !active.dragged && Math.hypot(e.clientX - active.x, e.clientY - active.y) < 6;
+    cancelGesture();
+    if (tap && e.clientX >= bounds.left && e.clientX <= bounds.right && e.clientY >= bounds.top && e.clientY <= bounds.bottom) setView(!flat);
+  });
+  stage.addEventListener('pointercancel', cancelGesture);
+  stage.addEventListener('lostpointercapture', e => { if (pointer?.id === e.pointerId) cancelGesture(); });
+  stage.addEventListener('dragstart', e => e.preventDefault());
+  addEventListener('blur', cancelGesture);
   stage.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setView(!flat); }
     if (e.key === 'Escape') setView(false);
+    if (!canOrbit()) return;
+    if (e.key.toLowerCase() === 'r') { e.preventDefault(); resetOrbit(); }
+    const turns = { ArrowLeft: [-.15, 0], ArrowRight: [.15, 0], ArrowUp: [0, -.1], ArrowDown: [0, .1] };
+    if (turns[e.key]) {
+      e.preventDefault(); cancelGesture();
+      setOrbit(orbitYaw + turns[e.key][0], orbitPitch + turns[e.key][1]);
+    }
   });
   new ResizeObserver(() => { fitScene(); if (fallback) drawFallback(); }).observe(stage);
   new IntersectionObserver(entries => { intersecting = entries[0]?.isIntersecting ?? true; syncVisibility(); }).observe(stage);
@@ -178,17 +251,19 @@
     renderer?.setFlat(flat, { immediate: true });
   });
   addEventListener('pagehide', event => {
+    cancelGesture();
     clearTimeout(debounce); clearTimeout(statusTimer);
     if (event.persisted) renderer?.pause();
     else { disposed = true; renderer?.dispose(); }
   });
   addEventListener('pageshow', event => { if (event.persisted) syncVisibility(); });
   window.sakuraGarden = {
-    get state() { return { ready, flat, fallback, palette: themes.current, url: currentUrl, qrSize: identity?.qr.size, visible: isVisible(), renderer: canvas.dataset.renderer, progress: Number(canvas.dataset.morphProgress || 0), lastError }; },
+    get state() { return { ready, flat, fallback, palette: themes.current, orbit: { yaw: orbitYaw, pitch: orbitPitch, dragging: Boolean(pointer?.dragged) }, url: currentUrl, qrSize: identity?.qr.size, visible: isVisible(), renderer: canvas.dataset.renderer, progress: Number(canvas.dataset.morphProgress || 0), lastError }; },
     get model() { return model; },
     get matrix() { return identity?.qr; },
     setView,
-    setPalette
+    setPalette,
+    resetOrbit
   };
   generate(input.value);
 })();
