@@ -94,6 +94,11 @@
     desktop.classList.add('is-entering');
     setPhase('desktop');
 
+    const deepLink = getValidHash();
+    const startupId = deepLink || 'sakura';
+    const startupTrigger = document.querySelector(`[data-app-icon="${startupId}"]`) || systemButton;
+    openApp(startupId, startupTrigger, { syncHash: false, focusContent: false, animate: false });
+
     if (bootScreen && !bootScreen.hidden) {
       bootScreen.classList.add('is-ending');
       await wait(motionQuery.matches ? 0 : 460);
@@ -101,13 +106,8 @@
       bootScreen.classList.remove('is-ending');
     }
 
-    showToast('系统就绪 · 单击图标开始', 2600);
-    const deepLink = getValidHash();
-    if (deepLink) {
-      window.setTimeout(() => openApp(deepLink, document.querySelector(`[data-app-icon="${deepLink}"]`), { syncHash: false }), motionQuery.matches ? 0 : 240);
-    } else {
-      document.querySelector('[data-app-icon="about"]')?.focus({ preventScroll: true });
-    }
+    focusWindow(startupId, { focusContent: true, syncHash: false });
+    showToast(deepLink ? `系统就绪 · ${appMeta[startupId].title} 已打开` : '系统就绪 · 暖春樱花树已启动', 2600);
   };
 
   const enterOS = async () => {
@@ -333,8 +333,10 @@
       cascade = (cascade + 1) % 6;
       state.element.classList.remove('is-opening');
       void state.element.offsetWidth;
-      if (!motionQuery.matches) state.element.classList.add('is-opening');
-      state.element.addEventListener('animationend', () => state.element.classList.remove('is-opening'), { once: true });
+      if (!motionQuery.matches && options.animate !== false) {
+        state.element.classList.add('is-opening');
+        state.element.addEventListener('animationend', () => state.element.classList.remove('is-opening'), { once: true });
+      }
     } else if (state.status === 'minimized') {
       state.status = 'visible';
       state.element.hidden = false;
@@ -399,10 +401,10 @@
       const focusedWindow = focusHighestVisible();
       if (!focusedWindow) {
         const preferredTarget = state.lastTrigger;
-        const fallbackTarget = mobileQuery.matches
-          ? document.querySelector(`.mobile-launcher [data-open-app="${id}"]`)
-          : document.querySelector(`[data-app-icon="${id}"]`);
-        const returnTarget = preferredTarget?.getClientRects().length ? preferredTarget : fallbackTarget;
+        const fallbackTargets = mobileQuery.matches
+          ? [document.querySelector(`.mobile-launcher [data-open-app="${id}"]`), document.querySelector('.topbar-user'), systemButton]
+          : [document.querySelector(`[data-app-icon="${id}"]`), systemButton];
+        const returnTarget = [preferredTarget, ...fallbackTargets].find((target) => target?.getClientRects().length);
         requestAnimationFrame(() => returnTarget?.focus?.({ preventScroll: true }));
       }
     }

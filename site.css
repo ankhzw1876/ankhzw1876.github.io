@@ -1146,7 +1146,6 @@ img {
   pointer-events: none;
 }
 
-.sakura-window-stage > img,
 .sakura-window-stage > iframe {
   position: absolute;
   inset: 0;
@@ -1155,21 +1154,10 @@ img {
   border: 0;
 }
 
-.sakura-window-stage > img {
-  object-fit: cover;
-  object-position: center;
-  filter: saturate(.8) sepia(.06);
-  transition: opacity 420ms ease;
-}
-
 .sakura-window-stage > iframe {
   opacity: 0;
   background: #f8eee5;
   transition: opacity 420ms ease;
-}
-
-.sakura-app.is-ready .sakura-window-stage > img {
-  opacity: 0;
 }
 
 .sakura-app.is-ready .sakura-window-stage > iframe {

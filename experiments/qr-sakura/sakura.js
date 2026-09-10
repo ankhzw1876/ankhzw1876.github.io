@@ -6,11 +6,8 @@
   const themes = window.SakuraThemes;
   const launchParams = new URLSearchParams(location.search);
   const embedded = launchParams.get('embed') === '1';
-  const qrPresets = Object.freeze({
-    profile: Object.freeze({
-      src: '../../assets/qr/warm-spring-profile-qr.jpg',
-      target: 'http://weixin.qq.com/r/mp/9RM9JQPEX14grUdG90bn',
-    }),
+  const launchTargets = Object.freeze({
+    wechat: 'http://weixin.qq.com/r/mp/9RM9JQPEX14grUdG90bn',
   });
   const worlds = {
     sakura: { label: '樱花树', loading: '正在长出一棵树', idle: '每个链接，都有自己的树形。' },
@@ -27,11 +24,6 @@
       if (worlds[savedWorld]) currentWorld = savedWorld;
     } catch {}
   }
-  const exactQrImage = $('#exactQrImage');
-  const requestedQrKey = launchParams.get('qr');
-  const requestedQrPreset = Object.prototype.hasOwnProperty.call(qrPresets, requestedQrKey) ? qrPresets[requestedQrKey] : null;
-  let exactQrPreset = embedded && requestedWorld === 'sakura' && launchParams.get('palette') === 'spring' ? requestedQrPreset : null;
-  let exactQrLoaded = false, exactQrFrame = 0;
   let canvas = $('#sceneCanvas');
   let renderer = null, identity = null, model = null, flat = false, fallback = false;
   let revision = 0, mountToken = 0, debounce = 0, statusTimer = 0, parentVisible = true, intersecting = true;
@@ -66,24 +58,9 @@
     return result.href;
   }
 
-  if (exactQrPreset) {
-    try { input.value = normalized(exactQrPreset.target); }
-    catch { exactQrPreset = null; }
-  }
-  if (exactQrPreset && exactQrImage) {
-    exactQrImage.addEventListener('load', () => {
-      exactQrLoaded = true;
-      syncExactQrReveal();
-    });
-    exactQrImage.addEventListener('error', () => {
-      exactQrLoaded = false;
-      exactQrImage.hidden = true;
-      clearExactQrReveal();
-    });
-    exactQrImage.src = exactQrPreset.src;
-    exactQrImage.hidden = false;
-    if (exactQrImage.complete && exactQrImage.naturalWidth > 0) exactQrLoaded = true;
-  }
+  const requestedTargetKey = launchParams.get('target');
+  const requestedTarget = Object.prototype.hasOwnProperty.call(launchTargets, requestedTargetKey) ? launchTargets[requestedTargetKey] : null;
+  if (requestedTarget) input.value = normalized(requestedTarget);
 
   function syncView() {
     document.querySelectorAll('[data-palette]').forEach(button => {
@@ -111,49 +88,17 @@
 
   function setView(next, immediate = reduced.matches) {
     if (!ready || fallback) return;
-    clearExactQrReveal();
     const active = cancelGesture();
     stopOrbitReturn(true);
     if (active && ((active.dragged && active.canRotate) || active.interruptedReturn)) setOrbit(0, 0);
     flat = next;
     renderer.setFlat(flat, { immediate });
     syncView();
-    syncExactQrReveal();
     message(flat ? '镜头正在转向二维码……' : worlds[currentWorld].idle);
     if (flat) statusTimer = setTimeout(() => message('换一个俯视角，这个微缩世界就是同一条链接。'), immediate ? 0 : 1050);
   }
 
   function isVisible() { return parentVisible && intersecting && !document.hidden && !disposed; }
-  function hasExactQrContext() {
-    return Boolean(exactQrPreset && exactQrLoaded && currentWorld === 'sakura' && themes.current === 'spring');
-  }
-  function clearExactQrReveal() {
-    if (exactQrFrame) cancelAnimationFrame(exactQrFrame);
-    exactQrFrame = 0;
-    stage.dataset.exactQr = 'false';
-  }
-  function syncExactQrReveal() {
-    clearExactQrReveal();
-    if (!hasExactQrContext() || !flat) return;
-    if (fallback) {
-      stage.dataset.exactQr = 'true';
-      return;
-    }
-    if (!ready || !isVisible()) return;
-    const revealWhenSettled = () => {
-      exactQrFrame = 0;
-      if (!hasExactQrContext() || !flat || fallback || !ready || !isVisible()) {
-        stage.dataset.exactQr = 'false';
-        return;
-      }
-      if (Number(canvas.dataset.morphProgress || 0) >= .995) {
-        stage.dataset.exactQr = 'true';
-        return;
-      }
-      exactQrFrame = requestAnimationFrame(revealWhenSettled);
-    };
-    exactQrFrame = requestAnimationFrame(revealWhenSettled);
-  }
   function fitScene() {
     // Keep the tree large on the stage without cutting off the slab on narrow screens.
     renderer?.setZoom(stage.clientWidth / stage.clientHeight < .8 ? 1.12 : 1.4);
@@ -162,9 +107,7 @@
   function syncVisibility() {
     if (isVisible()) {
       renderer?.resume();
-      syncExactQrReveal();
     } else {
-      clearExactQrReveal();
       endGesture();
       stopOrbitReturn(true);
       renderer?.pause();
@@ -258,7 +201,6 @@
     lastError = error instanceof Error ? error.message : String(error || 'WebGPU unavailable');
     canvas.hidden = true; $('#fallbackCanvas').hidden = false; $('#loading').hidden = true;
     syncView(); drawFallback();
-    syncExactQrReveal();
     message('可用支持 WebGPU 的浏览器查看完整樱花效果。');
     window.__ready = true;
     notifyParentReady();
@@ -298,7 +240,6 @@
     renderer?.dispose(); renderer = null;
     identity = nextIdentity; model = nextModel; currentUrl = url;
     ready = false; fallback = false; flat = false; lastError = '';
-    clearExactQrReveal();
     orbitYaw = 0; orbitPitch = 0;
     $('#fallbackCanvas').hidden = true;
     const fresh = canvas.cloneNode(); canvas.replaceWith(fresh); canvas = fresh; canvas.hidden = false;
@@ -327,12 +268,10 @@
     renderer?.setScene(themes.scene);
     if (fallback) drawFallback();
     syncView();
-    syncExactQrReveal();
     message(`已切换为「${themes.active.name}」配色。`);
   }
   function setWorld(key) {
     if (!worlds[key] || key === currentWorld) return;
-    clearExactQrReveal();
     cancelGesture();
     stopOrbitReturn(true);
     currentWorld = key;
@@ -343,7 +282,6 @@
       renderer?.setFlat(false, { immediate: reduced.matches });
     }
     syncView();
-    syncExactQrReveal();
     message(worlds[key].idle);
   }
   document.querySelectorAll('.palette-tabs button').forEach(button => {
@@ -426,14 +364,13 @@
   });
   addEventListener('pagehide', event => {
     endGesture(); stopOrbitReturn(true);
-    clearExactQrReveal();
     clearTimeout(debounce); clearTimeout(statusTimer);
     if (event.persisted) renderer?.pause();
     else { disposed = true; renderer?.dispose(); }
   });
   addEventListener('pageshow', event => { if (event.persisted) syncVisibility(); });
   window.sakuraGarden = {
-    get state() { return { ready, flat, fallback, palette: themes.current, world: currentWorld, orbit: { yaw: orbitYaw, pitch: orbitPitch, dragging: Boolean(pointer?.dragged), returning: Boolean(orbitReturn) }, url: currentUrl, qrSize: identity?.qr.size, exactQr: Boolean(exactQrPreset), exactQrVisible: stage.dataset.exactQr === 'true', visible: isVisible(), renderer: canvas.dataset.renderer, progress: Number(canvas.dataset.morphProgress || 0), lastError }; },
+    get state() { return { ready, flat, fallback, palette: themes.current, world: currentWorld, orbit: { yaw: orbitYaw, pitch: orbitPitch, dragging: Boolean(pointer?.dragged), returning: Boolean(orbitReturn) }, url: currentUrl, qrSize: identity?.qr.size, visible: isVisible(), renderer: canvas.dataset.renderer, progress: Number(canvas.dataset.morphProgress || 0), lastError }; },
     get model() { return model; },
     get matrix() { return identity?.qr; },
     setView,
