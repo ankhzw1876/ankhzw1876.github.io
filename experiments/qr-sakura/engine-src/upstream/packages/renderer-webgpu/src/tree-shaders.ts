@@ -525,6 +525,12 @@ struct FlowerOutput {
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var<storage, read> flowers: array<vec4f>;
 
+fn blossomOpacity() -> f32 {
+  // Fade the intact canopy before petals can collapse into bright single pixels.
+  // Morph progress makes the reverse transition follow the same clean path.
+  return 1.0 - smoothstep(0.35, 0.72, uniforms.progress);
+}
+
 @vertex
 fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> FlowerOutput {
   var output: FlowerOutput;
@@ -546,10 +552,11 @@ fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> FlowerOutput {
     - 3.0 * isOrb - 5.0 * isFrond;
   output.seed = rawSeed;
   let visibility = smoothstep(0.0, 0.6, 1.0 - uniforms.progress);
-  if (visibility < 0.01) {
+  if (blossomOpacity() < 0.01) {
     output.position = vec4f(0.0, 0.0, -10.0, 1.0);
     return output;
   }
+  let blossomScale = max(0.55, visibility);
   let blockSize = 0.0245;
   let halfGrid = uniforms.gridSize * blockSize * 0.5;
   let centerX = column * blockSize - halfGrid;
@@ -580,12 +587,12 @@ fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> FlowerOutput {
   let organicScale = blockSize * (0.78 + seed * 0.14) * mix(1.0, 0.37, meadow);
   let orbScale = mix(organicScale, blockSize * 13.0, isOrb);
   let baseScale = mix(orbScale, blockSize * 1.4, isFrond)
-    * visibility * densityVisibility;
+    * blossomScale * densityVisibility;
   let flowerScale = mix(baseScale, baseScale * 1.12, isLeaf);
   var petalLength = mix(flowerScale * 0.92, flowerScale * 1.45, isLeaf);
   var petalWidth = mix(flowerScale * 0.46, flowerScale * 0.28, isLeaf);
   var curlHeight = mix(blockSize * 0.11, blockSize * 0.08, isLeaf)
-    * visibility * densityVisibility;
+    * blossomScale * densityVisibility;
   petalLength = mix(petalLength, flowerScale * 3.2, isFrond);
   petalWidth = mix(petalWidth, flowerScale * 0.32, isFrond);
   // One readable five-petal blossom, rather than mixed narrow confetti variants.
@@ -595,7 +602,7 @@ fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> FlowerOutput {
     curlHeight *= 1.4;
   }
   let centerRadius = mix(blockSize * 0.12, blockSize * 0.04, isLeaf)
-    * visibility * densityVisibility;
+    * blossomScale * densityVisibility;
   let baseRotation = seed * 6.28318;
   let tiltAngle = (seed * 0.25 + 0.05) * (1.0 - isLeaf * 0.5);
   let tiltDirection = seed * 6.28318 * 3.17;
@@ -716,9 +723,9 @@ fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> FlowerOutput {
     normal.x * spinSin + normal.z * spinCos,
   ));
   let localPos = vec3f(
-    centerX + swayX + spunOffset.x * visibility,
-    topY + spunOffset.y * visibility,
-    centerZ + swayZ * windFactor + spunOffset.z * visibility,
+    centerX + swayX + spunOffset.x,
+    topY + spunOffset.y,
+    centerZ + swayZ * windFactor + spunOffset.z,
   );
   output.position = projectPosition(localPos);
   output.normalX = normal.x;
@@ -729,6 +736,8 @@ fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> FlowerOutput {
 
 @fragment
 fn fragmentMain(input: FlowerOutput) -> @location(0) vec4f {
+  let opacity = blossomOpacity();
+  if (opacity < 0.01) { discard; }
   let normal = normalize(vec3f(input.normalX, input.normalY, input.normalZ));
   let isFrond = step(5.0, input.seed);
   let isOrb = step(3.0, input.seed) * (1.0 - isFrond);
@@ -802,7 +811,7 @@ fn fragmentMain(input: FlowerOutput) -> @location(0) vec4f {
   let snowCover = sceneSnow() * smoothstep(0.18, 0.92, normal.y)
     * (0.38 + step(0.62, fract(seed * 9.17)) * 0.3);
   color = mix(color, themeSnow(), snowCover);
-  return vec4f(color, 1.0);
+  return vec4f(color, opacity);
 }
 `;
 

@@ -4,6 +4,16 @@ import { createHash, webcrypto } from "node:crypto";
 import vm from "node:vm";
 
 const source = await readFile(new URL("../vendor/sakura-engine.js", import.meta.url), "utf8");
+// Guard the speck fix in both editable WGSL and the checked-in browser bundle.
+const shaders = await readFile(new URL("upstream/packages/renderer-webgpu/src/tree-shaders.ts", import.meta.url), "utf8");
+const flowerShader = shaders.split("export const TREE_FLOWER_SHADER")[1].split("export const TREE_FALLING_PETAL_SHADER")[0];
+assert.match(flowerShader, /blossomScale = max\(0\.55, visibility\)/);
+assert.match(flowerShader, /smoothstep\(0\.35, 0\.72, uniforms\.progress\)/);
+assert.match(flowerShader, /if \(blossomOpacity\(\) < 0\.01\)/);
+assert.match(flowerShader, /if \(opacity < 0\.01\) \{ discard; \}/);
+assert.match(flowerShader, /return vec4f\(color, opacity\)/);
+assert.doesNotMatch(flowerShader, /spunOffset\.[xyz] \* visibility/);
+assert.ok(source.includes("fn blossomOpacity()"), "rebuild browser bundle after editing the shader");
 let scheduled = 0;
 const context = {
   console: { ...console, error() {} },
@@ -57,5 +67,5 @@ assert.equal(canvas.dataset.renderer, "webgpu-error");
 assert.match(reportedError.message, /WebGPU/);
 assert.equal(scheduled, 0, "unavailable GPU must not schedule a draw loop");
 renderer.dispose();
-console.log("PASS deterministic URL geometry, finite buffers, QR fallback geometry, version/security rejection, lifecycle without WebGPU.");
+console.log("PASS blossom speck regression guards, deterministic URL geometry, finite buffers, QR fallback geometry, version/security rejection, lifecycle without WebGPU.");
 console.log(JSON.stringify({ first: { branches: first.scene.segmentCount, blossoms: first.scene.flowerCount }, second: { branches: second.scene.segmentCount, blossoms: second.scene.flowerCount } }));
