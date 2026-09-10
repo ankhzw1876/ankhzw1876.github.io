@@ -1,4 +1,4 @@
-# Sakura study engine
+# QR miniature worlds study engine
 
 This is a local visual adaptation, not a claim that the reference video used this repository.
 
@@ -32,6 +32,7 @@ const renderer = SakuraEngine.mountSeed(canvas, seed, {
   effect: "calm",
   background: [0.965, 0.945, 0.906]
 }, "tree", { onError, onReady, reducedMotion: false, paused: false });
+renderer.setWorld("islands"); // sakura | islands | moon | library
 renderer.setFlat(true); // about 950 ms
 renderer.setFlat(false, { immediate: true });
 renderer.pause(); // cancels RAF and GPU draw submissions; safe before GPU readiness
@@ -61,7 +62,9 @@ Exported fallback helper `createQRSvgPath(identity.qr)` returns `{ size, path }`
 - The legacy elevated voxel scaffold is clipped throughout the morph. It previously appeared as white cubes/specks between tree and QR; the independent branches, blossoms, grass and complete base QR layer are retained.
 - Blossoms now fade out before the final QR reveal instead of shrinking twice into opaque subpixel specks. Petal size is bounded during the fade, near-transparent geometry is clipped, and reverse transitions use the same progress-based opacity. Tree and QR endpoints are unchanged.
 - Live color studies use `setScene` without remounting geometry. Grass, ceramic tiles, petal tips and QR ink follow the five-color palette; bark and yellow flower centers retain their natural material colors. The existing shadow pass also draws a light four-module QR margin below the matrix late in the morph, with framing adjusted to keep the full margin visible. No particle effects are enabled.
+- `world-scene.ts` deterministically generates three additional prop scenes from the same URL seed: floating islands, a moon base and a miniature library. One generic instanced WebGPU pipeline draws their box, frustum, cylinder, sphere, pyramid and ribbon primitives. `setWorld()` swaps one bounded storage buffer without rebuilding the QR identity, GPU device, palette or camera.
+- World props fade and are clipped before QR modules and their paper margin become visible; they never shrink into opaque subpixel points. The canonical QR block field, four-module quiet zone and final QR material are independent of the selected world.
 
-Run `node verify.mjs` after rebuilding to check deterministic geometry, finite buffers, canonical QR fallback geometry, rejected schemes/versions, and lifecycle behavior without WebGPU. GPU shader compilation and composition are verified in the containing browser page.
+Run `node verify.mjs`, `node ../verify-worlds.mjs`, `node ../verify-orbit.mjs`, and `node ../verify-themes.mjs` after rebuilding. GPU shader compilation, composition and screenshot decoding are verified in the containing browser page.
 
-`generatorVersion: 1` pins upstream QR/DNA behavior. The altered visual recipe has its own revision `sakura-study-1`; it is intentionally not visually identical to unmodified upstream generator v1. The original source includes unused tree/terrain algorithms for provenance, but the public Sakura factory always selects the local single-tree recipe. No browser or screenshot claim is made by this build script; visual QA belongs to the containing page.
+`generatorVersion: 1` pins upstream QR/DNA behavior. The altered visual recipe has its own revision `micro-worlds-study-2`; it is intentionally not visually identical to unmodified upstream generator v1. No browser or screenshot claim is made by the build script; visual QA belongs to the containing page.

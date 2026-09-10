@@ -12,6 +12,16 @@ import {
   type SeedModel,
 } from "./seed-model.js";
 import { createTerrainPalette, type TerrainScenePalette } from "./terrain-palette.js";
+import {
+  createSeedWorldScenes,
+  SEED_WORLDS,
+  WORLD_CODES,
+  WORLD_PROP_LIMIT,
+  WORLD_PROP_STRIDE,
+  WORLD_PROP_VERTEX_COUNT,
+  type SeedWorld,
+  type SeedWorldPropScene,
+} from "./world-scene.js";
 
 export type SeedRenderer = {
   dispose: () => void;
@@ -21,6 +31,7 @@ export type SeedRenderer = {
   resume: () => void;
   setReducedMotion: (enabled: boolean) => void;
   setScene: (scene: SeedSceneConfig) => void;
+  setWorld: (world: SeedWorld) => void;
   setZoom: (zoom: number) => void;
   setOrbit: (yaw: number, pitch: number) => void;
 };
@@ -30,6 +41,7 @@ export type SeedRendererOptions = {
   readonly onReady?: () => void;
   readonly reducedMotion?: boolean;
   readonly paused?: boolean;
+  readonly world?: SeedWorld;
 };
 
 export type SeedSceneEffect = "calm" | "rain" | "snow" | "wind";
@@ -68,6 +80,7 @@ type TreePipelines = SharedPipelines & {
   readonly form: "tree";
   readonly grass: GPURenderPipeline;
   readonly shadow: GPURenderPipeline;
+  readonly worldProps: GPURenderPipeline;
 };
 
 type TerrainPipelines = SharedPipelines & {
@@ -86,6 +99,7 @@ type TreeShaderSources = {
   readonly form: "tree";
   readonly grass: string;
   readonly shadow: string;
+  readonly worldProps: string;
 };
 
 type TerrainShaderSources = {
@@ -114,9 +128,10 @@ const VERSION_ONE_SHADER_LOADERS = {
     return { ...shared, form: "terrain", terrain: terrain.TERRAIN_SHADER };
   },
   tree: async (): Promise<SeedShaderSources> => {
-    const [shared, tree] = await Promise.all([
+    const [shared, tree, world] = await Promise.all([
       loadVersionOneSharedShaders(),
       import("./tree-shaders.js"),
+      import("./world-shaders.js"),
     ]);
     return {
       ...shared,
@@ -128,6 +143,7 @@ const VERSION_ONE_SHADER_LOADERS = {
       form: "tree",
       grass: tree.TREE_GRASS_SHADER,
       shadow: tree.TREE_SHADOW_SHADER,
+      worldProps: world.WORLD_PROP_SHADER,
     };
   },
 } satisfies Record<SeedForm, () => Promise<SeedShaderSources>>;
@@ -157,6 +173,7 @@ type SeedBuffers = {
   readonly rain: GPUBuffer;
   readonly segments: GPUBuffer;
   readonly uniforms: GPUBuffer;
+  readonly worldProps: GPUBuffer;
 };
 
 type SeedBindGroups = {
@@ -168,6 +185,7 @@ type SeedBindGroups = {
   readonly grass: GPUBindGroup;
   readonly groundPetals: GPUBindGroup;
   readonly rain: GPUBindGroup;
+  readonly worldProps: GPUBindGroup;
 };
 
 type RenderTargets = {
@@ -194,10 +212,17 @@ type SeedGpuResources = {
   terrainPalette: TerrainScenePalette;
   targets: RenderTargets | undefined;
   sceneEffect: number;
+  world: SeedWorld;
+  worldPropCount: number;
+  readonly worldScenes: Readonly<Record<SeedWorld, SeedWorldPropScene>>;
   zoom: number;
   orbitYaw: number;
   orbitPitch: number;
 };
+
+export function isSeedWorld(value: unknown): value is SeedWorld {
+  return typeof value === "string" && (SEED_WORLDS as readonly string[]).includes(value);
+}
 
 function createClearColor(scene: SeedSceneConfig): GPUColor {
   if (!scene.background) return { a: 0, b: 0, g: 0, r: 0 };
@@ -253,6 +278,7 @@ type RendererState = {
   zoom: number;
   orbitYaw: number;
   orbitPitch: number;
+  world: SeedWorld;
 };
 
 /** Unlimited horizontal orbit; keep the camera above the ground and upright. */
@@ -496,6 +522,7 @@ async function createTreePipelines(
     createShaderModule(device, "every-qrcode-flowers", sources.flowers),
     createShaderModule(device, "every-qrcode-grass", sources.grass),
     createShaderModule(device, "every-qrcode-shadow", sources.shadow),
+    createShaderModule(device, "every-qrcode-world-props", sources.worldProps),
   ]);
   const [
     blockModule,
@@ -505,6 +532,7 @@ async function createTreePipelines(
     flowerModule,
     grassModule,
     shadowModule,
+    worldPropModule,
   ] = modules;
   const blocks = createScenePipeline(device, format, {
     label: "every-qrcode-block-pipeline",
@@ -551,6 +579,13 @@ async function createTreePipelines(
     layout: layouts.items,
     module: shadowModule,
   });
+  const worldProps = createScenePipeline(device, format, {
+    blend: ALPHA_BLEND,
+    depthWrite: true,
+    label: "every-qrcode-world-prop-pipeline",
+    layout: layouts.items,
+    module: worldPropModule,
+  });
   return {
     ...shared,
     blocks,
@@ -561,6 +596,7 @@ async function createTreePipelines(
     form: sources.form,
     grass,
     shadow,
+    worldProps,
   };
 }
 
@@ -578,12 +614,19 @@ async function createPipelines(
     : createTreePipelines(device, format, layouts, shared, sources);
 }
 
-function createBuffers(device: GPUDevice, field: SeedBlockField, scene: SeedGpuScene): SeedBuffers {
+function createBuffers(
+  device: GPUDevice,
+  field: SeedBlockField,
+  scene: SeedGpuScene,
+  initialWorldProps: Float32Array,
+): SeedBuffers {
   const uniforms = device.createBuffer({
     label: "every-qrcode-uniforms",
     size: UNIFORM_FLOATS * Float32Array.BYTES_PER_ELEMENT,
     usage: BUFFER_USAGE.copyDestination | BUFFER_USAGE.uniform,
   });
+  const worldProps = new Float32Array(WORLD_PROP_LIMIT * WORLD_PROP_STRIDE);
+  worldProps.set(initialWorldProps);
   return {
     baseY: createGpuBuffer(device, "every-qrcode-block-base-y", field.baseY),
     blockHeights: createGpuBuffer(device, "every-qrcode-block-heights", field.heights),
@@ -597,6 +640,7 @@ function createBuffers(device: GPUDevice, field: SeedBlockField, scene: SeedGpuS
     rain: createGpuBuffer(device, "every-qrcode-rain", scene.rain),
     segments: createGpuBuffer(device, "every-qrcode-segments", scene.segments),
     uniforms,
+    worldProps: createGpuBuffer(device, "every-qrcode-world-props", worldProps),
   };
 }
 
@@ -652,6 +696,11 @@ function createBindGroups(
     layout: layouts.items,
     entries: [uniformEntry, { binding: 1, resource: { buffer: buffers.butterflies } }],
   });
+  const worldProps = device.createBindGroup({
+    label: "every-qrcode-world-prop-bind-group",
+    layout: layouts.items,
+    entries: [uniformEntry, { binding: 1, resource: { buffer: buffers.worldProps } }],
+  });
   return {
     blocks,
     branches,
@@ -661,6 +710,7 @@ function createBindGroups(
     grass,
     groundPetals,
     rain,
+    worldProps,
   };
 }
 
@@ -754,6 +804,7 @@ function writeUniforms(
   values[56] = gpu.zoom;
   values[57] = gpu.orbitYaw;
   values[58] = gpu.orbitPitch;
+  values[59] = WORLD_CODES[gpu.world];
   gpu.device.queue.writeBuffer(gpu.buffers.uniforms, 0, values);
 }
 
@@ -786,29 +837,38 @@ function encodeScenePass(encoder: GPUCommandEncoder, gpu: SeedGpuResources): voi
     pass.draw(gpu.blockField.blocks.length * 36);
     pass.setPipeline(gpu.pipelines.shadow);
     pass.setBindGroup(0, gpu.bindGroups.grass);
-    pass.draw(12); // canopy shadow + the QR's light paper margin
-    pass.setPipeline(gpu.pipelines.grass);
-    pass.setBindGroup(0, gpu.bindGroups.grass);
-    pass.draw(gpu.scene.grassCount * 3);
-    pass.setPipeline(gpu.pipelines.flowers);
-    pass.setBindGroup(0, gpu.bindGroups.groundPetals);
-    pass.draw(gpu.scene.groundPetalCount * 150);
-    pass.setPipeline(gpu.pipelines.branches);
-    pass.setBindGroup(0, gpu.bindGroups.branches);
-    pass.draw(gpu.scene.segmentCount * 48);
-    pass.setPipeline(gpu.pipelines.flowers);
-    pass.setBindGroup(0, gpu.bindGroups.flowers);
-    pass.draw(gpu.scene.flowerCount * 150);
-    if (gpu.scene.fallingPetalCount > 0) {
-      pass.setPipeline(gpu.pipelines.fallingPetals);
-      pass.setBindGroup(0, gpu.bindGroups.fallingPetals);
-      pass.draw(gpu.scene.fallingPetalCount * 24);
+    if (gpu.world === "sakura") {
+      pass.draw(12); // canopy shadow + the QR's light paper margin
+      pass.setPipeline(gpu.pipelines.grass);
+      pass.setBindGroup(0, gpu.bindGroups.grass);
+      pass.draw(gpu.scene.grassCount * 3);
+      pass.setPipeline(gpu.pipelines.flowers);
+      pass.setBindGroup(0, gpu.bindGroups.groundPetals);
+      pass.draw(gpu.scene.groundPetalCount * 150);
+      pass.setPipeline(gpu.pipelines.branches);
+      pass.setBindGroup(0, gpu.bindGroups.branches);
+      pass.draw(gpu.scene.segmentCount * 48);
+      pass.setPipeline(gpu.pipelines.flowers);
+      pass.setBindGroup(0, gpu.bindGroups.flowers);
+      pass.draw(gpu.scene.flowerCount * 150);
+      if (gpu.scene.fallingPetalCount > 0) {
+        pass.setPipeline(gpu.pipelines.fallingPetals);
+        pass.setBindGroup(0, gpu.bindGroups.fallingPetals);
+        pass.draw(gpu.scene.fallingPetalCount * 24);
+      }
+    } else {
+      pass.draw(6, 1, 6); // QR paper only; no tree-shaped shadow.
+      pass.setPipeline(gpu.pipelines.worldProps);
+      pass.setBindGroup(0, gpu.bindGroups.worldProps);
+      pass.draw(WORLD_PROP_VERTEX_COUNT, gpu.worldPropCount);
     }
   }
-  pass.setPipeline(gpu.pipelines.rain);
-  pass.setBindGroup(0, gpu.bindGroups.rain);
-  pass.draw(gpu.scene.rainCount * 6);
-  if (gpu.pipelines.form === "tree") {
+  if (gpu.pipelines.form === "terrain" || gpu.world === "sakura") {
+    pass.setPipeline(gpu.pipelines.rain);
+    pass.setBindGroup(0, gpu.bindGroups.rain);
+    pass.draw(gpu.scene.rainCount * 6);
+  }
+  if (gpu.pipelines.form === "tree" && gpu.world === "sakura") {
     pass.setPipeline(gpu.pipelines.butterflies);
     pass.setBindGroup(0, gpu.bindGroups.butterflies);
     pass.draw(gpu.scene.butterflyCount * 6);
@@ -855,6 +915,7 @@ async function initializeGpu(
   model: SeedModel,
   sceneConfig: SeedSceneConfig,
   form: SeedForm,
+  world: SeedWorld,
 ): Promise<SeedGpuResources> {
   if (!("gpu" in navigator)) throw new Error("This browser does not support WebGPU");
   const adapter = await navigator.gpu.requestAdapter({ powerPreference: "high-performance" });
@@ -865,9 +926,10 @@ async function initializeGpu(
   const format = navigator.gpu.getPreferredCanvasFormat();
   const blockField = createSeedBlockField(model, form);
   const scene = createSeedGpuScene(model, form);
+  const worldScenes = createSeedWorldScenes(model);
   const layouts = createLayouts(device);
   const pipelines = await createPipelines(device, format, layouts, form, model.generatorVersion);
-  const buffers = createBuffers(device, blockField, scene);
+  const buffers = createBuffers(device, blockField, scene, worldScenes[world].props);
   const bindGroups = createBindGroups(device, layouts, buffers);
   const sampler = device.createSampler({ magFilter: "linear", minFilter: "linear" });
   const palette = createPalette(sceneConfig);
@@ -888,10 +950,22 @@ async function initializeGpu(
     sceneEffect: createSceneEffect(sceneConfig),
     terrainPalette: createTerrainPalette(palette),
     targets: undefined,
+    world,
+    worldPropCount: worldScenes[world].propCount,
+    worldScenes,
     zoom: 1,
     orbitYaw: 0,
     orbitPitch: 0,
   };
+}
+
+function applyGpuWorld(gpu: SeedGpuResources, world: SeedWorld): void {
+  const next = gpu.worldScenes[world];
+  if (next.props.byteLength > 0) {
+    gpu.device.queue.writeBuffer(gpu.buffers.worldProps, 0, next.props);
+  }
+  gpu.world = world;
+  gpu.worldPropCount = next.propCount;
 }
 
 function updateGpuScene(gpu: SeedGpuResources, scene: SeedSceneConfig): void {
@@ -942,7 +1016,7 @@ function animate(canvas: HTMLCanvasElement, state: RendererState, now: number): 
   }
 }
 
-function createInitialState(): RendererState {
+function createInitialState(world: SeedWorld): RendererState {
   const now = performance.now();
   return {
     closed: false,
@@ -964,6 +1038,7 @@ function createInitialState(): RendererState {
     zoom: 1,
     orbitYaw: 0,
     orbitPitch: 0,
+    world,
   };
 }
 
@@ -974,7 +1049,9 @@ export function mountSeed(
   form: SeedForm = "tree",
   options: SeedRendererOptions = {},
 ): SeedRenderer {
-  const state = createInitialState();
+  const initialWorld = options.world ?? "sakura";
+  if (!isSeedWorld(initialWorld)) throw new RangeError(`Unsupported seed world: ${String(initialWorld)}`);
+  const state = createInitialState(initialWorld);
   state.paused = options.paused ?? false;
   state.pauseStarted = performance.now();
   state.reducedMotion = options.reducedMotion ?? false;
@@ -987,13 +1064,14 @@ export function mountSeed(
     canvas.dataset["morphProgress"] = state.progress.toFixed(3);
   };
   canvas.dataset["renderer"] = "webgpu-initializing";
-  void initializeGpu(canvas, model, sceneConfig, form)
+  void initializeGpu(canvas, model, sceneConfig, form, state.world)
     .then((gpu) => {
       if (state.closed) {
         destroyGpuResources(gpu);
         return;
       }
       updateGpuScene(gpu, sceneConfig);
+      applyGpuWorld(gpu, state.world);
       gpu.zoom = state.zoom;
       gpu.orbitYaw = state.orbitYaw;
       gpu.orbitPitch = state.orbitPitch;
@@ -1087,6 +1165,13 @@ export function mountSeed(
     setScene: (nextScene) => {
       sceneConfig = nextScene;
       if (state.gpu) updateGpuScene(state.gpu, nextScene);
+      if (state.reducedMotion && !state.paused) drawCurrentFrame();
+    },
+    setWorld: (nextWorld) => {
+      if (!isSeedWorld(nextWorld)) throw new RangeError(`Unsupported seed world: ${String(nextWorld)}`);
+      if (state.closed || state.world === nextWorld) return;
+      state.world = nextWorld;
+      if (state.gpu) applyGpuWorld(state.gpu, nextWorld);
       if (state.reducedMotion && !state.paused) drawCurrentFrame();
     },
     setZoom: (zoom) => {

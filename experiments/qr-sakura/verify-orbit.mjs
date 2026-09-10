@@ -73,18 +73,25 @@ function createHarness({ gpu = true, reducedMotion = false, missingBundle = fals
     replaceWith(next) { elements.set(`#${this.id}`, next); }
     getContext() { return { fillRect() {} }; }
   }
-  for (const id of ['stage', 'urlInput', 'status', 'sceneCanvas', 'fallbackCanvas', 'treeView', 'qrView', 'gestureHint', 'resetView', 'loading', 'urlForm']) {
+  for (const id of ['stage', 'urlInput', 'status', 'sceneCanvas', 'fallbackCanvas', 'treeView', 'qrView', 'gestureHint', 'resetView', 'loading', 'loadingText', 'urlForm']) {
     elements.set(`#${id}`, new Element(id));
   }
   const palettes = ['night', 'moon', 'spring'].map(key => {
     const element = new Element(key, 'BUTTON'); element.dataset.palette = key; return element;
+  });
+  const worlds = ['sakura', 'islands', 'moon', 'library'].map(key => {
+    const element = new Element(key, 'BUTTON'); element.dataset.world = key; return element;
   });
   const document = new EventSurface();
   document.hidden = false;
   document.querySelector = selector => {
     assert.ok(elements.has(selector), `mock DOM missing ${selector}`); return elements.get(selector);
   };
-  document.querySelectorAll = () => palettes;
+  document.querySelectorAll = selector => {
+    if (selector.includes('palette')) return palettes;
+    if (selector.includes('world')) return worlds;
+    return [];
+  };
   elements.get('#urlInput').value = 'https://example.com/';
   const media = new EventSurface(); media.matches = reducedMotion;
   const themes = {
@@ -102,10 +109,12 @@ function createHarness({ gpu = true, reducedMotion = false, missingBundle = fals
         setFlat(flat) { canvas.dataset.morphProgress = flat ? '1.000' : '0.000'; this.calls.push(['flat', flat]); },
         setZoom(zoom) { this.calls.push(['zoom', zoom]); }, resize() {},
         setReducedMotion(enabled) { this.reducedMotion = enabled; },
+        setWorld(world) { this.world = world; this.calls.push(['world', world]); },
         setScene(next) { this.scene = next; }, pause() { this.paused = true; }, resume() { this.paused = false; },
         dispose() { this.disposed = true; }, fail(error) { callbacks.onError(error); },
       };
       canvas.dataset.renderer = 'webgpu-wgsl'; canvas.dataset.morphProgress = '0.000';
+      renderer.world = callbacks.world || 'sakura';
       renderers.push(renderer); queueMicrotask(callbacks.onReady); return renderer;
     },
   };
@@ -117,6 +126,7 @@ function createHarness({ gpu = true, reducedMotion = false, missingBundle = fals
     ResizeObserver: class { observe() {} }, IntersectionObserver: class { observe() {} },
     performance: { now: () => now },
     setTimeout() { return 1; }, clearTimeout() {},
+    localStorage: { values: new Map(), getItem(key) { return this.values.get(key) ?? null; }, setItem(key, value) { this.values.set(key, String(value)); } },
     requestAnimationFrame(callback) { const id = ++nextFrameId; frames.set(id, callback); return id; },
     cancelAnimationFrame(id) { frames.delete(id); },
   };
@@ -128,7 +138,7 @@ function createHarness({ gpu = true, reducedMotion = false, missingBundle = fals
   context.window = context; context.parent = {};
   vm.runInNewContext(wrapper, context, { filename: 'sakura.js' });
   return {
-    context, document, media, rootEvents, renderers, palettes,
+    context, document, media, rootEvents, renderers, palettes, worlds,
     get pendingFrames() { return [...frames.values()]; },
     advance(ms) {
       now += ms;
@@ -334,6 +344,26 @@ assert.ok(palette.api.state.orbit.returning, 'palette changes preserve an in-pro
 assert.equal(palette.api.state.palette, 'moon');
 assert.equal(palette.renderer.scene.effect, 'calm', 'rotation/palette changes do not enable particles');
 palette.advance(480); assert.deepEqual(angle(palette), [0, 0]);
+
+const world = await mount();
+const worldModel = world.api.model, worldMatrix = world.api.matrix, worldRenderer = world.renderer;
+world.api.setPalette('spring');
+world.worlds.find(button => button.dataset.world === 'islands').emit('click');
+assert.equal(world.api.state.world, 'islands', 'one world-chip click changes the active world');
+assert.equal(world.renderer, worldRenderer, 'world changes reuse the active WebGPU renderer');
+assert.equal(world.api.model, worldModel, 'world changes do not regenerate the seed model');
+assert.equal(world.api.matrix, worldMatrix, 'world changes preserve the exact QR matrix');
+assert.equal(world.api.state.palette, 'spring', 'world changes preserve the selected palette');
+assert.deepEqual(world.renderer.calls.at(-1), ['world', 'islands']);
+world.api.setView(true);
+assert.equal(world.api.state.flat, true);
+world.worlds.find(button => button.dataset.world === 'library').emit('click');
+assert.equal(world.api.state.world, 'library');
+assert.equal(world.api.state.flat, false, 'choosing a world from QR view returns to its model view');
+assert.ok(world.renderer.calls.some(call => call[0] === 'world' && call[1] === 'library'));
+drag(world);
+assert.ok(world.api.state.orbit.returning, 'a newly selected world keeps the shared drag and return behavior');
+world.advance(480); assert.deepEqual(angle(world), [0, 0]);
 
 const lifecycle = await mount({ reducedMotion: true });
 lifecycle.stage.emit('pointerdown'); lifecycle.stage.emit('pointermove', { clientX: 330, clientY: 220 });

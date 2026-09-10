@@ -4,6 +4,17 @@
   const stage = $('#stage'), input = $('#urlInput'), status = $('#status');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const themes = window.SakuraThemes;
+  const worlds = {
+    sakura: { label: '樱花树', loading: '正在长出一棵树', idle: '每个链接，都有自己的树形。' },
+    islands: { label: '浮空群岛', loading: '正在升起一组岛屿', idle: '链接被藏进浮空群岛的地形里。' },
+    moon: { label: '月球基地', loading: '正在搭建一座月球基地', idle: '月球基地已经收到这条坐标。' },
+    library: { label: '微缩书城', loading: '正在摆好一座微缩书城', idle: '每个链接，都有一座自己的微缩书城。' },
+  };
+  let currentWorld = 'sakura';
+  try {
+    const savedWorld = localStorage.getItem('xiahua-qr-world');
+    if (worlds[savedWorld]) currentWorld = savedWorld;
+  } catch {}
   let canvas = $('#sceneCanvas');
   let renderer = null, identity = null, model = null, flat = false, fallback = false;
   let revision = 0, mountToken = 0, debounce = 0, statusTimer = 0, parentVisible = true, intersecting = true;
@@ -35,14 +46,23 @@
     document.querySelectorAll('[data-palette]').forEach(button => {
       if (button.tagName === 'BUTTON') button.setAttribute('aria-pressed', String(button.dataset.palette === themes.current));
     });
+    document.querySelectorAll('.world-tabs button[data-world]').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.world === currentWorld));
+      button.disabled = fallback;
+    });
+    const world = worlds[currentWorld];
     $('#treeView').setAttribute('aria-pressed', String(!flat));
+    $('#treeView').textContent = world.label;
     $('#qrView').setAttribute('aria-pressed', String(flat));
     $('#treeView').disabled = fallback;
+    $('#qrView').disabled = fallback;
+    $('#loadingText').textContent = world.loading;
     stage.dataset.flat = String(flat);
-    stage.setAttribute('aria-label', fallback ? '可扫描的二维码' : flat ? '点击二维码，返回樱花树' : '拖拽旋转樱花树，轻点转为二维码');
+    stage.dataset.world = currentWorld;
+    stage.setAttribute('aria-label', fallback ? '可扫描的二维码' : flat ? `点击二维码，返回${world.label}` : `拖拽旋转${world.label}，轻点转为二维码`);
     stage.setAttribute('role', fallback ? 'img' : 'button');
     stage.tabIndex = fallback ? -1 : 0;
-    $('#gestureHint').textContent = fallback ? '当前浏览器暂不支持此 3D 效果，已保留可扫描二维码。' : flat ? '扫码打开链接 · 轻点回到树景' : '拖拽检视 · 松开复位 · 轻点切换';
+    $('#gestureHint').textContent = fallback ? '当前浏览器暂不支持此 3D 效果，已保留可扫描二维码。' : flat ? `扫码打开链接 · 轻点回到${world.label}` : '拖拽检视 · 松开复位 · 轻点切换';
     syncOrbitUi();
   }
 
@@ -54,8 +74,8 @@
     flat = next;
     renderer.setFlat(flat, { immediate });
     syncView();
-    message(flat ? '镜头正在转向二维码……' : '每个链接，都有自己的树形。');
-    if (flat) statusTimer = setTimeout(() => message('花、草与地面的颜色，组成同一个链接。'), immediate ? 0 : 1050);
+    message(flat ? '镜头正在转向二维码……' : worlds[currentWorld].idle);
+    if (flat) statusTimer = setTimeout(() => message('换一个俯视角，这个微缩世界就是同一条链接。'), immediate ? 0 : 1050);
   }
 
   function isVisible() { return parentVisible && intersecting && !document.hidden && !disposed; }
@@ -197,17 +217,18 @@
     orbitYaw = 0; orbitPitch = 0;
     $('#fallbackCanvas').hidden = true;
     const fresh = canvas.cloneNode(); canvas.replaceWith(fresh); canvas = fresh; canvas.hidden = false;
-    $('#loading').hidden = false; syncView(); message('正在为这个链接长出一棵树……');
+    $('#loading').hidden = false; syncView(); message(`${worlds[currentWorld].loading}……`);
     if (!window.SakuraEngine || !navigator.gpu) { useFallback(new Error('WebGPU unavailable')); return; }
     try {
       renderer = SakuraEngine.mountSeed(canvas, model, themes.scene, 'tree', {
+        world: currentWorld,
         onReady() {
           if (mount !== mountToken || disposed) return;
           ready = true; $('#loading').hidden = true;
           syncOrbitUi();
           fitScene();
           renderer?.setReducedMotion(reduced.matches);
-          message('每个链接，都有自己的树形。'); syncVisibility();
+          message(worlds[currentWorld].idle); syncVisibility();
           requestAnimationFrame(() => { window.__ready = true; });
         },
         onError(error) { if (mount === mountToken && !disposed) useFallback(error); }
@@ -223,8 +244,25 @@
     syncView();
     message(`已切换为「${themes.active.name}」配色。`);
   }
+  function setWorld(key) {
+    if (!worlds[key] || key === currentWorld) return;
+    cancelGesture();
+    stopOrbitReturn(true);
+    currentWorld = key;
+    try { localStorage.setItem('xiahua-qr-world', key); } catch {}
+    renderer?.setWorld(key);
+    if (flat && ready && !fallback) {
+      flat = false;
+      renderer?.setFlat(false, { immediate: reduced.matches });
+    }
+    syncView();
+    message(worlds[key].idle);
+  }
   document.querySelectorAll('.palette-tabs button').forEach(button => {
     button.addEventListener('click', () => setPalette(button.dataset.palette));
+  });
+  document.querySelectorAll('.world-tabs button').forEach(button => {
+    button.addEventListener('click', () => setWorld(button.dataset.world));
   });
   $('#urlForm').addEventListener('submit', event => { event.preventDefault(); clearTimeout(debounce); generate(input.value); });
   input.addEventListener('input', () => {
@@ -306,11 +344,12 @@
   });
   addEventListener('pageshow', event => { if (event.persisted) syncVisibility(); });
   window.sakuraGarden = {
-    get state() { return { ready, flat, fallback, palette: themes.current, orbit: { yaw: orbitYaw, pitch: orbitPitch, dragging: Boolean(pointer?.dragged), returning: Boolean(orbitReturn) }, url: currentUrl, qrSize: identity?.qr.size, visible: isVisible(), renderer: canvas.dataset.renderer, progress: Number(canvas.dataset.morphProgress || 0), lastError }; },
+    get state() { return { ready, flat, fallback, palette: themes.current, world: currentWorld, orbit: { yaw: orbitYaw, pitch: orbitPitch, dragging: Boolean(pointer?.dragged), returning: Boolean(orbitReturn) }, url: currentUrl, qrSize: identity?.qr.size, visible: isVisible(), renderer: canvas.dataset.renderer, progress: Number(canvas.dataset.morphProgress || 0), lastError }; },
     get model() { return model; },
     get matrix() { return identity?.qr; },
     setView,
     setPalette,
+    setWorld,
     resetOrbit
   };
   generate(input.value);

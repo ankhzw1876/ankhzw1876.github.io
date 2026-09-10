@@ -25,13 +25,13 @@ const result = await build({
   legalComments: "inline",
   nodePaths: [resolve(dependencyRoot, "node_modules")],
   alias: { "@every-qrcode/core": resolve(here, "upstream/packages/core/src/index.ts") },
-  banner: { js: "/*! Sakura study 1; adapted from Every QR Code 0.1.2, MIT, commit ed404c6cba9d48c04d5e08de780293cff1b242de. See THIRD_PARTY_LICENSES.txt and ../engine-src/README.md. */" },
+  banner: { js: "/*! QR miniature worlds study 2; adapted from Every QR Code 0.1.2, MIT, commit ed404c6cba9d48c04d5e08de780293cff1b242de. See THIRD_PARTY_LICENSES.txt and ../engine-src/README.md. */" },
 });
 const bundledDependencies = [...new Set(Object.keys(result.metafile.inputs)
   .filter(path => path.includes("node_modules/"))
   .map(path => path.split("node_modules/").pop().split("/")[0]))].sort();
 await writeFile(resolve(here, "../vendor/build-info.json"), JSON.stringify({
-  revision: "sakura-study-1",
+  revision: "micro-worlds-study-2",
   upstreamCommit: "ed404c6cba9d48c04d5e08de780293cff1b242de",
   generatorVersion: 1,
   format: "iife",

@@ -5,11 +5,11 @@ button, input { font: inherit; }
 button, a, .stage { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; }
 button:focus-visible, input:focus-visible, a:focus-visible, .stage:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-.garden { height: 100dvh; min-height: 480px; padding: 18px 24px 12px; display: grid; grid-template-rows: auto minmax(260px,1fr) auto auto auto auto; max-width: 1800px; margin: auto; }
+.garden { height: 100dvh; min-height: 540px; padding: 18px 24px 12px; display: grid; grid-template-rows: auto auto minmax(250px,1fr) auto auto auto auto; max-width: 1800px; margin: auto; }
 .garden-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; z-index: 1; }
 .title { display: flex; align-items: center; gap: 8px; margin-right: auto; }
 .title h1 { margin: 0; font-size: 14px; font-weight: 500; letter-spacing: .08em; color: var(--ink); }
-.title-mark { color: var(--accent); font-size: 23px; line-height: 1; }
+.title-mark { width: 19px; height: 19px; position: relative; flex: 0 0 auto; background: var(--accent); box-shadow: 8px 0 0 color-mix(in srgb, var(--accent) 45%, transparent), 0 8px 0 color-mix(in srgb, var(--accent) 45%, transparent); clip-path: polygon(0 0,42% 0,42% 42%,100% 42%,100% 100%,58% 100%,58% 58%,0 58%); }
 .palette-tabs { display: flex; align-items: center; gap: 4px; padding-right: 16px; border-right: 1px solid var(--line); }
 .palette-tabs button { display: flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid transparent; border-radius: 8px; color: var(--muted); background: transparent; min-height: 44px; padding: 0 12px; font-size: 12px; }
 .palette-tabs button:hover { color: var(--ink); background: var(--surface); }
@@ -21,6 +21,21 @@ button:focus-visible, input:focus-visible, a:focus-visible, .stage:focus-visible
 .view-tabs { display: flex; gap: 3px; padding: 3px; border: 1px solid var(--line); border-radius: 24px; }
 .view-tabs button { border: 0; color: var(--muted); background: transparent; min-height: 44px; padding: 0 17px; font-size: 12px; border-radius: 22px; transition: background 180ms, color 180ms; }
 .view-tabs button[aria-pressed="true"] { color: var(--ink); background: var(--selected); }
+.world-tabs { justify-self: center; display: grid; grid-template-columns: repeat(4, minmax(118px, 1fr)); gap: 4px; padding: 7px; margin-top: 10px; border: 1px solid var(--line); border-radius: 13px; background: color-mix(in srgb, var(--surface) 78%, transparent); }
+.world-tabs button { position: relative; min-height: 48px; padding: 4px 13px 4px 8px; display: flex; align-items: center; justify-content: flex-start; gap: 10px; border: 0; border-radius: 8px; color: var(--muted); background: transparent; font-size: 11px; transition: color 180ms, background 180ms, transform 180ms; }
+.world-tabs button:hover:not(:disabled) { color: var(--ink); background: color-mix(in srgb, var(--selected) 70%, transparent); transform: translateY(-1px); }
+.world-tabs button[aria-pressed="true"] { color: var(--ink); background: var(--selected); box-shadow: inset 0 -2px 0 var(--accent); }
+.world-tabs button:disabled { cursor: default; opacity: .42; }
+.world-glyph { --pixel: var(--accent); position: relative; width: 28px; height: 24px; flex: 0 0 28px; image-rendering: pixelated; }
+.world-glyph::before, .world-glyph::after { content: ""; position: absolute; display: block; }
+.glyph-sakura::before { left: 13px; top: 8px; width: 3px; height: 14px; background: var(--pixel); box-shadow: -3px 11px 0 var(--pixel), 3px 11px 0 var(--pixel); opacity: .72; }
+.glyph-sakura::after { left: 6px; top: 2px; width: 6px; height: 6px; background: var(--pixel); box-shadow: 6px -2px 0 var(--pixel), 12px 2px 0 var(--pixel), 3px 5px 0 var(--pixel), 9px 5px 0 var(--pixel); }
+.glyph-islands::before { left: 3px; top: 4px; width: 20px; height: 5px; background: var(--pixel); box-shadow: 3px 5px 0 color-mix(in srgb, var(--pixel) 76%, var(--bg)), 6px 10px 0 color-mix(in srgb, var(--pixel) 52%, var(--bg)), 9px 15px 0 color-mix(in srgb, var(--pixel) 30%, var(--bg)); }
+.glyph-islands::after { left: 21px; top: 9px; width: 2px; height: 12px; background: color-mix(in srgb, var(--accent) 55%, #8adcf1); box-shadow: 2px 3px 0 color-mix(in srgb, var(--accent) 35%, #8adcf1); }
+.glyph-moon::before { left: 5px; top: 8px; width: 18px; height: 11px; border: 3px solid var(--pixel); border-bottom-width: 4px; border-radius: 12px 12px 2px 2px; }
+.glyph-moon::after { left: 1px; top: 15px; width: 5px; height: 3px; background: var(--pixel); box-shadow: 21px 0 0 var(--pixel), 11px -13px 0 -1px var(--pixel), 11px -9px 0 -1px var(--pixel); }
+.glyph-library::before { inset: 2px 3px 2px; border: 3px solid var(--pixel); box-shadow: inset 0 -6px 0 color-mix(in srgb, var(--pixel) 38%, transparent); }
+.glyph-library::after { left: 7px; top: 6px; width: 3px; height: 10px; background: var(--pixel); box-shadow: 4px 2px 0 color-mix(in srgb, var(--pixel) 70%, var(--bg)), 8px -1px 0 var(--pixel), 12px 3px 0 color-mix(in srgb, var(--pixel) 82%, var(--bg)); }
 .stage { position: relative; min-height: 0; cursor: grab; outline-offset: -2px; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
 .stage.is-dragging { cursor: grabbing; }
 .stage[data-flat="true"] { cursor: pointer; }
@@ -29,6 +44,7 @@ button:focus-visible, input:focus-visible, a:focus-visible, .stage:focus-visible
 #fallbackCanvas { position: absolute; inset: 0; }
 .loading { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%,-50%); display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 12px; white-space: nowrap; pointer-events: none; }
 .loading span { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: breathe 1.2s ease-in-out infinite alternate; }
+.loading b { font-weight: 400; }
 @keyframes breathe { to { opacity: .35; transform: scale(.65); } }
 .stage-tools { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 8px; }
 .gesture-hint { text-align: center; font-size: 12px; color: var(--muted); letter-spacing: .08em; margin: 0; }
@@ -53,11 +69,14 @@ button:focus-visible, input:focus-visible, a:focus-visible, .stage:focus-visible
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 [hidden] { display: none !important; }
 @media (max-width: 650px) {
-  .garden { min-height: 480px; padding: 10px 12px; grid-template-rows: auto minmax(250px,1fr) auto auto auto auto; }
+  .garden { min-height: 560px; padding: 10px 12px; grid-template-rows: auto auto minmax(230px,1fr) auto auto auto auto; }
   .garden-head { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; }
   .palette-tabs { grid-column: 1 / -1; grid-row: 2; border: 0; padding: 0; justify-content: center; }
   .title h1 { font-size: 12px; }
-  .title-mark { font-size: 20px; }
+  .title-mark { transform: scale(.85); transform-origin: left center; }
+  .world-tabs { justify-self: stretch; grid-template-columns: repeat(4, minmax(74px, 1fr)); gap: 2px; padding: 4px; margin-top: 7px; overflow-x: auto; }
+  .world-tabs button { min-width: 74px; min-height: 46px; padding: 3px 5px; justify-content: center; gap: 5px; font-size: 10px; }
+  .world-glyph { width: 24px; flex-basis: 24px; transform: scale(.8); }
   .view-tabs button { min-height: 44px; padding: 0 12px; font-size: 11px; }
   .url-form input { font-size: 16px; padding-inline: 8px; }
   .url-form button { min-width: 50px; }
@@ -68,7 +87,9 @@ button:focus-visible, input:focus-visible, a:focus-visible, .stage:focus-visible
   .gesture-hint { font-size: 11px; letter-spacing: .02em; }
 }
 @media (max-height: 580px) and (min-width: 651px) {
-  .garden { min-height: 410px; padding: 8px 14px; grid-template-rows: auto minmax(200px,1fr) auto auto auto auto; }
+  .garden { min-height: 470px; padding: 8px 14px; grid-template-rows: auto auto minmax(180px,1fr) auto auto auto auto; }
+  .world-tabs { margin-top: 5px; padding: 3px; }
+  .world-tabs button { min-height: 42px; }
   .stage-tools { margin-bottom: 4px; }
   .credits { padding-top: 2px; }
 }

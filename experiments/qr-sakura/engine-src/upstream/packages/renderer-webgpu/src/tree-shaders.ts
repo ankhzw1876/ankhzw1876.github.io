@@ -129,6 +129,7 @@ fn qrModuleMask(uv: vec2f, neighborMask: u32) -> f32 {
 @fragment
 fn fragmentMain(input: BlockOutput) -> @location(0) vec4f {
   let normal = normalize(input.normal);
+  let world = floor(uniforms.camera.w + 0.5);
   let blockSeed = input.column * 17.3 + input.row * 31.1 + input.layer * 73.7;
   let noiseA = fract(sin(blockSeed) * 43758.5);
   let noiseB = fract(sin(blockSeed * 1.7 + 127.1) * 43758.5);
@@ -240,6 +241,20 @@ fn fragmentMain(input: BlockOutput) -> @location(0) vec4f {
     if (noiseA > 0.69 && noiseA <= 0.84) { tile = mix(uniforms.themeThird.rgb, uniforms.themePrimary.rgb, 0.12); }
     if (noiseA > 0.84) { tile = mix(uniforms.themeThird.rgb, uniforms.themeSecondary.rgb, 0.2); }
     if (input.blockType == 3u) { tile = mix(uniforms.themeSecondary.rgb, uniforms.themeFourth.rgb, noiseB); }
+    let worldStyle = 1.0 - smoothstep(0.42, 0.84, uniforms.progress);
+    if (world == 1.0) {
+      let cloudStone = mix(uniforms.themeThird.rgb, uniforms.themeFifth.rgb, 0.52 + noiseA * 0.16);
+      let islandMoss = mix(uniforms.themeSecondary.rgb, uniforms.themeFourth.rgb, 0.26 + noiseB * 0.32);
+      tile = mix(tile, select(cloudStone, islandMoss, input.blockType != 0u), worldStyle);
+    } else if (world == 2.0) {
+      let lunarDust = mix(uniforms.themeThird.rgb, themeInk(), 0.18 + noiseA * 0.13);
+      let baseLight = mix(lunarDust, uniforms.themePrimary.rgb, 0.26 + noiseB * 0.16);
+      tile = mix(tile, select(lunarDust, baseLight, input.blockType != 0u), worldStyle);
+    } else if (world == 3.0) {
+      let desk = mix(themeBark(noiseA), uniforms.themeFifth.rgb, 0.16);
+      let bookMosaic = mix(uniforms.themePrimary.rgb, uniforms.themeFourth.rgb, noiseB * 0.58);
+      tile = mix(tile, select(desk, bookMosaic, input.blockType != 0u), worldStyle);
+    }
     treeColor = tile * (0.94 + treeShadow * 0.06);
     if (abs(normal.y) < 0.5) { treeColor = mix(uniforms.themeThird.rgb, uniforms.themeFourth.rgb, 0.45) * 0.82; }
   }

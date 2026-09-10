@@ -4,18 +4,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#191d2b" />
-    <meta name="description" content="输入一个网址，长出一棵樱花树。点击画面，在立体花园和彩色二维码之间切换。" />
-    <title>樱花二维码｜XiaHua OS</title>
+    <meta name="description" content="输入一个网址，让它长成樱花树、漂浮群岛、月球基地或微缩书城，再从俯视角收束为可扫描的二维码。" />
+    <title>二维码微缩世界｜XiaHua OS</title>
     <!-- Reference-led rebuild: one branching blossom tree, grass-bordered tile
          platform, coordinated color studies, camera + material morph to a colored QR.
          Adapted MIT engine is credited below. The prior six worlds remain intact. -->
     <script src="themes.js?v=1"></script>
-    <link rel="stylesheet" href="sakura.css?v=3" />
+    <link rel="stylesheet" href="sakura.css?v=4" />
   </head>
   <body>
     <main class="garden">
       <header class="garden-head">
-        <div class="title"><span class="title-mark" aria-hidden="true">✳</span><h1>樱花二维码</h1></div>
+        <div class="title"><span class="title-mark" aria-hidden="true"></span><h1>二维码微缩世界</h1></div>
         <div class="palette-tabs" role="group" aria-label="花园配色">
           <button type="button" data-palette="night" aria-pressed="true"><span class="swatch swatch-night" aria-hidden="true"></span>夜樱</button>
           <button type="button" data-palette="moon" aria-pressed="false"><span class="swatch swatch-moon" aria-hidden="true"></span>月白</button>
@@ -26,19 +26,25 @@
           <button type="button" id="qrView" aria-pressed="false">二维码</button>
         </div>
       </header>
+      <div class="world-tabs" role="group" aria-label="选择微缩世界">
+        <button type="button" data-world="sakura" aria-pressed="true"><span class="world-glyph glyph-sakura" aria-hidden="true"></span><span>樱花树</span></button>
+        <button type="button" data-world="islands" aria-pressed="false"><span class="world-glyph glyph-islands" aria-hidden="true"></span><span>浮空群岛</span></button>
+        <button type="button" data-world="moon" aria-pressed="false"><span class="world-glyph glyph-moon" aria-hidden="true"></span><span>月球基地</span></button>
+        <button type="button" data-world="library" aria-pressed="false"><span class="world-glyph glyph-library" aria-hidden="true"></span><span>微缩书城</span></button>
+      </div>
       <div class="stage" id="stage" role="button" tabindex="0" aria-label="拖拽旋转樱花树，轻点转为二维码" aria-describedby="gestureHint orbitHelp">
         <canvas id="sceneCanvas" aria-hidden="true"></canvas>
         <canvas id="fallbackCanvas" hidden aria-hidden="true"></canvas>
-        <div class="loading" id="loading" aria-hidden="true"><span></span>正在长出一棵树</div>
+        <div class="loading" id="loading" aria-hidden="true"><span></span><b id="loadingText">正在长出一棵树</b></div>
       </div>
       <div class="stage-tools">
         <p class="gesture-hint" id="gestureHint">拖拽检视 · 松开复位 · 轻点切换</p>
         <button type="button" class="reset-view" id="resetView" disabled aria-label="重置树景视角">复位</button>
       </div>
-      <span class="sr-only" id="orbitHelp">树景支持鼠标或单指拖拽，松开自动复位。聚焦画面后，方向键旋转，R 复位，Enter 或空格切换视角，Escape 返回树景。</span>
+      <span class="sr-only" id="orbitHelp">立体景观支持鼠标或单指拖拽，松开自动复位。聚焦画面后，方向键旋转，R 复位，Enter 或空格切换视角，Escape 返回立体景观。</span>
       <form class="url-form" id="urlForm" novalidate>
         <label class="sr-only" for="urlInput">输入一个网页链接</label>
-        <input id="urlInput" type="url" inputmode="url" autocomplete="url" autocapitalize="none" spellcheck="false" maxlength="512" value="https://ankhzw1876.github.io/" placeholder="输入一个网址，让它长成一棵树" aria-describedby="status" />
+        <input id="urlInput" type="url" inputmode="url" autocomplete="url" autocapitalize="none" spellcheck="false" maxlength="512" value="https://ankhzw1876.github.io/" placeholder="输入一个网址，让它长成一个微缩世界" aria-describedby="status" />
         <button id="generate" type="submit">生成</button>
       </form>
       <div class="status-row"><p id="status" role="status" aria-live="polite">每个链接，都有自己的树形。</p><span>链接仅在本地生成</span></div>
@@ -48,7 +54,7 @@
       </footer>
     </main>
     <script src="../qr-skyline/vendor/qrcode.min.js"></script>
-    <script src="vendor/sakura-engine.js?v=5"></script>
-    <script src="sakura.js?v=4"></script>
+    <script src="vendor/sakura-engine.js?v=6"></script>
+    <script src="sakura.js?v=5"></script>
   </body>
 </html>
