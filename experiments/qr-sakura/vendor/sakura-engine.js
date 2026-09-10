@@ -645,6 +645,13 @@ fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> BlockOutput {
   let centerX = (column + 0.5) * blockSize - halfGrid;
   let centerZ = (row + 0.5) * blockSize - halfGrid;
   let baseY = blockBaseY[blockIndex];
+  // The single-tree scene already has real branches and blossoms. Do not
+  // reveal the legacy elevated voxel scaffold as white cubes/specks during
+  // morphing; the base layer alone contains the complete ground/QR matrix.
+  if (baseY > 0.001) {
+    output.position = vec4f(0.0, 0.0, -10.0, 1.0);
+    return output;
+  }
   let height = mix(blockHeights[blockIndex], blockSize, uniforms.progress);
   let treeProgress = 1.0 - uniforms.progress;
   let layer = baseY / blockSize;

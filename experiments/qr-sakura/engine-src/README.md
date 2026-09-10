@@ -55,6 +55,7 @@ Exported fallback helper `createQRSvgPath(identity.qr)` returns `{ size, path }`
 - Renderer lifecycle additions `pause`, `resume`, immediate transitions and reduced-motion support.
 - Screenshot-driven refinement: reduced overlapping blossom density, enlarged rounded petals, wider grass blades, faceted curved trunk without horizontal ring bands, and four discrete cream/khaki/sand/sage tile tones. Flower and grass colors bypass the upstream ACES/gamma/high-saturation chain to avoid blown-out pink and fluorescent green.
 - Flowers use raised cup-shaped petals with pale pink bodies and darker pink tips. QR ink is independent: interior fallen-petal modules remain stronger pink, perimeter grass modules remain green. WebGPU device loss is forwarded to `onError` so the wrapper can switch to its static fallback.
+- The legacy elevated voxel scaffold is clipped throughout the morph. It previously appeared as white cubes/specks between tree and QR; the independent branches, blossoms, grass and complete base QR layer are retained.
 
 Run `node verify.mjs` after rebuilding to check deterministic geometry, finite buffers, canonical QR fallback geometry, rejected schemes/versions, and lifecycle behavior without WebGPU. GPU shader compilation and composition are verified in the containing browser page.
 
