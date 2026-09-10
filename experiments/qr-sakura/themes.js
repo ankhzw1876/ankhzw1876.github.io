@@ -22,11 +22,17 @@
   const rgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
   const valid = key => Object.hasOwn(themes, key);
   const storageKey = 'xiahua:sakura:palette';
+  const launchParams = new URLSearchParams(location.search);
+  if (launchParams.get('embed') === '1') document.documentElement.dataset.embed = 'true';
   let current = 'night';
-  try {
-    const saved = localStorage.getItem(storageKey);
-    if (valid(saved)) current = saved;
-  } catch { /* Private or embedded contexts may block storage. */ }
+  const requested = launchParams.get('palette');
+  if (valid(requested)) current = requested;
+  else {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (valid(saved)) current = saved;
+    } catch { /* Private or embedded contexts may block storage. */ }
+  }
   function apply(key, persist = true) {
     if (!valid(key)) return false;
     current = key;

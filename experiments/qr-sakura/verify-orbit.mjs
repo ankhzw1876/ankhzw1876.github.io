@@ -46,7 +46,7 @@ class EventSurface {
   }
 }
 
-function createHarness({ gpu = true, reducedMotion = false, missingBundle = false } = {}) {
+function createHarness({ gpu = true, reducedMotion = false, missingBundle = false, search = '' } = {}) {
   const elements = new Map(), renderers = [], rootEvents = new EventSurface();
   let now = 0, nextFrameId = 0;
   const frames = new Map();
@@ -119,8 +119,8 @@ function createHarness({ gpu = true, reducedMotion = false, missingBundle = fals
     },
   };
   const context = {
-    console, URL, Error, Uint8Array, document, navigator: { gpu: gpu ? {} : undefined },
-    devicePixelRatio: 1, location: { origin: 'https://example.com' },
+    console, URL, URLSearchParams, Error, Uint8Array, document, navigator: { gpu: gpu ? {} : undefined },
+    devicePixelRatio: 1, location: { origin: 'https://example.com', search },
     matchMedia() { return media; }, SakuraThemes: themes,
     addEventListener: rootEvents.addEventListener.bind(rootEvents),
     ResizeObserver: class { observe() {} }, IntersectionObserver: class { observe() {} },
@@ -135,10 +135,12 @@ function createHarness({ gpu = true, reducedMotion = false, missingBundle = fals
     context.qrcode = () => ({ addData() {}, make() {}, getModuleCount() { return 1; }, isDark() { return true; } });
     context.qrcode.stringToBytesFuncs = { 'UTF-8': () => [] };
   }
-  context.window = context; context.parent = {};
+  const parentMessages = [];
+  context.window = context;
+  context.parent = { postMessage(message, targetOrigin) { parentMessages.push({ message, targetOrigin }); } };
   vm.runInNewContext(wrapper, context, { filename: 'sakura.js' });
   return {
-    context, document, media, rootEvents, renderers, palettes, worlds,
+    context, document, media, rootEvents, renderers, palettes, worlds, parentMessages,
     get pendingFrames() { return [...frames.values()]; },
     advance(ms) {
       now += ms;
@@ -165,6 +167,14 @@ assert.equal(initializing.api.state.flat, false, 'ignore taps before initializat
 await flush();
 assert.ok(initializing.api.state.ready);
 assert.equal(initializing.el('resetView').disabled, true);
+
+const embeddedPreset = await mount({ search: '?embed=1&world=library' });
+assert.equal(embeddedPreset.api.state.world, 'library', 'launch world overrides the default before the first mount');
+const embeddedReceipt = embeddedPreset.parentMessages.at(-1);
+assert.equal(embeddedReceipt?.message?.type, 'xiahua:sakura-ready');
+assert.equal(embeddedReceipt?.message?.world, 'library');
+assert.equal(embeddedReceipt?.message?.palette, 'night');
+assert.equal(embeddedReceipt?.targetOrigin, 'https://example.com', 'embedded preview reports readiness to its same-origin parent');
 
 const click = await mount();
 tap(click); assert.equal(click.api.state.flat, true, 'tap opens QR');

@@ -4,6 +4,8 @@
   const stage = $('#stage'), input = $('#urlInput'), status = $('#status');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const themes = window.SakuraThemes;
+  const launchParams = new URLSearchParams(location.search);
+  const embedded = launchParams.get('embed') === '1';
   const worlds = {
     sakura: { label: '樱花树', loading: '正在长出一棵树', idle: '每个链接，都有自己的树形。' },
     islands: { label: '浮空群岛', loading: '正在升起一组岛屿', idle: '链接被藏进浮空群岛的地形里。' },
@@ -11,10 +13,14 @@
     library: { label: '微缩书城', loading: '正在摆好一座微缩书城', idle: '每个链接，都有一座自己的微缩书城。' },
   };
   let currentWorld = 'sakura';
-  try {
-    const savedWorld = localStorage.getItem('xiahua-qr-world');
-    if (worlds[savedWorld]) currentWorld = savedWorld;
-  } catch {}
+  const requestedWorld = launchParams.get('world');
+  if (worlds[requestedWorld]) currentWorld = requestedWorld;
+  else {
+    try {
+      const savedWorld = localStorage.getItem('xiahua-qr-world');
+      if (worlds[savedWorld]) currentWorld = savedWorld;
+    } catch {}
+  }
   let canvas = $('#sceneCanvas');
   let renderer = null, identity = null, model = null, flat = false, fallback = false;
   let revision = 0, mountToken = 0, debounce = 0, statusTimer = 0, parentVisible = true, intersecting = true;
@@ -23,6 +29,13 @@
   let orbitYaw = 0, orbitPitch = 0;
   let orbitReturn = null;
   const ORBIT_RETURN_MS = 480;
+
+  function notifyParentReady() {
+    if (!embedded || parent === window || typeof parent.postMessage !== 'function') return;
+    try {
+      parent.postMessage({ type: 'xiahua:sakura-ready', world: currentWorld, palette: themes.current }, location.origin === 'null' ? '*' : location.origin);
+    } catch { /* Standalone and opaque-origin previews keep working without a parent receipt. */ }
+  }
 
   function message(text, error = false) {
     clearTimeout(statusTimer);
@@ -178,6 +191,7 @@
     syncView(); drawFallback();
     message('可用支持 WebGPU 的浏览器查看完整樱花效果。');
     window.__ready = true;
+    notifyParentReady();
   }
 
   function legacyIdentity(url) {
@@ -229,7 +243,7 @@
           fitScene();
           renderer?.setReducedMotion(reduced.matches);
           message(worlds[currentWorld].idle); syncVisibility();
-          requestAnimationFrame(() => { window.__ready = true; });
+          requestAnimationFrame(() => { window.__ready = true; notifyParentReady(); });
         },
         onError(error) { if (mount === mountToken && !disposed) useFallback(error); }
       });

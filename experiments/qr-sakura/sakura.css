@@ -68,6 +68,16 @@ button:focus-visible, input:focus-visible, a:focus-visible, .stage:focus-visible
 .credits nav { display: flex; gap: 16px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 [hidden] { display: none !important; }
+html[data-embed="true"],
+html[data-embed="true"] body { width: 100%; height: 100%; overflow: hidden; }
+html[data-embed="true"] .garden { width: 100%; height: 100%; min-height: 0; max-width: none; padding: 0; grid-template-rows: minmax(0, 1fr); }
+html[data-embed="true"] .garden-head,
+html[data-embed="true"] .world-tabs,
+html[data-embed="true"] .stage-tools,
+html[data-embed="true"] .url-form,
+html[data-embed="true"] .status-row,
+html[data-embed="true"] .credits { display: none !important; }
+html[data-embed="true"] .stage { min-height: 0; }
 @media (max-width: 650px) {
   .garden { min-height: 560px; padding: 10px 12px; grid-template-rows: auto auto minmax(230px,1fr) auto auto auto auto; }
   .garden-head { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; }

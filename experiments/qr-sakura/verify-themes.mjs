@@ -3,11 +3,11 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 
 const source = await readFile(new URL('themes.js', import.meta.url), 'utf8');
-function mount(saved, blocked = false) {
+function mount(saved, blocked = false, search = '') {
   const tokens = {}, storage = new Map([['xiahua:sakura:palette', saved]]);
   const root = { dataset: {}, style: { setProperty(key, value) { tokens[key] = value; } } };
   const context = {
-    window: {}, document: { documentElement: root, querySelector() { return { setAttribute() {} }; } },
+    window: {}, URLSearchParams, location: { search }, document: { documentElement: root, querySelector() { return { setAttribute() {} }; } },
     localStorage: {
       getItem(key) { if (blocked) throw Error('denied'); return storage.get(key); },
       setItem(key, value) { if (blocked) throw Error('denied'); storage.set(key, value); }
@@ -46,8 +46,12 @@ const previous = api.current;
 assert.equal(api.apply('__proto__'), false);
 assert.equal(api.current, previous);
 assert.equal(mount('invalid').api.current, 'night');
+const preset = mount('moon', false, '?embed=1&palette=spring');
+assert.equal(preset.api.current, 'spring', 'explicit launch palette overrides saved choice');
+assert.equal(preset.root.dataset.embed, 'true', 'embedded launch exposes the compact layout hook');
+assert.equal(preset.storage.get('xiahua:sakura:palette'), 'moon', 'launch preset does not overwrite the saved preference');
 const privateTab = mount('moon', true);
 assert.equal(privateTab.api.current, 'night');
 assert.equal(privateTab.api.apply('moon'), true);
 assert.equal(privateTab.api.current, 'moon');
-console.log('PASS three palettes, valid GPU colors, UI contrast, light QR paper, calm effects, persistence, invalid keys, blocked storage.');
+console.log('PASS three palettes, valid GPU colors, UI contrast, light QR paper, calm effects, persistence, launch presets, invalid keys, blocked storage.');

@@ -9,6 +9,8 @@
   const activeAppLabel = document.querySelector('[data-active-app]');
   const topbarPath = document.querySelector('.topbar-context span');
   const toast = document.querySelector('[data-toast]');
+  const sakuraWidget = document.querySelector('[data-sakura-widget]');
+  const sakuraPreview = document.querySelector('[data-sakura-preview]');
   const systemButton = document.querySelector('[data-system-button]');
   const systemMenu = document.querySelector('[data-system-menu]');
   const bootLines = [...document.querySelectorAll('[data-boot-line]')];
@@ -16,6 +18,7 @@
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const coarseQuery = window.matchMedia('(pointer: coarse)');
   const mobileQuery = window.matchMedia('(max-width: 720px)');
+  const sakuraPreviewQuery = window.matchMedia('(min-width: 1121px)');
   const appIds = ['about', 'writing', 'github', 'xiaohongshu', 'game', 'contact', 'archive'];
   const appMeta = {
     about: { title: '关于我', path: '~/about-me', icon: 'assets/pixel-icons/about.svg?v=2' },
@@ -36,6 +39,7 @@
   let toastTimer = 0;
   let wallpaperFrame = 0;
   let resetGameView = () => {};
+  let syncSakuraPreviewVisibility = () => {};
 
   const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
@@ -88,6 +92,7 @@
     void desktop.offsetWidth;
     desktop.classList.add('is-entering');
     setPhase('desktop');
+    syncSakuraPreviewVisibility(true);
 
     if (bootScreen && !bootScreen.hidden) {
       bootScreen.classList.add('is-ending');
@@ -252,6 +257,7 @@
   const syncChrome = () => {
     const visible = [...windows.values()].filter((state) => state.status === 'visible');
     desktop?.classList.toggle('has-windows', visible.length > 0);
+    syncSakuraPreviewVisibility(visible.length === 0);
 
     const active = activeId ? windows.get(activeId) : null;
     if (active?.status === 'visible') {
@@ -964,6 +970,36 @@
     showLibrary({ focus: false });
   };
 
+  const bindSakuraPreview = () => {
+    if (!sakuraWidget || !sakuraPreview) return;
+    const loading = sakuraWidget.querySelector('[data-sakura-loading]');
+    const targetOrigin = location.origin === 'null' ? '*' : location.origin;
+
+    const notifyVisibility = (visible) => {
+      if (!sakuraPreview.hasAttribute('src') || !sakuraPreview.contentWindow) return;
+      try {
+        sakuraPreview.contentWindow.postMessage({ type: 'xiahua:visibility', visible }, targetOrigin);
+      } catch { /* A file preview can have an opaque origin; visual fallback remains available. */ }
+    };
+
+    syncSakuraPreviewVisibility = (requested) => {
+      const visible = Boolean(requested && phase === 'desktop' && sakuraPreviewQuery.matches);
+      sakuraWidget.classList.toggle('is-suspended', !visible);
+      if (visible && !sakuraPreview.hasAttribute('src')) sakuraPreview.src = sakuraPreview.dataset.src;
+      notifyVisibility(visible);
+    };
+
+    sakuraPreview.addEventListener('load', () => {
+      notifyVisibility(phase === 'desktop' && sakuraPreviewQuery.matches && !desktop?.classList.contains('has-windows'));
+    });
+    window.addEventListener('message', (event) => {
+      if (event.source !== sakuraPreview.contentWindow || event.origin !== location.origin || event.data?.type !== 'xiahua:sakura-ready') return;
+      sakuraWidget.classList.add('is-ready');
+      if (loading) loading.hidden = true;
+    });
+    sakuraPreviewQuery.addEventListener?.('change', () => syncSakuraPreviewVisibility(!desktop?.classList.contains('has-windows')));
+  };
+
   const updateGithubData = async () => {
     try {
       const [userResponse, reposResponse] = await Promise.all([
@@ -1049,6 +1085,7 @@
   bindXhsCoverflow();
   bindCopyButtons();
   bindPortraitTilt();
+  bindSakuraPreview();
   bindGamePlayer();
   bindGlobalEvents();
   updateClock();
