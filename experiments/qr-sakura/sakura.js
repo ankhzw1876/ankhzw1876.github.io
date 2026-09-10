@@ -10,6 +10,8 @@
   let ready = false, currentUrl = '', lastError = '', disposed = false;
   let pointer = null;
   let orbitYaw = 0, orbitPitch = 0;
+  let orbitReturn = null;
+  const ORBIT_RETURN_MS = 480;
 
   function message(text, error = false) {
     clearTimeout(statusTimer);
@@ -40,13 +42,15 @@
     stage.setAttribute('aria-label', fallback ? '可扫描的二维码' : flat ? '点击二维码，返回樱花树' : '拖拽旋转樱花树，轻点转为二维码');
     stage.setAttribute('role', fallback ? 'img' : 'button');
     stage.tabIndex = fallback ? -1 : 0;
-    $('#gestureHint').textContent = fallback ? '当前浏览器暂不支持此 3D 效果，已保留可扫描二维码。' : flat ? '扫码打开链接 · 轻点回到树景' : '拖拽 360° 检视 · 轻点切换二维码';
+    $('#gestureHint').textContent = fallback ? '当前浏览器暂不支持此 3D 效果，已保留可扫描二维码。' : flat ? '扫码打开链接 · 轻点回到树景' : '拖拽检视 · 松开复位 · 轻点切换';
     syncOrbitUi();
   }
 
   function setView(next, immediate = reduced.matches) {
     if (!ready || fallback) return;
-    cancelGesture();
+    const active = cancelGesture();
+    stopOrbitReturn(true);
+    if (active && ((active.dragged && active.canRotate) || active.interruptedReturn)) setOrbit(0, 0);
     flat = next;
     renderer.setFlat(flat, { immediate });
     syncView();
@@ -62,7 +66,7 @@
   }
   function syncVisibility() {
     if (isVisible()) renderer?.resume();
-    else { cancelGesture(); renderer?.pause(); }
+    else { endGesture(); stopOrbitReturn(true); renderer?.pause(); }
   }
 
   function syncOrbitUi() {
@@ -81,14 +85,52 @@
   }
   function resetOrbit() {
     cancelGesture();
+    stopOrbitReturn();
     setOrbit(0, 0);
     message('已回到初始视角。');
+  }
+  function stopOrbitReturn(snap = false) {
+    const active = orbitReturn;
+    orbitReturn = null;
+    if (!active) return;
+    cancelAnimationFrame(active.frame);
+    if (snap) setOrbit(0, 0);
+  }
+  function returnOrbit() {
+    stopOrbitReturn();
+    if (!canOrbit() || !isVisible() || reduced.matches || (Math.abs(orbitYaw) < .001 && Math.abs(orbitPitch) < .001)) {
+      setOrbit(0, 0);
+      if (ready && !flat && !fallback) message('已回到初始视角。');
+      return;
+    }
+    // Angles are already normalized to [-PI, PI], so this takes the short
+    // route home even after several complete turns. A new press can interrupt.
+    const active = { yaw: orbitYaw, pitch: orbitPitch, start: performance.now(), frame: 0 };
+    orbitReturn = active;
+    message('正在回到初始视角……');
+    const step = now => {
+      if (orbitReturn !== active) return;
+      if (!canOrbit() || !isVisible() || reduced.matches) { stopOrbitReturn(true); return; }
+      const progress = Math.min(1, Math.max(0, (now - active.start) / ORBIT_RETURN_MS));
+      const remaining = (1 - progress) ** 3;
+      setOrbit(progress === 1 ? 0 : active.yaw * remaining, progress === 1 ? 0 : active.pitch * remaining);
+      if (progress === 1) {
+        orbitReturn = null;
+        if (status.textContent === '正在回到初始视角……') message('已回到初始视角。');
+      } else active.frame = requestAnimationFrame(step);
+    };
+    active.frame = requestAnimationFrame(step);
   }
   function cancelGesture() {
     const active = pointer;
     pointer = null;
     stage.classList.remove('is-dragging');
     if (active && stage.hasPointerCapture(active.id)) stage.releasePointerCapture(active.id);
+    return active;
+  }
+  function endGesture() {
+    const active = cancelGesture();
+    if (active && ((active.dragged && active.canRotate) || active.interruptedReturn)) returnOrbit();
   }
 
   function drawFallback() {
@@ -108,6 +150,7 @@
 
   function useFallback(error) {
     cancelGesture();
+    stopOrbitReturn();
     renderer?.dispose(); renderer = null;
     fallback = true; flat = true; ready = true;
     lastError = error instanceof Error ? error.message : String(error || 'WebGPU unavailable');
@@ -147,6 +190,7 @@
     input.removeAttribute('aria-invalid');
     const mount = ++mountToken;
     cancelGesture();
+    stopOrbitReturn();
     renderer?.dispose(); renderer = null;
     identity = nextIdentity; model = nextModel; currentUrl = url;
     ready = false; fallback = false; flat = false; lastError = '';
@@ -192,28 +236,30 @@
   $('#qrView').addEventListener('click', () => setView(true));
   $('#resetView').addEventListener('click', resetOrbit);
   stage.addEventListener('pointerdown', e => {
-    if (e.isPrimary === false || (pointer && pointer.id !== e.pointerId)) { cancelGesture(); return; }
+    if (e.isPrimary === false || (pointer && pointer.id !== e.pointerId)) { endGesture(); return; }
     if (!ready || fallback || e.button !== 0) return;
-    pointer = { id: e.pointerId, x: e.clientX, y: e.clientY, yaw: orbitYaw, pitch: orbitPitch, dragged: false, canRotate: canOrbit() };
+    const interruptedReturn = Boolean(orbitReturn);
+    stopOrbitReturn();
+    pointer = { id: e.pointerId, x: e.clientX, y: e.clientY, yaw: orbitYaw, pitch: orbitPitch, dragged: false, canRotate: canOrbit(), interruptedReturn };
     stage.setPointerCapture(e.pointerId);
     stage.focus({ preventScroll: true });
     e.preventDefault();
   });
   stage.addEventListener('pointermove', e => {
     if (!pointer || pointer.id !== e.pointerId) return;
-    if (e.pointerType === 'mouse' && e.buttons === 0) { cancelGesture(); return; }
+    if (e.pointerType === 'mouse' && e.buttons === 0) { endGesture(); return; }
     const dx = e.clientX - pointer.x, dy = e.clientY - pointer.y;
     if (!pointer.dragged && Math.hypot(dx, dy) >= 6) {
       // Latch this even if the pointer later returns to its starting position.
       pointer.dragged = true;
       if (pointer.canRotate) {
         stage.classList.add('is-dragging');
-        message('正在环绕检视 · 松开保留当前角度');
+        message('正在环绕检视 · 松开自动复位');
       }
     }
     if (pointer.dragged && pointer.canRotate && canOrbit()) {
       const turn = Math.PI * 2 / Math.max(320, stage.clientWidth * .8);
-      setOrbit(pointer.yaw + dx * turn, pointer.pitch + dy * .0045);
+      setOrbit(pointer.yaw + dx * turn, pointer.pitch - dy * .0045);
     }
     e.preventDefault();
   });
@@ -221,21 +267,22 @@
     if (!pointer || pointer.id !== e.pointerId) return;
     const active = pointer, bounds = stage.getBoundingClientRect();
     const tap = !active.dragged && Math.hypot(e.clientX - active.x, e.clientY - active.y) < 6;
-    cancelGesture();
+    endGesture();
     if (tap && e.clientX >= bounds.left && e.clientX <= bounds.right && e.clientY >= bounds.top && e.clientY <= bounds.bottom) setView(!flat);
   });
-  stage.addEventListener('pointercancel', cancelGesture);
-  stage.addEventListener('lostpointercapture', e => { if (pointer?.id === e.pointerId) cancelGesture(); });
+  stage.addEventListener('pointercancel', endGesture);
+  stage.addEventListener('lostpointercapture', e => { if (pointer?.id === e.pointerId) endGesture(); });
   stage.addEventListener('dragstart', e => e.preventDefault());
-  addEventListener('blur', cancelGesture);
+  addEventListener('blur', endGesture);
   stage.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setView(!flat); }
     if (e.key === 'Escape') setView(false);
     if (!canOrbit()) return;
     if (e.key.toLowerCase() === 'r') { e.preventDefault(); resetOrbit(); }
-    const turns = { ArrowLeft: [-.15, 0], ArrowRight: [.15, 0], ArrowUp: [0, -.1], ArrowDown: [0, .1] };
+    const turns = { ArrowLeft: [-.15, 0], ArrowRight: [.15, 0], ArrowUp: [0, .1], ArrowDown: [0, -.1] };
     if (turns[e.key]) {
       e.preventDefault(); cancelGesture();
+      stopOrbitReturn();
       setOrbit(orbitYaw + turns[e.key][0], orbitPitch + turns[e.key][1]);
     }
   });
@@ -247,18 +294,19 @@
     parentVisible = event.data.visible !== false; syncVisibility();
   });
   reduced.addEventListener('change', () => {
+    if (reduced.matches) stopOrbitReturn(true);
     renderer?.setReducedMotion(reduced.matches);
     renderer?.setFlat(flat, { immediate: true });
   });
   addEventListener('pagehide', event => {
-    cancelGesture();
+    endGesture(); stopOrbitReturn(true);
     clearTimeout(debounce); clearTimeout(statusTimer);
     if (event.persisted) renderer?.pause();
     else { disposed = true; renderer?.dispose(); }
   });
   addEventListener('pageshow', event => { if (event.persisted) syncVisibility(); });
   window.sakuraGarden = {
-    get state() { return { ready, flat, fallback, palette: themes.current, orbit: { yaw: orbitYaw, pitch: orbitPitch, dragging: Boolean(pointer?.dragged) }, url: currentUrl, qrSize: identity?.qr.size, visible: isVisible(), renderer: canvas.dataset.renderer, progress: Number(canvas.dataset.morphProgress || 0), lastError }; },
+    get state() { return { ready, flat, fallback, palette: themes.current, orbit: { yaw: orbitYaw, pitch: orbitPitch, dragging: Boolean(pointer?.dragged), returning: Boolean(orbitReturn) }, url: currentUrl, qrSize: identity?.qr.size, visible: isVisible(), renderer: canvas.dataset.renderer, progress: Number(canvas.dataset.morphProgress || 0), lastError }; },
     get model() { return model; },
     get matrix() { return identity?.qr; },
     setView,

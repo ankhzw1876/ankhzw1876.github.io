@@ -48,6 +48,8 @@ class EventSurface {
 
 function createHarness({ gpu = true, reducedMotion = false, missingBundle = false } = {}) {
   const elements = new Map(), renderers = [], rootEvents = new EventSurface();
+  let now = 0, nextFrameId = 0;
+  const frames = new Map();
   class Element extends EventSurface {
     constructor(id, tagName = 'DIV') {
       super(); this.id = id; this.tagName = tagName; this.dataset = {}; this.attributes = {};
@@ -113,7 +115,10 @@ function createHarness({ gpu = true, reducedMotion = false, missingBundle = fals
     matchMedia() { return media; }, SakuraThemes: themes,
     addEventListener: rootEvents.addEventListener.bind(rootEvents),
     ResizeObserver: class { observe() {} }, IntersectionObserver: class { observe() {} },
-    setTimeout() { return 1; }, clearTimeout() {}, requestAnimationFrame(callback) { callback(); return 1; },
+    performance: { now: () => now },
+    setTimeout() { return 1; }, clearTimeout() {},
+    requestAnimationFrame(callback) { const id = ++nextFrameId; frames.set(id, callback); return id; },
+    cancelAnimationFrame(id) { frames.delete(id); },
   };
   if (!missingBundle) context.SakuraEngine = mockEngine;
   else {
@@ -124,13 +129,19 @@ function createHarness({ gpu = true, reducedMotion = false, missingBundle = fals
   vm.runInNewContext(wrapper, context, { filename: 'sakura.js' });
   return {
     context, document, media, rootEvents, renderers, palettes,
+    get pendingFrames() { return [...frames.values()]; },
+    advance(ms) {
+      now += ms;
+      const batch = [...frames.values()]; frames.clear();
+      for (const callback of batch) callback(now);
+    },
     get stage() { return elements.get('#stage'); }, get canvas() { return elements.get('#sceneCanvas'); },
     get api() { return context.sakuraGarden; }, get renderer() { return renderers.at(-1); },
     el: id => elements.get(`#${id}`),
   };
 }
 const flush = () => new Promise(resolve => setImmediate(resolve));
-async function mount(options) { const harness = createHarness(options); await flush(); assert.ok(harness.api.state.ready); return harness; }
+async function mount(options) { const harness = createHarness(options); await flush(); assert.ok(harness.api.state.ready); harness.advance(0); return harness; }
 function tap(harness, fields = {}) { harness.stage.emit('pointerdown', fields); harness.stage.emit('pointerup', fields); }
 function drag(harness, x = 330, y = 220) {
   harness.stage.emit('pointerdown'); harness.stage.emit('pointermove', { clientX: x, clientY: y });
@@ -154,13 +165,70 @@ assert.notEqual(angle(click)[0], 0);
 assert.notEqual(angle(click)[1], 0);
 assert.equal(click.stage.captures.size, 0);
 assert.equal(click.stage.classes.has('is-dragging'), false);
+assert.ok(click.api.state.orbit.returning, 'release starts a return animation');
+const releasedAngle = angle(click);
+click.advance(240);
+close(angle(click)[0], releasedAngle[0] / 8, 'yaw eases back along the shortest normalized path');
+close(angle(click)[1], releasedAngle[1] / 8, 'pitch eases back with the same timing');
+assert.ok(click.api.state.orbit.returning);
+click.advance(240);
+assert.deepEqual(angle(click), [0, 0], 'return completes at the exact default orientation');
+assert.equal(click.api.state.orbit.returning, false);
+assert.equal(click.pendingFrames.length, 0, 'finished return does not leave an animation loop');
+assert.equal(click.el('resetView').disabled, true);
+
+const interrupted = await mount();
+drag(interrupted, 510, 235);
+interrupted.advance(160);
+const interruptedAngle = angle(interrupted), staleReturn = interrupted.pendingFrames[0];
+interrupted.stage.emit('pointerdown');
+assert.equal(interrupted.api.state.orbit.returning, false, 'new press interrupts the return');
+assert.deepEqual(angle(interrupted), interruptedAngle, 'interruption does not snap the camera');
+staleReturn(2000);
+assert.deepEqual(angle(interrupted), interruptedAngle, 'a canceled stale frame cannot change the camera');
+interrupted.stage.emit('pointermove', { clientX: 216, clientY: 190 });
+close(angle(interrupted)[0], interruptedAngle[0] + 16 * Math.PI * 2 / 640);
+close(angle(interrupted)[1], interruptedAngle[1] + .045, 'next drag starts at the interrupted angle');
+interrupted.stage.emit('pointerup', { clientX: 216, clientY: 190 });
+assert.ok(interrupted.api.state.orbit.returning);
+interrupted.advance(480);
+assert.deepEqual(angle(interrupted), [0, 0]);
+
+for (const end of ['pointercancel', 'lostpointercapture', 'outside-release', 'tap']) {
+  const harness = await mount(); drag(harness); harness.advance(120);
+  harness.stage.emit('pointerdown', { clientX: 799 });
+  assert.equal(harness.api.state.orbit.returning, false, `${end}: press holds the interrupted angle`);
+  if (end === 'outside-release') harness.stage.emit('pointerup', { clientX: 802 });
+  else if (end === 'tap') harness.stage.emit('pointerup', { clientX: 799 });
+  else harness.stage.emit(end);
+  if (end === 'tap') {
+    assert.equal(harness.api.state.flat, true, 'a tap during return can still open the QR');
+    assert.deepEqual(angle(harness), [0, 0]);
+    assert.equal(harness.api.state.orbit.returning, false);
+  } else {
+    assert.ok(harness.api.state.orbit.returning, `${end}: resume return even when the interrupted press never becomes a drag`);
+    harness.advance(480); assert.deepEqual(angle(harness), [0, 0]);
+    assert.equal(harness.api.state.flat, false);
+  }
+}
+
+const shortest = await mount();
+drag(shortest, 200 + 640 * 3.75, 200);
+close(angle(shortest)[0], -Math.PI / 2, 'several complete turns retain only their normalized orientation');
+shortest.advance(240);
+close(angle(shortest)[0], -Math.PI / 16, 'return takes the short negative-yaw route instead of unwinding turns');
+shortest.advance(240);
+assert.deepEqual(angle(shortest), [0, 0]);
 
 const fullTurn = await mount();
 drag(fullTurn, 200 + fullTurn.stage.clientWidth * .8, 200);
 close(angle(fullTurn)[0], 0, 'a full-width orbit completes a continuous 360-degree turn');
 assert.equal(fullTurn.api.state.flat, false, 'a full turn ending at the same orientation is still a drag');
-drag(fullTurn, 200, -1000); assert.equal(angle(fullTurn)[1], -.9);
-drag(fullTurn, 200, 1200); assert.equal(angle(fullTurn)[1], .35);
+assert.equal(fullTurn.api.state.orbit.returning, false, 'an already centered full turn needs no return animation');
+drag(fullTurn, 200, -1000); assert.equal(angle(fullTurn)[1], .35, 'upward drag now increases pitch');
+fullTurn.advance(480);
+drag(fullTurn, 200, 1200); assert.equal(angle(fullTurn)[1], -.9, 'downward drag now decreases pitch');
+fullTurn.advance(480);
 
 const roundTrip = await mount();
 roundTrip.stage.emit('pointerdown');
@@ -180,6 +248,9 @@ for (const cancel of ['pointercancel', 'lostpointercapture', 'blur', 'buttons-lo
   assert.deepEqual(angle(harness), saved, `${cancel} ends rotation`);
   assert.equal(harness.api.state.flat, false, `${cancel} does not leave a latent tap`);
   assert.equal(harness.stage.classes.has('is-dragging'), false);
+  assert.ok(harness.api.state.orbit.returning, `${cancel} returns the released camera`);
+  harness.advance(480);
+  assert.deepEqual(angle(harness), [0, 0]);
 }
 
 const outside = await mount();
@@ -190,6 +261,8 @@ outside.stage.emit('pointerdown');
 outside.stage.emit('pointermove', { clientX: 1000 });
 outside.stage.emit('pointerup', { clientX: 1000 });
 assert.equal(outside.stage.captures.size, 0, 'captured off-stage drag releases cleanly');
+assert.ok(outside.api.state.orbit.returning, 'release outside the stage still starts automatic reset');
+outside.advance(480); assert.deepEqual(angle(outside), [0, 0]);
 
 const alternate = await mount();
 tap(alternate, { button: 2, buttons: 2 });
@@ -207,10 +280,15 @@ alternate.stage.emit('pointermove', { pointerType: 'touch', clientX: 330 });
 alternate.stage.emit('pointerup', { pointerType: 'touch', clientX: 330 });
 assert.notEqual(angle(alternate)[0], 0, 'single-finger touch rotates');
 assert.equal(alternate.api.state.flat, false);
+assert.ok(alternate.api.state.orbit.returning, 'touch release has the same return behavior as mouse release');
+alternate.advance(480); assert.deepEqual(angle(alternate), [0, 0]);
 
 const locked = await mount();
-drag(locked); const lockedAngle = angle(locked);
-locked.api.setView(true); drag(locked);
+drag(locked); const beforeQrFrame = locked.pendingFrames[0];
+locked.api.setView(true); const lockedAngle = angle(locked); drag(locked);
+assert.deepEqual(lockedAngle, [0, 0], 'QR mode finishes a pending return before starting its camera morph');
+beforeQrFrame(2000); assert.deepEqual(angle(locked), [0, 0], 'a stale return cannot change QR mode');
+assert.equal(locked.api.state.orbit.returning, false);
 locked.stage.emit('keydown', { key: 'ArrowRight' });
 assert.deepEqual(angle(locked), lockedAngle, 'QR mode locks drag and arrow rotation');
 assert.equal(locked.api.state.flat, true);
@@ -220,31 +298,55 @@ assert.deepEqual(angle(locked), lockedAngle, 'camera morph cannot be interrupted
 locked.canvas.dataset.morphProgress = '0.000';
 locked.stage.emit('keydown', { key: 'ArrowRight' });
 assert.notEqual(angle(locked)[0], lockedAngle[0], 'arrows rotate after the morph settles');
+locked.stage.emit('pointerdown'); locked.stage.emit('pointermove', { clientX: 380 });
+locked.api.setView(true);
+assert.deepEqual(angle(locked), [0, 0], 'changing view during an active drag snaps to the initial angle');
+assert.equal(locked.stage.captures.size, 0);
+
+const morphDuringReturn = await mount();
+drag(morphDuringReturn);
+morphDuringReturn.canvas.dataset.morphProgress = '.250';
+morphDuringReturn.advance(16);
+assert.deepEqual(angle(morphDuringReturn), [0, 0], 'return cannot fight an unexpected camera morph');
+assert.equal(morphDuringReturn.api.state.orbit.returning, false);
 
 const keyboard = await mount();
 const arrow = keyboard.stage.emit('keydown', { key: 'ArrowRight' });
 assert.ok(arrow.defaultPrevented, 'arrows do not scroll the page');
 close(angle(keyboard)[0], .15);
-keyboard.stage.emit('keydown', { key: 'ArrowUp' }); close(angle(keyboard)[1], -.1);
+keyboard.stage.emit('keydown', { key: 'ArrowUp' }); close(angle(keyboard)[1], .1);
+keyboard.stage.emit('keydown', { key: 'ArrowDown' }); close(angle(keyboard)[1], 0);
 keyboard.stage.emit('keydown', { key: 'R' }); assert.deepEqual(angle(keyboard), [0, 0]);
-drag(keyboard); keyboard.el('resetView').emit('click'); assert.deepEqual(angle(keyboard), [0, 0]);
+drag(keyboard); const beforeManualResetFrame = keyboard.pendingFrames[0];
+keyboard.el('resetView').emit('click'); assert.deepEqual(angle(keyboard), [0, 0]);
+assert.equal(keyboard.api.state.orbit.returning, false);
+beforeManualResetFrame(2000); assert.deepEqual(angle(keyboard), [0, 0], 'manual reset cancels old return frames');
 keyboard.stage.emit('keydown', { key: 'Enter' }); assert.equal(keyboard.api.state.flat, true);
 keyboard.stage.emit('keydown', { key: 'Escape' }); assert.equal(keyboard.api.state.flat, false);
 
 const palette = await mount();
 drag(palette); const beforePalette = angle(palette);
+const paletteModel = palette.api.model, paletteRenderer = palette.renderer;
 palette.api.setPalette('moon');
 assert.deepEqual(angle(palette), beforePalette, 'palette changes preserve orbit');
+assert.equal(palette.api.model, paletteModel); assert.equal(palette.renderer, paletteRenderer);
+assert.ok(palette.api.state.orbit.returning, 'palette changes preserve an in-progress return');
 assert.equal(palette.api.state.palette, 'moon');
 assert.equal(palette.renderer.scene.effect, 'calm', 'rotation/palette changes do not enable particles');
+palette.advance(480); assert.deepEqual(angle(palette), [0, 0]);
 
 const lifecycle = await mount({ reducedMotion: true });
-drag(lifecycle);
+lifecycle.stage.emit('pointerdown'); lifecycle.stage.emit('pointermove', { clientX: 330, clientY: 220 });
 assert.ok(lifecycle.renderer.reducedMotion);
 assert.notEqual(angle(lifecycle)[0], 0, 'reduced motion still allows direct manipulation');
+lifecycle.stage.emit('pointerup', { clientX: 330, clientY: 220 });
+assert.deepEqual(angle(lifecycle), [0, 0], 'reduced motion resets immediately on release');
+assert.equal(lifecycle.api.state.orbit.returning, false);
+assert.equal(lifecycle.pendingFrames.length, 0, 'reduced motion does not start a return animation');
 lifecycle.stage.emit('pointerdown'); lifecycle.stage.emit('pointermove', { clientX: 400 });
 lifecycle.document.hidden = true; lifecycle.document.emit('visibilitychange');
 assert.ok(lifecycle.renderer.paused); assert.equal(lifecycle.stage.captures.size, 0);
+assert.deepEqual(angle(lifecycle), [0, 0], 'hiding the document resets an active drag immediately');
 lifecycle.document.hidden = false; lifecycle.document.emit('visibilitychange');
 assert.equal(lifecycle.renderer.paused, false);
 lifecycle.stage.emit('pointerup'); assert.equal(lifecycle.api.state.flat, false);
@@ -259,6 +361,31 @@ lifecycle.stage.emit('pointerup'); assert.equal(lifecycle.api.state.flat, false)
 lifecycle.renderer.fail(new Error('device lost'));
 assert.ok(lifecycle.api.state.fallback); assert.ok(lifecycle.el('resetView').hidden);
 drag(lifecycle); assert.ok(lifecycle.api.state.flat);
+
+for (const reason of ['hidden', 'parent-hidden', 'pagehide', 'persisted-pagehide', 'reduced-motion', 'regenerate', 'fallback']) {
+  const harness = await mount(); drag(harness); harness.advance(120);
+  const staleFrame = harness.pendingFrames[0], old = harness.renderer;
+  if (reason === 'hidden') { harness.document.hidden = true; harness.document.emit('visibilitychange'); }
+  if (reason === 'parent-hidden') harness.rootEvents.emit('message', { source: harness.context.parent, origin: 'https://example.com', data: { type: 'xiahua:visibility', visible: false } });
+  if (reason === 'pagehide' || reason === 'persisted-pagehide') harness.rootEvents.emit('pagehide', { persisted: reason === 'persisted-pagehide' });
+  if (reason === 'reduced-motion') { harness.media.matches = true; harness.media.emit('change'); }
+  if (reason === 'regenerate') {
+    harness.el('urlInput').value = 'https://example.org/regenerated'; harness.el('urlInput').emit('change');
+    await flush();
+  }
+  if (reason === 'fallback') harness.renderer.fail(new Error('device lost during return'));
+  assert.equal(harness.api.state.orbit.returning, false, `${reason} cancels the return loop`);
+  if (reason !== 'fallback') assert.deepEqual(angle(harness), [0, 0], `${reason} starts from the default camera`);
+  const savedAngle = angle(harness), calls = old.calls.length;
+  staleFrame(2000);
+  assert.deepEqual(angle(harness), savedAngle, `${reason} ignores a stale return callback`);
+  assert.equal(old.calls.length, calls, `${reason} never writes an obsolete frame into its old renderer`);
+  if (reason === 'pagehide' || reason === 'regenerate' || reason === 'fallback') assert.ok(old.disposed);
+  if (reason === 'persisted-pagehide') {
+    assert.ok(old.paused);
+    harness.rootEvents.emit('pageshow', { persisted: true }); assert.equal(old.paused, false);
+  }
+}
 
 for (const options of [{ gpu: false }, { missingBundle: true }]) {
   const fallback = await mount(options);
@@ -282,4 +409,4 @@ assert.match(gpuError.message, /WebGPU/);
 assert.equal(rafCount, 0, 'unavailable GPU never schedules a render loop');
 actualRenderer.dispose(); actualRenderer.setOrbit(NaN, Infinity);
 
-console.log('PASS orbit normalization, tap/drag separation, return-drag latch, capture cancellation, off-stage release, mouse/touch/multitouch, QR/morph locks, keyboard/reset, palette persistence, reduced-motion input, lifecycle/fallback and real no-GPU renderer API.');
+console.log('PASS orbit normalization, corrected pitch direction, eased auto-return, shortest-path reset, interruption/stale-frame guards, tap/drag latch, capture cancellation, off-stage release, mouse/touch/multitouch, QR/morph locks, keyboard/reset, palette persistence, reduced-motion input, lifecycle/fallback and real no-GPU renderer API.');
