@@ -95,9 +95,10 @@
     setPhase('desktop');
 
     const deepLink = getValidHash();
-    const startupId = deepLink || 'sakura';
-    const startupTrigger = document.querySelector(`[data-app-icon="${startupId}"]`) || systemButton;
-    openApp(startupId, startupTrigger, { syncHash: false, focusContent: false, animate: false });
+    if (deepLink) {
+      const startupTrigger = document.querySelector(`[data-app-icon="${deepLink}"]`) || systemButton;
+      openApp(deepLink, startupTrigger, { syncHash: false, focusContent: false, animate: false });
+    }
 
     if (bootScreen && !bootScreen.hidden) {
       bootScreen.classList.add('is-ending');
@@ -106,8 +107,9 @@
       bootScreen.classList.remove('is-ending');
     }
 
-    focusWindow(startupId, { focusContent: true, syncHash: false });
-    showToast(deepLink ? `系统就绪 · ${appMeta[startupId].title} 已打开` : '系统就绪 · 暖春樱花树已启动', 2600);
+    if (deepLink) focusWindow(deepLink, { focusContent: true, syncHash: false });
+    else document.querySelector('[data-app-icon="about"]')?.focus({ preventScroll: true });
+    showToast(deepLink ? `系统就绪 · ${appMeta[deepLink].title} 已打开` : '系统就绪 · 单击图标开始', 2600);
   };
 
   const enterOS = async () => {
